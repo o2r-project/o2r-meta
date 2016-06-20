@@ -1,0 +1,1 @@
+metaextract.py is a very basic try to automate metadata extraction from R scripts, including comments. inputs should be R scripts (.R) and Rmarkdown (.rmd, TO DO) in a dir called 'tests'. outputs are xml files.
