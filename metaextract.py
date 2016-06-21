@@ -1,9 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import mimetypes
 import os
 import re
 import xml.etree.cElementTree as elt
-from xml.dom import minidom
 from datetime import date
-import mimetypes
+from xml.dom import minidom
+
 
 def checkrpacks(myPackage):
     if myPackage in open(packlist_crantop100).read():
