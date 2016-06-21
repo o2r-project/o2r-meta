@@ -38,18 +38,17 @@ def checkcomments(myComment):
     else:
         return 'none'
 
-#sould be done for R, Rmd, tex, ...
+#extract for R
 def processfile_R(myPathFile):
     c=0
     root = elt.Element('extracted')
     elt.SubElement(root, 'file').text = str(myPathFile)
     elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(myPathFile, strict=False)[1]) #include non IANA mimes
+    elt.SubElement(root, 'generator', modus='R').text = 'metaextract.py'
     with open(os.path.relpath(myPathFile), encoding='utf-8') as ifile:
         for line in ifile:
             c+=1
-            ##### @title,@description?
             ##### Comments
-            #rmd commment syntax is '###'
             m = re.match('#{1,3}\s*(.{1,})', line)
             if m is not None:
                 if len(m.group(1).strip()) > 0:
@@ -96,19 +95,56 @@ def processfile_R(myPathFile):
             ofile.write(myExtracted)
         print(str(os.stat(outputfilename).st_size) + ' bytes written to ' + str(outputfilename))
 
+#extract for R markdown
+def processfile_Rmd(myPathFile):
+    c=0
+    root = elt.Element('extracted')
+    elt.SubElement(root, 'file').text = str(myPathFile)
+    elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(myPathFile, strict=False)[1]) #include non IANA mimes
+    elt.SubElement(root, 'generator', modus='Rmd').text = 'metaextract.py'
+    with open(os.path.relpath(myPathFile), encoding='utf-8') as ifile:
+        for line in ifile:
+            c += 1
+            ##### header
+            # title
+            m = re.match('\@?title\:\s[\"\'](.*)[\"\']', line)
+            if m is not None:
+                if len(m.group(1).strip()) > 0:
+                    elt.SubElement(root, 'title', line=str(c)).text = '{}'.format(m.group(1))
+            # title
+            m = re.match('\@?author\:\s\"(.*)\"', line)
+            if m is not None:
+                if len(m.group(1).strip()) > 0:
+                    elt.SubElement(root, 'author', line=str(c)).text = '{}'.format(m.group(1))
+            ##### connected files
+            # knitr
+            m = re.match('knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)', line)
+            if m is not None:
+                if len(m.group(1).strip()) > 0:
+                    elt.SubElement(root, 'related_file', guess='knitr', line=str(c)).text = '{}'.format(m.group(1))
+            ##### dependency library require packages
+            # to do; usepackage, library, require
+            ##### headlines
+            # '#' if not included in '```' code blocks
+        # save:
+        myExtracted = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
+        now = date.today()
+        outputfilename = 'metaex_' + os.path.basename(myPathFile)[:8].replace('.', '_') + '_' + str(now) + '.xml'
+        with open(outputfilename, 'w', encoding='utf-8') as ofile:
+            ofile.write(myExtracted)
+        print(str(os.stat(outputfilename).st_size) + ' bytes written to ' + str(outputfilename))
+
 # Main:
 if __name__==  "__main__":
     print('initializing...')
     mimetypes.init(files=None)
-    #to do argument parser for input dir
+    #to do argument parser for input dir, option xml or json; raise err msgs
     inputDir='tests'
     packlist_crantop100='list_crantop100.txt'
     packlist_geopack='list_geopack.txt'
     for file in os.listdir(inputDir):
         if file.lower().endswith('.r'):
             processfile_R(str(os.path.join(inputDir, file)))
-        #if file.lower().endswith('.rmd'):
-        #    processfile_Rmd(str(os.path.join(inputDir, file)))
-        #if file.lower().endswith('.tex'):
-        #    processfile_tex(str(os.path.join(inputDir, file)))
+        if file.lower().endswith('.rmd'):
+            processfile_Rmd(str(os.path.join(inputDir, file)))
     print('done')
