@@ -4,151 +4,94 @@
 import mimetypes
 import os
 import re
+import sys
 import xml.etree.cElementTree as elt
 from datetime import date
 from xml.dom import minidom
 
-
-def checkrpacks(myPackage):
-    if myPackage in open(packlist_crantop100).read():
+def check_rpacks(package):
+    if package in open(packlist_crantop100).read():
         return 'CRAN-top100'
-    if myPackage in open(packlist_geopack).read():
+    if package in open(packlist_geopack).read():
         return 'geo'
     else:
         return 'none'
 
-def checkcomments(myComment):
-    #monochar string concatenation, likely a seperator line
-    if len(myComment) > 1 and myComment == len(myComment) * myComment[0]:
-        return 'seperator'
-    #email address, likely a contact
-    m = re.match(r'(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)', myComment)
-    if m is not None:
-        return 'contact'
-    #URL
-    m = re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', myComment)
-    if m is not None:
-        #DOI
-        m = re.match(r'(.*http.*doi\.org.*)', myComment)
-        if m is not None:
-            return 'DOI'
-        else:
-            return 'URL'
-    #code fragments
-    m = re.match(r'(.*\=.*\(.*\))', myComment)
-    if m is not None:
-        return 'code_fragment'
-    #anything else
-    else:
-        return 'none'
-
 #extract for R
-def processfile_R(myPathFile):
+def do_ex(my_pathfile, modus):
     c=0
     root = elt.Element('extracted')
-    elt.SubElement(root, 'file').text = str(myPathFile)
-    elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(myPathFile, strict=False)[1]) #include non IANA mimes
-    elt.SubElement(root, 'generator', modus='R').text = 'metaextract.py'
-    with open(os.path.relpath(myPathFile), encoding='utf-8') as ifile:
-        for line in ifile:
-            c+=1
-            ##### Comments
-            m = re.match('#{1,3}\s*(.{1,})', line)
-            if m is not None:
-                if len(m.group(1).strip()) > 0:
-                    elt.SubElement(root, 'comment', line=str(c), guess=checkcomments(str(m.group(1)))).text = '{}'.format(m.group(1))
-            ##### dependency library require packages
-            #r package naming conventions
-            # "The mandatory ‘Package’ field gives the name of the package. This should contain only (ASCII) letters, numbers and dot,
-            # have at least two characters and start with a letter and not end in a dot."
-            # http://stackoverflow.com/questions/24201568/whats-a-good-r-package-name
-            #r \library
-            m = re.match('library\(\"?([a-zA-Z\d\.]*)[\"\)]', line)
-            if m is not None:
-                elt.SubElement(root, 'dependent_library', line=str(c), guess=checkrpacks(str(m.group(1)))).text = '{}'.format(m.group(1))
-            #r \require
-            m = re.match('require\(\"?([a-zA-Z\d\.]*)[\"\)]', line)
-            if m is not None:
-                elt.SubElement(root, 'dependent_require', line=str(c), guess=checkrpacks(str(m.group(1)))).text = '{}'.format(m.group(1))
-            #r install.packages
-            m = re.match('install.packages\((.*)\)', line)
-            if m is not None:
-                elt.SubElement(root, 'dependent_installs', line=str(c), guess='list').text = '{}'.format(m.group(1))
-            ##### other (pseudo)literate methods of R
-            #r input data
-            m = re.match('data\..*\((.*)\)', line)
-            if m is not None:
-                elt.SubElement(root, 'input', line=str(c), guess='dataset').text = '{}'.format(m.group())
-            #r output plot or print
-            m = re.match('(ggplot|plot|print)\((.*)\)', line)
-            if m is not None:
-                elt.SubElement(root, 'output', line=str(c), guess='result').text = '{}'.format(m.group())
-            #r output saved file
-            m = re.match('write\..*\((.*)\)', line)
-            if m is not None:
-                elt.SubElement(root, 'output', line=str(c), guess='file').text = '{}'.format(m.group())
-            #r match fixed random seed sets
-            m = re.match('set\.seed\((.*)\)', line)
-            if m is not None:
-                elt.SubElement(root, 'output', line=str(c), guess='random_seed').text = '{}'.format(m.group())
-    #save:
-        myExtracted = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
-        now = date.today()
-        outputfilename = 'metaex_' + os.path.basename(myPathFile)[:8].replace('.', '_') + '_' + str(now) + '.xml'
-        with open(outputfilename, 'w', encoding='utf-8') as ofile:
-            ofile.write(myExtracted)
-        print(str(os.stat(outputfilename).st_size) + ' bytes written to ' + str(outputfilename))
-
-#extract for R markdown
-def processfile_Rmd(myPathFile):
-    c=0
-    root = elt.Element('extracted')
-    elt.SubElement(root, 'file').text = str(myPathFile)
-    elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(myPathFile, strict=False)[1]) #include non IANA mimes
-    elt.SubElement(root, 'generator', modus='Rmd').text = 'metaextract.py'
-    with open(os.path.relpath(myPathFile), encoding='utf-8') as ifile:
-        for line in ifile:
-            c += 1
-            ##### header
-            # title
-            m = re.match('\@?title\:\s[\"\'](.*)[\"\']', line)
-            if m is not None:
-                if len(m.group(1).strip()) > 0:
-                    elt.SubElement(root, 'title', line=str(c)).text = '{}'.format(m.group(1))
-            # title
-            m = re.match('\@?author\:\s\"(.*)\"', line)
-            if m is not None:
-                if len(m.group(1).strip()) > 0:
-                    elt.SubElement(root, 'author', line=str(c)).text = '{}'.format(m.group(1))
-            ##### connected files
-            # knitr
-            m = re.match('knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)', line)
-            if m is not None:
-                if len(m.group(1).strip()) > 0:
-                    elt.SubElement(root, 'related_file', guess='knitr', line=str(c)).text = '{}'.format(m.group(1))
-            ##### dependency library require packages
-            # to do; usepackage, library, require
-            ##### headlines
-            # '#' if not included in '```' code blocks
-        # save:
-        myExtracted = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
-        now = date.today()
-        outputfilename = 'metaex_' + os.path.basename(myPathFile)[:8].replace('.', '_') + '_' + str(now) + '.xml'
-        with open(outputfilename, 'w', encoding='utf-8') as ofile:
-            ofile.write(myExtracted)
-        print(str(os.stat(outputfilename).st_size) + ' bytes written to ' + str(outputfilename))
+    elt.SubElement(root, 'file').text = str(my_pathfile)
+    elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(my_pathfile, strict=False)[1]) #include non IANA mimes
+    elt.SubElement(root, 'generator', mode=modus).text = 'metaextract.py'
+    if modus == 'r':
+        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
+                for line in inpfile:
+                    c+=1
+                    for rule in rule_set_r:
+                        this_rule = rule.split('\t')
+                        m = re.match(this_rule[1], line)
+                        if m is not None:
+                            if this_rule[0].startswith('dependent'):
+                                elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
+                            else:
+                                elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
+    if modus == 'rmd':
+        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
+                for line in inpfile:
+                    c+=1
+                    for rule in rule_set_rmd:
+                        this_rule = rule.split('\t')
+                        m = re.match(this_rule[1], line)
+                        if m is not None:
+                            if this_rule[0].startswith('dependent'):
+                                elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
+                            else:
+                                elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
+    #save
+    metae = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
+    output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + '.xml'
+    with open(output_filename, 'w', encoding='utf-8') as outfile:
+        outfile.write(metae)
+    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + str(output_filename))
 
 # Main:
-if __name__==  "__main__":
-    print('initializing...')
-    mimetypes.init(files=None)
-    #to do argument parser for input dir, option xml or json; raise err msgs
-    inputDir='tests'
-    packlist_crantop100='list_crantop100.txt'
-    packlist_geopack='list_geopack.txt'
-    for file in os.listdir(inputDir):
-        if file.lower().endswith('.r'):
-            processfile_R(str(os.path.join(inputDir, file)))
-        if file.lower().endswith('.rmd'):
-            processfile_Rmd(str(os.path.join(inputDir, file)))
-    print('done')
+if __name__ == "__main__":
+    if sys.version_info[0] < 3:
+        # py2
+        print('requires py3k or later')
+        sys.exit()
+    else:
+        # py3k
+        #to do argument parser for input dir, option xml or json, option include seperator lines; raise err msgs
+        print('initializing...')
+        #enter rules for r
+        rule_set_r = []
+        rule_set_r.append('comment\t' + r'#{1,3}\s*(.{1,})')
+        rule_set_r.append('comment_codefragment\t' + r'#{1,3}\s*(.*\=.*\(.*\))')
+        rule_set_r.append('comment_contact\t' + r'(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')
+        rule_set_r.append('comment_url\t' + r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        rule_set_r.append('dependent_installs\t' + r'install.packages\((.*)\)')
+        rule_set_r.append('dependent_library\t' + r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
+        rule_set_r.append('dependent_require\t' + r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
+        rule_set_r.append('input_dataset\t' + r'data\..*\((.*)\)')
+        rule_set_r.append('output_file\t' + r'write\..*\((.*)\)')
+        rule_set_r.append('output_result\t' + r'(ggplot|plot|print)\((.*)\)')
+        rule_set_r.append('output_setseed\t' + r'set\.seed\((.*)\)')
+        #enter rules for rmd
+        rule_set_rmd = []
+        rule_set_rmd.append('author\t' + r'\@?author\:\s\"(.*)\"')
+        rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
+        rule_set_rmd.append('title\t' + r'\@?title\:\s[\"\'](.*)[\"\']')
+        #other parameters
+        mimetypes.init(files=None)
+        packlist_crantop100 = 'list_crantop100.txt'
+        packlist_geopack = 'list_geopack.txt'
+        input_dir = 'tests'
+        #process files in target directory
+        for file in os.listdir(input_dir):
+            if file.lower().endswith('.r'):
+                do_ex(str(os.path.join(input_dir, file)), 'r')
+            if file.lower().endswith('.rmd'):
+                do_ex(str(os.path.join(input_dir, file)), 'rmd')
+        print('done')
