@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "o2r-meta",
+  "description": "codemeta-json-schema",
+  "type": "object",
+  "properties": {
+      "agent":{
+          "type": "string"
+      },
+      "controlledTerm":{
+          "type": "string"
+      },
+      "person":{
+          "type": "string"
+      },
+      "organization":{
+          "type": "string"
+      },
+      "email":{
+          "type": "string"
+      },
+      "name":{
+          "type": "string"
+      },
+      "affiliation":{
+          "type": "string"
+      },
+      "isCitable":{
+          "type": "boolean"
+      },
+      "isMaintainer":{
+          "type": "boolean"
+      },
+      "isRightsHolder":{
+          "type": "boolean"
+      },
+      "role":{
+          "type": "string"
+      },
+      "buildInstructions":{
+          "type": "string"
+      },
+      "downloadLink":{
+          "type": "string"
+      },
+      "contIntegration":{
+          "type": "string"
+      },
+      "identifier":{
+          "type": "string"
+      },
+      "codeRepository":{
+          "type": "string"
+      },
+      "dateCreated":{
+          "type": "string"
+      },
+      "dateModified":{
+          "type": "string"
+      },
+      "datePublished":{
+          "type": "string"
+      },
+      "dependency": {
+          "type": "string"
+      },
+      "description":{
+          "type": "string"
+      },
+      "docsCoverage":{
+          "type": "string"
+      },
+      "downloadCount":{
+          "type": "integer"
+      },
+      "embargoDate":{
+          "type": "string"
+      },
+      "isAutomatedBuild":{
+          "type": "boolean"
+      },
+      "tags":{
+          "type": "string"
+      },
+      "objectType":{
+          "type": "string"
+      },
+      "publisher":{
+          "type": "string"
+      },
+      "license":{
+          "type": "string"
+      },
+      "interactionMethod":{
+          "type": "string"
+      },
+      "inputs":{
+          "type": "string"
+      },
+      "outputs":{
+          "type": "string"
+      },
+      "function":{
+          "type": "string"
+      },
+      "funding":{
+          "type": "string"
+      },
+      "programmingLanguage": {
+          "type": "string"
+      },
+      "readme":{
+          "type": "string"
+      },
+      "issueTracker":{
+          "type": "string"
+      },
+      "relatedLink":{
+          "type": "string"
+      },
+      "relatedPublications":{
+          "type": "string"
+      },
+      "relationship":{
+          "type": "string"
+      },
+      "softwareCitation":{
+          "type": "string"
+      },
+      "suggests":{
+          "type": "string"
+      },
+      "softwarePaperCitation":{
+          "type": "string"
+      },
+      "testCoverage":{
+          "type": "string"
+      },
+      "title":{
+          "type": "string"
+      },
+      "version":{
+          "type": "string"
+      },
+      "uploadedBy":{
+          "type": "string"
+      },
+      "zippedCode":{
+          "type": "string"
+      }
+   },
+  "required": [
+    "identifier",
+    "title"
+  ]
+}

@@ -7,7 +7,11 @@ python:
   - "3.4"
   - "3.5"
   - "nightly"
-#install:
-#  - pip install -r requirements.txt
+install:
+  - pip install -r requirements.txt
+env:
+  - DIR_1=extract
+  - DIR_2=validate
 script:
-  - python metaextract.py
+  - cd $DIR_1 && python metaextract.py
+  - cd $DIR_2 && python validate.py
