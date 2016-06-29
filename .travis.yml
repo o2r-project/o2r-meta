@@ -9,9 +9,6 @@ python:
   - "nightly"
 install:
   - pip install -r requirements.txt
-env:
-  - DIR_1=extract
-  - DIR_2=validate
 script:
-  - cd $DIR_1 && python metaextract.py
-  - cd $DIR_2 && python validate.py
+  - cd extract && python metaextract.py -i"tests" -o"xml"
+  - cd ./validate && python validate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"

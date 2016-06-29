@@ -8,6 +8,8 @@ import sys
 import xml.etree.cElementTree as elt
 from datetime import date
 from xml.dom import minidom
+import argparse
+
 
 def check_rpacks(package):
     if package in open(packlist_crantop100).read():
@@ -58,12 +60,17 @@ def do_ex(my_pathfile, modus):
 # Main:
 if __name__ == "__main__":
     if sys.version_info[0] < 3:
-        # py2
+        #py2
         print('requires py3k or later')
         sys.exit()
     else:
-        # py3k
-        #to do argument parser for input dir, option xml or json, option include seperator lines; raise err msgs
+        #py3k
+        #args
+        parser = argparse.ArgumentParser(description='description')
+        parser.add_argument('-i', '--input', help='input dir', required=True)
+        parser.add_argument('-o', '--output', help='output format xml or json', required=True)
+        args = parser.parse_args()
+        argsdict = vars(args)
         print('initializing...')
         #enter rules for r
         rule_set_r = []
@@ -81,17 +88,23 @@ if __name__ == "__main__":
         #enter rules for rmd
         rule_set_rmd = []
         rule_set_rmd.append('author\t' + r'\@?author\:\s\"(.*)\"')
+        rule_set_rmd.append('codeblock_start\t' + r'\`\`\`\{(.*)\}')
         rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
         rule_set_rmd.append('title\t' + r'\@?title\:\s[\"\'](.*)[\"\']')
         #other parameters
         mimetypes.init(files=None)
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geopack = 'list_geopack.txt'
-        input_dir = 'tests'
-        #process files in target directory
-        for file in os.listdir(input_dir):
-            if file.lower().endswith('.r'):
-                do_ex(str(os.path.join(input_dir, file)), 'r')
-            if file.lower().endswith('.rmd'):
-                do_ex(str(os.path.join(input_dir, file)), 'rmd')
-        print('done')
+        input_dir = argsdict['input']
+        if argsdict['output'] == 'json':
+            #process files in target directory
+            print('output: json to be implemented')
+        if argsdict['output'] == 'xml':
+            print('output: xml')
+            #process files in target directory
+            for file in os.listdir(input_dir):
+                if file.lower().endswith('.r'):
+                    do_ex(str(os.path.join(input_dir, file)), 'r')
+                if file.lower().endswith('.rmd'):
+                    do_ex(str(os.path.join(input_dir, file)), 'rmd')
+            print('done')
