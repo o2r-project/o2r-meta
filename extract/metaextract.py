@@ -1,15 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-import mimetypes
+import argparse
+import json
 import os
 import re
 import sys
 import xml.etree.cElementTree as elt
 from datetime import date
 from xml.dom import minidom
-import argparse
-
 
 def check_rpacks(package):
     if package in open(packlist_crantop100).read():
@@ -19,42 +15,49 @@ def check_rpacks(package):
     else:
         return 'none'
 
-#extract for R
-def do_ex(my_pathfile, modus):
-    c=0
-    root = elt.Element('extracted')
-    elt.SubElement(root, 'file').text = str(my_pathfile)
-    elt.SubElement(root, 'mime-type').text = str(mimetypes.guess_type(my_pathfile, strict=False)[1]) #include non IANA mimes
-    elt.SubElement(root, 'generator', mode=modus).text = 'metaextract.py'
-    if modus == 'r':
-        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
-                for line in inpfile:
-                    c+=1
-                    for rule in rule_set_r:
-                        this_rule = rule.split('\t')
-                        m = re.match(this_rule[1], line)
-                        if m is not None:
-                            if this_rule[0].startswith('dependent'):
-                                elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
-                            else:
-                                elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
-    if modus == 'rmd':
-        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
-                for line in inpfile:
-                    c+=1
-                    for rule in rule_set_rmd:
-                        this_rule = rule.split('\t')
-                        m = re.match(this_rule[1], line)
-                        if m is not None:
-                            if this_rule[0].startswith('dependent'):
-                                elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
-                            else:
-                                elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
-    #save
-    metae = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
+#extract
+def do_ex(my_pathfile, modus, rule_set):
+    c = 0
     output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + '.xml'
-    with open(output_filename, 'w', encoding='utf-8') as outfile:
-        outfile.write(metae)
+    #modus json
+    if modus == 'json':
+        data_dict = {'file': my_pathfile, 'generator': 'metaextract.py'}
+        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
+            for line in inpfile:
+                c += 1
+                for rule in rule_set:
+                    this_rule = rule.split('\t')
+                    m = re.match(this_rule[1], line)
+                    if m is not None:
+                        if this_rule[0].startswith('dependent'):
+                            that_line = {'line': str(c), 'guess': check_rpacks(m.group(1)), 'text': '{}'.format(m.group(1))}
+                            data_dict.setdefault(this_rule[0], []).append(that_line)
+                        else:
+                            that_line = {'line': str(c), 'text': '{}'.format(m.group(1))}
+                            data_dict.setdefault(this_rule[0], []).append(that_line)
+        #save json
+        with open(output_filename, 'w', encoding='utf-8') as outfile:
+            outfile.write(json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+    #modus xml
+    if modus == 'xml':
+        root = elt.Element('extracted')
+        elt.SubElement(root, 'file').text = str(my_pathfile)
+        elt.SubElement(root, 'generator').text = 'metaextract.py'
+        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
+            for line in inpfile:
+                c += 1
+                for rule in rule_set:
+                    this_rule = rule.split('\t')
+                    m = re.match(this_rule[1], line)
+                    if m is not None:
+                        if this_rule[0].startswith('dependent'):
+                            elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
+                        else:
+                            elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
+        #save xml
+        metae = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
+        with open(output_filename, 'w', encoding='utf-8') as outfile:
+            outfile.write(metae)
     print(str(os.stat(output_filename).st_size) + ' bytes written to ' + str(output_filename))
 
 # Main:
@@ -65,7 +68,7 @@ if __name__ == "__main__":
         sys.exit()
     else:
         #py3k
-        #args
+        #-i"tests" -o"json"
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-i', '--input', help='input dir', required=True)
         parser.add_argument('-o', '--output', help='output format xml or json', required=True)
@@ -92,19 +95,14 @@ if __name__ == "__main__":
         rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
         rule_set_rmd.append('title\t' + r'\@?title\:\s[\"\'](.*)[\"\']')
         #other parameters
-        mimetypes.init(files=None)
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geopack = 'list_geopack.txt'
+        #process files in target directory
         input_dir = argsdict['input']
-        if argsdict['output'] == 'json':
-            #process files in target directory
-            print('output: json to be implemented')
-        if argsdict['output'] == 'xml':
-            print('output: xml')
-            #process files in target directory
-            for file in os.listdir(input_dir):
-                if file.lower().endswith('.r'):
-                    do_ex(str(os.path.join(input_dir, file)), 'r')
-                if file.lower().endswith('.rmd'):
-                    do_ex(str(os.path.join(input_dir, file)), 'rmd')
-            print('done')
+        output_modus = argsdict['output']
+        for file in os.listdir(input_dir):
+            if file.lower().endswith('.r'):
+                do_ex(str(os.path.join(input_dir, file)), output_modus, rule_set_r)
+            if file.lower().endswith('.rmd'):
+                do_ex(str(os.path.join(input_dir, file)), output_modus, rule_set_rmd)
+        print('done')
