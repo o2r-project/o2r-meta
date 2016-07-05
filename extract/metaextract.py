@@ -18,7 +18,8 @@ def check_rpacks(package):
 #extract
 def do_ex(my_pathfile, modus, rule_set):
     c = 0
-    output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + '.xml'
+    output_text = None
+    output_fileext = None
     #modus json
     if modus == 'json':
         data_dict = {'file': my_pathfile, 'generator': 'metaextract.py'}
@@ -36,8 +37,8 @@ def do_ex(my_pathfile, modus, rule_set):
                             that_line = {'line': str(c), 'text': '{}'.format(m.group(1))}
                             data_dict.setdefault(this_rule[0], []).append(that_line)
         #save json
-        with open(output_filename, 'w', encoding='utf-8') as outfile:
-            outfile.write(json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': ')))
+        output_text = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
+        output_fileext = ".json"
     #modus xml
     if modus == 'xml':
         root = elt.Element('extracted')
@@ -55,9 +56,12 @@ def do_ex(my_pathfile, modus, rule_set):
                         else:
                             elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
         #save xml
-        metae = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
-        with open(output_filename, 'w', encoding='utf-8') as outfile:
-            outfile.write(metae)
+        output_text = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
+        output_fileext = ".xml"
+    #write output file
+    output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + output_fileext
+    with open(output_filename, 'w', encoding='utf-8') as outfile:
+        outfile.write(output_text)
     print(str(os.stat(output_filename).st_size) + ' bytes written to ' + str(output_filename))
 
 # Main:

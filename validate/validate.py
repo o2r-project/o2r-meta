@@ -12,7 +12,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     argsdict = vars(args)
     #expl: -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
-    my_schema = argsdict['schema'] #
+    my_schema = argsdict['schema']
     my_candidate = argsdict['candidate']
     with open(os.path.abspath(my_schema)) as schema_file:
         that_schema = json.load(schema_file)
