@@ -3,9 +3,33 @@ import json
 import os
 import re
 import sys
-import xml.etree.cElementTree as elt
 from datetime import date
 from xml.dom import minidom
+
+import dicttoxml
+import yaml
+
+
+def parse_yaml(input_text):
+    yaml_data_dict = yaml.safe_load(input_text)
+    return yaml_data_dict
+
+def parse_r(input_text):
+    c = 0
+    meta_r_dict = {}
+    for line in input_text.splitlines():
+        c += 1
+        for rule in rule_set_r:
+            this_rule = rule.split('\t')
+            m = re.match(this_rule[1], line)
+            if m is not None:
+                if this_rule[0].startswith('dependent'):
+                    that_line = {'blockline': str(c), 'guess': check_rpacks(m.group(1)), 'text': '{}'.format(m.group(1))}
+                    meta_r_dict.setdefault(this_rule[0], []).append(that_line)
+                else:
+                    that_line = {'blockline': str(c), 'text': '{}'.format(m.group(1))}
+                    meta_r_dict.setdefault(this_rule[0], []).append(that_line)
+    return meta_r_dict
 
 def check_rpacks(package):
     if package in open(packlist_crantop100).read():
@@ -16,52 +40,38 @@ def check_rpacks(package):
         return 'none'
 
 #extract
-def do_ex(my_pathfile, modus, rule_set):
+def do_ex(my_pathfile, modus, multiline, rule_set):
     c = 0
-    output_text = None
+    output_data = None
     output_fileext = None
-    #modus json
+    # create data structure for multiline contexts
+    data_dict = {'file': my_pathfile, 'generator': 'metaextract.py'}
+    with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
+        content = inpfile.read()
+        if multiline:
+            # for rmd, yaml, etc.
+            for rule in rule_set:
+                this_rule = rule.split('\t')
+                s = re.search(this_rule[1], content, flags=re.DOTALL)
+                if s is not None:
+                    if this_rule[0].startswith('yaml'):
+                        data_dict.update(parse_yaml('{}'.format(s.group(1))))
+                    if this_rule[0].startswith('rblock'):
+                        data_dict['r_codeblock'] = ''
+                        data_dict.update(r_codeblock = parse_r('{}'.format(s.group(1))))
+        else:
+            # parse entire file as one code block
+            data_dict.update(r_codeblock = parse_r(content))
+    # save results
     if modus == 'json':
-        data_dict = {'file': my_pathfile, 'generator': 'metaextract.py'}
-        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
-            for line in inpfile:
-                c += 1
-                for rule in rule_set:
-                    this_rule = rule.split('\t')
-                    m = re.match(this_rule[1], line)
-                    if m is not None:
-                        if this_rule[0].startswith('dependent'):
-                            that_line = {'line': str(c), 'guess': check_rpacks(m.group(1)), 'text': '{}'.format(m.group(1))}
-                            data_dict.setdefault(this_rule[0], []).append(that_line)
-                        else:
-                            that_line = {'line': str(c), 'text': '{}'.format(m.group(1))}
-                            data_dict.setdefault(this_rule[0], []).append(that_line)
-        #save json
-        output_text = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
-        output_fileext = ".json"
-    #modus xml
+        output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
+        output_fileext = '.json'
     if modus == 'xml':
-        root = elt.Element('extracted')
-        elt.SubElement(root, 'file').text = str(my_pathfile)
-        elt.SubElement(root, 'generator').text = 'metaextract.py'
-        with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
-            for line in inpfile:
-                c += 1
-                for rule in rule_set:
-                    this_rule = rule.split('\t')
-                    m = re.match(this_rule[1], line)
-                    if m is not None:
-                        if this_rule[0].startswith('dependent'):
-                            elt.SubElement(root, this_rule[0], guess=check_rpacks(m.group(1)), line=str(c)).text = '{}'.format(m.group(1))
-                        else:
-                            elt.SubElement(root, this_rule[0], line=str(c)).text = '{}'.format(m.group(1))
-        #save xml
-        output_text = minidom.parseString(elt.tostring(root)).toprettyxml(indent='\t')
-        output_fileext = ".xml"
-    #write output file
+        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
+        output_fileext = '.xml'
     output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + output_fileext
     with open(output_filename, 'w', encoding='utf-8') as outfile:
-        outfile.write(output_text)
+        outfile.write(output_data)
     print(str(os.stat(output_filename).st_size) + ' bytes written to ' + str(output_filename))
 
 # Main:
@@ -79,7 +89,7 @@ if __name__ == "__main__":
         args = parser.parse_args()
         argsdict = vars(args)
         print('initializing...')
-        #enter rules for r
+        # enter rules for r
         rule_set_r = []
         rule_set_r.append('comment\t' + r'#{1,3}\s*(.{1,})')
         rule_set_r.append('comment_codefragment\t' + r'#{1,3}\s*(.*\=.*\(.*\))')
@@ -92,12 +102,19 @@ if __name__ == "__main__":
         rule_set_r.append('output_file\t' + r'write\..*\((.*)\)')
         rule_set_r.append('output_result\t' + r'(ggplot|plot|print)\((.*)\)')
         rule_set_r.append('output_setseed\t' + r'set\.seed\((.*)\)')
-        #enter rules for rmd
-        rule_set_rmd = []
-        rule_set_rmd.append('author\t' + r'\@?author\:\s\"(.*)\"')
-        rule_set_rmd.append('codeblock_start\t' + r'\`\`\`\{(.*)\}')
-        rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
-        rule_set_rmd.append('title\t' + r'\@?title\:\s[\"\'](.*)[\"\']')
+        rule_set_rmd_multiline = []
+        rule_set_rmd_multiline.append('yaml\t' + r'\-{3}(.*)[\.\-]{3}')
+        rule_set_rmd_multiline.append('rblock\t'+ r'\`{3}(.*)\`{3}')
+        #rule_set_rmd = []
+        #rule_set_rmd.append(r'\-{3}(.*)[\.\-]{3}') #re.DOTALL re.MULTILINE
+        # rule_set_rmd.append('author\t' + r'\@?author\:\s\"(.*)\"')
+        # rule_set_rmd.append('codeblock_start\t' + r'\`\`\`\{(.*)\}')
+        # rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
+        # rule_set_rmd.append('knitr_global_chunk\t' + r'knitr\:\:opts\_chunk\$set\([\"\'](.*)[\"\']\)')
+        # rule_set_rmd.append('date\t' + r'\@?date\:\s[\"\'](.*)[\"\']')
+        # rule_set_rmd.append('tags\t' + r'\@?tags\:\s[\"\'](.*)[\"\']')
+        # rule_set_rmd.append('abstract\t' + r'\@?abstract\:\s[\"\'](.*)[\"\']')
+        # rule_set_rmd.append('output\t' + r'\@?output\:\s[\"\'](.*)[\"\']')
         #other parameters
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geopack = 'list_geopack.txt'
@@ -106,7 +123,7 @@ if __name__ == "__main__":
         output_modus = argsdict['output']
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):
-                do_ex(str(os.path.join(input_dir, file)), output_modus, rule_set_r)
+                do_ex(os.path.join(input_dir, file), output_modus, False, rule_set_r)
             if file.lower().endswith('.rmd'):
-                do_ex(str(os.path.join(input_dir, file)), output_modus, rule_set_rmd)
+                do_ex(os.path.join(input_dir, file), output_modus, True, rule_set_rmd_multiline)
         print('done')
