@@ -4,27 +4,37 @@
 
 ###metaextract
 
-metaextract.py is a very basic try to automate metadata extraction from R scripts, including comments. inputs should be R scripts (.R) or Rmarkdown (.Rmd). outputs can be json or xml files.
+metaextract.py is a very basic try to automate metadata extraction from Rmd and R scripts.
+
+Required package: ```PyYAML```, ```dicttoxml```
 
 Usage:
 
     python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT
 
-use ```xml``` or ```json``` as OUTPUT_FORMAT.
+
++ use ```xml``` or ```json``` as ```OUTPUT_FORMAT```.
 
 Example:
 
     python metaextract.py -i"tests" -o"json"
 
++ use ```docker build``` command on the ```extract``` directory of this repository to build the docker container.
+
+Example:
+ 
+    docker build --no-cache extract
+
 ---
 
 ###schema
 
-+ currently codemeta json schema adaption
++ o2r metadata schema. Currently an adaption of the codemeta json schema for software metadata.
 
 ---
 
-###validator
+###validate
+
 validate.py is a simple validator for json schemas
 
 Required package: ```json-schema```

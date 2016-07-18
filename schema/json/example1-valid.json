@@ -1,4 +1,5 @@
 {
-	"identifier": "test",
-	"title": "test title"
+	"AuthorName": "Ted Tester",
+	"Title": "This is a test title",
+	"Description": "It's about something"
 }

@@ -12,6 +12,7 @@ import yaml
 
 def parse_yaml(input_text):
     yaml_data_dict = yaml.safe_load(input_text)
+    # TO DO: Rename yaml keys according to our schema
     return yaml_data_dict
 
 def parse_r(input_text):
@@ -72,7 +73,7 @@ def do_ex(my_pathfile, modus, multiline, rule_set):
     output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + output_fileext
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
-    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + str(output_filename))
+    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + output_filename)
 
 # Main:
 if __name__ == "__main__":

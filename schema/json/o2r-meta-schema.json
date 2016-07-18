@@ -1,156 +1,60 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "o2r-meta",
-  "description": "codemeta-json-schema",
+  "description": "derived of codemeta-json-schema",
   "type": "object",
   "properties": {
-      "agent":{
+      "AuthorAffiliation":{
           "type": "string"
       },
-      "controlledTerm":{
+      "AuthorId":{
           "type": "string"
       },
-      "person":{
+      "AuthorName":{
           "type": "string"
       },
-      "organization":{
+      "DateCreated":{
           "type": "string"
       },
-      "email":{
+      "Dependency":{
           "type": "string"
       },
-      "name":{
+      "Description":{
           "type": "string"
       },
-      "affiliation":{
+      "GeneratedBy":{
           "type": "string"
       },
-      "isCitable":{
-          "type": "boolean"
-      },
-      "isMaintainer":{
-          "type": "boolean"
-      },
-      "isRightsHolder":{
-          "type": "boolean"
-      },
-      "role":{
+      "InteractionMethod":{
           "type": "string"
       },
-      "buildInstructions":{
+      "ObjectType":{
           "type": "string"
       },
-      "downloadLink":{
+      "RecordDateCreated":{
           "type": "string"
       },
-      "contIntegration":{
+      "SoftwarePaperCitation":{
           "type": "string"
       },
-      "identifier":{
+      "Version":{
           "type": "string"
       },
-      "codeRepository":{
+      "ErcIdentifier":{
           "type": "string"
       },
-      "dateCreated":{
+      "Title":{
           "type": "string"
       },
-      "dateModified":{
+      "Keywords":{
           "type": "string"
       },
-      "datePublished":{
-          "type": "string"
-      },
-      "dependency": {
-          "type": "string"
-      },
-      "description":{
-          "type": "string"
-      },
-      "docsCoverage":{
-          "type": "string"
-      },
-      "downloadCount":{
-          "type": "integer"
-      },
-      "embargoDate":{
-          "type": "string"
-      },
-      "isAutomatedBuild":{
-          "type": "boolean"
-      },
-      "tags":{
-          "type": "string"
-      },
-      "objectType":{
-          "type": "string"
-      },
-      "publisher":{
-          "type": "string"
-      },
-      "license":{
-          "type": "string"
-      },
-      "interactionMethod":{
-          "type": "string"
-      },
-      "inputs":{
-          "type": "string"
-      },
-      "outputs":{
-          "type": "string"
-      },
-      "function":{
-          "type": "string"
-      },
-      "funding":{
-          "type": "string"
-      },
-      "programmingLanguage": {
-          "type": "string"
-      },
-      "readme":{
-          "type": "string"
-      },
-      "issueTracker":{
-          "type": "string"
-      },
-      "relatedLink":{
-          "type": "string"
-      },
-      "relatedPublications":{
-          "type": "string"
-      },
-      "relationship":{
-          "type": "string"
-      },
-      "softwareCitation":{
-          "type": "string"
-      },
-      "suggests":{
-          "type": "string"
-      },
-      "softwarePaperCitation":{
-          "type": "string"
-      },
-      "testCoverage":{
-          "type": "string"
-      },
-      "title":{
-          "type": "string"
-      },
-      "version":{
-          "type": "string"
-      },
-      "uploadedBy":{
-          "type": "string"
-      },
-      "zippedCode":{
+      "PaperLanguage":{
           "type": "string"
       }
    },
   "required": [
-    "identifier",
-    "title"
+    "AuthorName",
+    "Title"
   ]
 }
