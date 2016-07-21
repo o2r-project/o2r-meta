@@ -41,7 +41,7 @@ def check_rpacks(package):
         return 'none'
 
 #extract
-def do_ex(my_pathfile, modus, multiline, rule_set):
+def do_ex(my_pathfile, modus, extraction_files_dir, multiline, rule_set):
     c = 0
     output_data = None
     output_fileext = None
@@ -71,9 +71,14 @@ def do_ex(my_pathfile, modus, multiline, rule_set):
         output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
         output_fileext = '.xml'
     output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + output_fileext
+    if extraction_files_dir:
+        output_filename = os.path.join(extraction_files_dir, output_filename)
+        if not os.path.exists(extraction_files_dir):
+            os.makedirs(extraction_files_dir)
+
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
-    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + output_filename)
+    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
 
 # Main:
 if __name__ == "__main__":
@@ -87,6 +92,7 @@ if __name__ == "__main__":
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-i', '--input', help='input dir', required=True)
         parser.add_argument('-o', '--output', help='output format xml or json', required=True)
+        parser.add_argument('-e', '--extractsdir', help='output directory for extraction docs', default='')
         args = parser.parse_args()
         argsdict = vars(args)
         print('initializing...')
@@ -122,9 +128,10 @@ if __name__ == "__main__":
         #process files in target directory
         input_dir = argsdict['input']
         output_modus = argsdict['output']
+        extraction_files_directory = argsdict['extractsdir']
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):
-                do_ex(os.path.join(input_dir, file), output_modus, False, rule_set_r)
+                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, False, rule_set_r)
             if file.lower().endswith('.rmd'):
-                do_ex(os.path.join(input_dir, file), output_modus, True, rule_set_rmd_multiline)
+                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, True, rule_set_rmd_multiline)
         print('done')

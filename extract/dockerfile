@@ -1,3 +1,0 @@
-FROM python:3-onbuild
-#MAINTAINER https://github.com/m-schu
-RUN python metaextract.py -i"tests" -o"json"
