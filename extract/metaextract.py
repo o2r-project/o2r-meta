@@ -41,7 +41,7 @@ def check_rpacks(package):
         return 'none'
 
 #extract
-def do_ex(my_pathfile, modus, extraction_files_dir, multiline, rule_set):
+def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline, rule_set):
     c = 0
     output_data = None
     output_fileext = None
@@ -79,6 +79,8 @@ def do_ex(my_pathfile, modus, extraction_files_dir, multiline, rule_set):
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
     print(str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
+    if output_to_console:
+        print(output_data)
 
 # Main:
 if __name__ == "__main__":
@@ -93,6 +95,7 @@ if __name__ == "__main__":
         parser.add_argument('-i', '--input', help='input dir', required=True)
         parser.add_argument('-o', '--output', help='output format xml or json', required=True)
         parser.add_argument('-e', '--extractsdir', help='output directory for extraction docs', default='')
+        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', default = False)
         args = parser.parse_args()
         argsdict = vars(args)
         print('initializing...')
@@ -129,9 +132,10 @@ if __name__ == "__main__":
         input_dir = argsdict['input']
         output_modus = argsdict['output']
         extraction_files_directory = argsdict['extractsdir']
+        output_to_console = argsdict['outputtostdout']
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):
-                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, False, rule_set_r)
+                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, output_to_console, False, rule_set_r)
             if file.lower().endswith('.rmd'):
-                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, True, rule_set_rmd_multiline)
+                do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, output_to_console, True, rule_set_rmd_multiline)
         print('done')

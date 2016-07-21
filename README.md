@@ -24,7 +24,9 @@ Example:
 Example:
 
     docker build -t o2r-meta extract
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/tests/extracts
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o xml -e /meta/extracts
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts -s True
 
 ---
 
