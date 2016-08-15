@@ -10,14 +10,15 @@ Required package: ```PyYAML```, ```dicttoxml```
 
 Usage:
 
-    python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT
+    python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT -e OUTPUT_DIR
 
 
 + use ```xml``` or ```json``` as ```OUTPUT_FORMAT```.
 
 Example:
 
-    python metaextract.py -i"tests" -o"json"
+    python metaextract.py -i"tests" -o"json" -e"tests"
+
 
 + use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
 
@@ -51,3 +52,7 @@ use relative paths.
 Example:
 
     python validate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
+
+## license
+
++ to be done

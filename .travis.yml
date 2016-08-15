@@ -9,5 +9,5 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - cd extract && python metaextract.py -i"tests" -o"json"
+  - cd extract && python metaextract.py -i"tests" -o"json" -e"tests"
   - cd ../validate && python validate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
