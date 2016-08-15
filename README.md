@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
 
-#o2r metadata sets
+# o2r metadata sets
 
-###metaextract
+## metaextract
 
 metaextract.py is a very basic try to automate metadata extraction from Rmd and R scripts.
 
@@ -19,21 +19,24 @@ Example:
 
     python metaextract.py -i"tests" -o"json"
 
-+ use ```docker build``` command on the ```extract``` directory of this repository to build the docker container.
++ use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
 
 Example:
- 
-    docker build --no-cache extract
+
+    docker build -t o2r-meta extract
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o xml -e /meta/extracts
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts -s True
 
 ---
 
-###schema
+## schema
 
 + o2r metadata schema. Currently an adaption of the codemeta json schema for software metadata.
 
 ---
 
-###validate
+## validate
 
 validate.py is a simple validator for json schemas
 
