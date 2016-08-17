@@ -4,6 +4,6 @@ MAINTAINER m-schu <https://github.com/m-schu>
 WORKDIR /metaextract
 COPY metaextract.py metaextract.py
 COPY list_crantop100.txt list_crantop100.txt
-COPY list_geopack.txt list_geopack.txt
+COPY list_geosci.txt list_geosci.txt
 
 ENTRYPOINT ["python", "metaextract.py"]
