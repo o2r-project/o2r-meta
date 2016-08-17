@@ -10,14 +10,15 @@ Required package: ```PyYAML```, ```dicttoxml```
 
 Usage:
 
-    python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT -e OUTPUT_DIR
+    python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT -e OUTPUT_DIR [-s]
 
 
 + use ```xml``` or ```json``` as ```OUTPUT_FORMAT```.
++ use optional ```-s``` to output to screen.
 
 Example:
 
-    python metaextract.py -i"tests" -o"json" -e"tests"
+    python metaextract.py -i"tests" -o"json" -e"tests" [-s]
 
 
 + use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
@@ -27,7 +28,7 @@ Example:
     docker build -t o2r-meta extract
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o xml -e /meta/extracts
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts -s True
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts -s
 
 ---
 
@@ -41,7 +42,7 @@ Example:
 
 metavalidate.py is a simple validator for json schemas
 
-Required package: ```json-schema```
+Required package: ```json-spec```
 
 Usage:
 
@@ -57,6 +58,6 @@ Example:
 
 ## License
 
-metaextract.py and metavalidate.py are both licensed under Apache License, Version 2.0, see file LICENSE.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
 
 Copyright (C) 2016 - o2r project.
