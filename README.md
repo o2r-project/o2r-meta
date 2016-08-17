@@ -37,22 +37,26 @@ Example:
 
 ---
 
-## validate
+## metavalidate
 
-validate.py is a simple validator for json schemas
+metavalidate.py is a simple validator for json schemas
 
 Required package: ```json-schema```
 
 Usage:
 
-    python validate.py -s SCHEMA_PATH -c CANDIDATE_PATH
+    python metavalidate.py -s SCHEMA_PATH -c CANDIDATE_PATH
 
 use relative paths.
 
 Example:
 
-    python validate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
+    python metavalidate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
 
-## license
+---
 
-+ to be done
+## License
+
+metaextract.py and metavalidate.py are both licensed under Apache License, Version 2.0, see file LICENSE.
+
+Copyright (C) 2016 - o2r project.

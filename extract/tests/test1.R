@@ -4,6 +4,10 @@
 library("RColorBrewer")
 library('dplyr')
 library(ggplot2)
+library('definitivelyUnknownPackage')
+library('minqa')
+library('PBSmapping')
+
 
 # chunk: random string
 set.seed(42)

@@ -1,5 +1,5 @@
 FROM python:3-onbuild
-MAINTAINER Marc <https://github.com/m-schu>
+MAINTAINER m-schu <https://github.com/m-schu>
 
 WORKDIR /metaextract
 COPY metaextract.py metaextract.py

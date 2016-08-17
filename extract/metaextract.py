@@ -1,3 +1,20 @@
+'''
+    Copyright © 2016 - o2r project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+'''
+
 import argparse
 import json
 import os
@@ -33,12 +50,14 @@ def parse_r(input_text):
     return meta_r_dict
 
 def check_rpacks(package):
+    label = ''
+    if package in open(packlist_geosci).read():
+        label += 'geosci,'
     if package in open(packlist_crantop100).read():
-        return 'CRAN-top100'
-    if package in open(packlist_geopack).read():
-        return 'geo'
-    else:
-        return 'none'
+        label += 'CRAN-top100,'
+    if len(label) < 1:
+        label = 'none,'
+    return label[:-1]
 
 #extract
 def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline, rule_set):
@@ -75,7 +94,6 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
         output_filename = os.path.join(extraction_files_dir, output_filename)
         if not os.path.exists(extraction_files_dir):
             os.makedirs(extraction_files_dir)
-
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
     print(str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
@@ -90,12 +108,11 @@ if __name__ == "__main__":
         sys.exit()
     else:
         #py3k
-        #-i"tests" -o"json"
         parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-i', '--input', help='input dir', required=True)
+        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
         parser.add_argument('-o', '--output', help='output format xml or json', required=True)
-        parser.add_argument('-e', '--extractsdir', help='output directory for extraction docs', default='')
-        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', default = False)
+        parser.add_argument('-e', '--extractsdir', help='output directory for extraction docs', required=True)
+        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
         args = parser.parse_args()
         argsdict = vars(args)
         print('initializing...')
@@ -114,22 +131,12 @@ if __name__ == "__main__":
         rule_set_r.append('output_setseed\t' + r'set\.seed\((.*)\)')
         rule_set_rmd_multiline = []
         rule_set_rmd_multiline.append('yaml\t' + r'\-{3}(.*)[\.\-]{3}')
-        rule_set_rmd_multiline.append('rblock\t'+ r'\`{3}(.*)\`{3}')
-        #rule_set_rmd = []
-        #rule_set_rmd.append(r'\-{3}(.*)[\.\-]{3}') #re.DOTALL re.MULTILINE
-        # rule_set_rmd.append('author\t' + r'\@?author\:\s\"(.*)\"')
-        # rule_set_rmd.append('codeblock_start\t' + r'\`\`\`\{(.*)\}')
-        # rule_set_rmd.append('related_file_knitr\t' + r'knitr\:\:read\_chunk\([\"\'](.*)[\"\']\)')
-        # rule_set_rmd.append('knitr_global_chunk\t' + r'knitr\:\:opts\_chunk\$set\([\"\'](.*)[\"\']\)')
-        # rule_set_rmd.append('date\t' + r'\@?date\:\s[\"\'](.*)[\"\']')
-        # rule_set_rmd.append('tags\t' + r'\@?tags\:\s[\"\'](.*)[\"\']')
-        # rule_set_rmd.append('abstract\t' + r'\@?abstract\:\s[\"\'](.*)[\"\']')
-        # rule_set_rmd.append('output\t' + r'\@?output\:\s[\"\'](.*)[\"\']')
+        rule_set_rmd_multiline.append('rblock\t' + r'\`{3}(.*)\`{3}')
         #other parameters
         packlist_crantop100 = 'list_crantop100.txt'
-        packlist_geopack = 'list_geopack.txt'
+        packlist_geosci = 'list_geosci.txt'
         #process files in target directory
-        input_dir = argsdict['input']
+        input_dir = argsdict['inputdir']
         output_modus = argsdict['output']
         extraction_files_directory = argsdict['extractsdir']
         output_to_console = argsdict['outputtostdout']
