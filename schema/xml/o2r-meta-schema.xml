@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<root>
+	<type type="str">object</type>
+	<title type="str">o2r-meta</title>
+	<key name="$schema" type="str">http://json-schema.org/draft-04/schema#</key>
+	<description type="str">derived of codemeta-json-schema</description>
+	<required type="list">
+		<item type="str">AuthorAffiliation</item>
+		<item type="str">AuthorId</item>
+		<item type="str">AuthorName</item>
+		<item type="str">DateCreated</item>
+		<item type="str">Dependency</item>
+		<item type="str">Description</item>
+		<item type="str">GeneratedBy</item>
+		<item type="str">InteractionMethod</item>
+		<item type="str">ObjectType</item>
+		<item type="str">RecordDateCreated</item>
+		<item type="str">SoftwarePaperCitation</item>
+		<item type="str">Version</item>
+		<item type="str">ErcIdentifier</item>
+		<item type="str">Title</item>
+		<item type="str">Keywords</item>
+		<item type="str">PaperLanguage</item>
+	</required>
+	<properties type="dict">
+		<AuthorId type="dict">
+			<type type="str">string</type>
+		</AuthorId>
+		<ObjectType type="dict">
+			<type type="str">string</type>
+		</ObjectType>
+		<AuthorAffiliation type="dict">
+			<type type="str">string</type>
+		</AuthorAffiliation>
+		<GeneratedBy type="dict">
+			<type type="str">string</type>
+		</GeneratedBy>
+		<SoftwarePaperCitation type="dict">
+			<type type="str">string</type>
+		</SoftwarePaperCitation>
+		<Keywords type="dict">
+			<type type="str">string</type>
+		</Keywords>
+		<DateCreated type="dict">
+			<type type="str">string</type>
+		</DateCreated>
+		<InteractionMethod type="dict">
+			<type type="str">string</type>
+		</InteractionMethod>
+		<AuthorName type="dict">
+			<type type="str">string</type>
+		</AuthorName>
+		<Version type="dict">
+			<type type="str">string</type>
+		</Version>
+		<RecordDateCreated type="dict">
+			<type type="str">string</type>
+		</RecordDateCreated>
+		<Title type="dict">
+			<type type="str">string</type>
+		</Title>
+		<PaperLanguage type="dict">
+			<type type="str">string</type>
+		</PaperLanguage>
+		<Dependency type="dict">
+			<type type="str">string</type>
+		</Dependency>
+		<ErcIdentifier type="dict">
+			<type type="str">string</type>
+		</ErcIdentifier>
+		<Description type="dict">
+			<type type="str">string</type>
+		</Description>
+	</properties>
+</root>

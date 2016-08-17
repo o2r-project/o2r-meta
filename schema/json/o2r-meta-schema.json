@@ -54,7 +54,21 @@
       }
    },
   "required": [
-    "AuthorName",
-    "Title"
+     "AuthorAffiliation",
+     "AuthorId",
+     "AuthorName",
+     "DateCreated",
+     "Dependency",
+     "Description",
+     "GeneratedBy",
+     "InteractionMethod",
+     "ObjectType",
+     "RecordDateCreated",
+     "SoftwarePaperCitation",
+     "Version",
+     "ErcIdentifier",
+     "Title",
+     "Keywords",
+     "PaperLanguage"
   ]
 }
