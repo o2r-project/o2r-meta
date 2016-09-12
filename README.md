@@ -6,11 +6,11 @@
 
 metaextract.py is a very basic try to automate metadata extraction from Rmd and R scripts.
 
-Required package: ```PyYAML```, ```dicttoxml```
+Required packages: ```PyYAML```, ```dicttoxml```
 
 Usage:
 
-    python metaextract.py -i ```INPUT_DIR``` -o ```OUTPUT_DIR -m ```MODUS``` [-s]
+    python metaextract.py -i INPUT_DIR -o OUTPUT_DIR -m MODUS [-s]
 
 
 + use ```xml``` or ```json``` as ```MODUS```.
@@ -48,7 +48,7 @@ Usage:
 
     python metavalidate.py -s SCHEMA_PATH -c CANDIDATE_PATH
 
-use relative paths.
++ use relative paths.
 
 Example:
 
