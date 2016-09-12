@@ -10,15 +10,15 @@ Required package: ```PyYAML```, ```dicttoxml```
 
 Usage:
 
-    python metaextract.py -i INPUT_DIR -o OUTPUT_FORMAT -e OUTPUT_DIR [-s]
+    python metaextract.py -i ```INPUT_DIR``` -o ```OUTPUT_DIR -m ```MODUS``` [-s]
 
 
-+ use ```xml``` or ```json``` as ```OUTPUT_FORMAT```.
++ use ```xml``` or ```json``` as ```MODUS```.
 + use optional ```-s``` to output to screen.
 
 Example:
 
-    python metaextract.py -i"tests" -o"json" -e"tests" [-s]
+    python metaextract.py -i"tests" -o"tests" -m"json" [-s]
 
 
 + use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
@@ -26,15 +26,15 @@ Example:
 Example:
 
     docker build -t o2r-meta extract
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o xml -e /meta/extracts
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o json -e /meta/extracts -s
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m xml
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json -s
 
 ---
 
 ## schema
 
-+ o2r metadata schema. Currently an adaption of the codemeta json schema for software metadata.
++ o2r metadata schema with example and documentation. Currently an adaption of the codemeta json schema for software metadata.
 
 ---
 

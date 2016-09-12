@@ -16,11 +16,11 @@
 '''
 
 import argparse
+import datetime
 import json
 import os
 import re
 import sys
-from datetime import date
 from xml.dom import minidom
 
 import dicttoxml
@@ -32,6 +32,12 @@ def parse_yaml(input_text):
     # TO DO: Rename yaml keys according to our schema
     return yaml_data_dict
 
+def parse_exobj(parameter):
+    # to do
+    # get these from live extraction results (o2rexobj.txt)
+    result = ''
+    return result
+
 def parse_r(input_text):
     c = 0
     meta_r_dict = {}
@@ -39,33 +45,43 @@ def parse_r(input_text):
         c += 1
         for rule in rule_set_r:
             this_rule = rule.split('\t')
-            m = re.match(this_rule[1], line)
-            if m is not None:
-                if this_rule[0].startswith('dependent'):
-                    that_line = {'blockline': str(c), 'guess': check_rpacks(m.group(1)), 'text': '{}'.format(m.group(1))}
-                    meta_r_dict.setdefault(this_rule[0], []).append(that_line)
+            m = re.match(this_rule[2], line)
+            if m:
+                # dependency
+                if this_rule[0] == 'Dependency':
+                    # get these from live extraction results (o2rexobj.txt)
+                    dep_os = parse_exobj('os')
+                    dep_packetsys = 'https://cloud.r-project.org/'
+                    dep_ver = parse_exobj('version')
+                    segment = {'operatingSystem': dep_os, 'packageSystem': dep_packetsys, 'version': dep_ver, 'line': c, 'category': check_rpacks(m.group(1)), 'packageId': '{}'.format(m.group(1))}
+                elif this_rule[0] == 'Output':
+                    segment = {'feature': this_rule[1],'line': c, 'text': '{}'.format(m.group(1))}
                 else:
-                    that_line = {'blockline': str(c), 'text': '{}'.format(m.group(1))}
-                    meta_r_dict.setdefault(this_rule[0], []).append(that_line)
+                    segment = {'line': c, 'text': '{}'.format(m.group(1))}
+                meta_r_dict.setdefault(this_rule[0], []).append(segment)
     return meta_r_dict
 
 def check_rpacks(package):
     label = ''
     if package in open(packlist_geosci).read():
-        label += 'geosci,'
+        label += 'geo sciences,'
     if package in open(packlist_crantop100).read():
-        label += 'CRAN-top100,'
+        label += 'CRAN Top100,'
     if len(label) < 1:
         label = 'none,'
     return label[:-1]
 
-#extract
+# extract
 def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline, rule_set):
     c = 0
     output_data = None
     output_fileext = None
     # create data structure for multiline contexts
-    data_dict = {'file': my_pathfile, 'generator': 'metaextract.py'}
+    # determine which infos best come from live extraction
+    # to do: create args for path_to_liveex_logfile and papersource
+    erc_id = ''
+    papersource = ''
+    data_dict = {'file': my_pathfile, 'ErcIdentifier': erc_id, 'GeneratedBy': 'metaextract.py', 'papersource': papersource}
     with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
         content = inpfile.read()
         if multiline:
@@ -89,60 +105,62 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
     if modus == 'xml':
         output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
         output_fileext = '.xml'
-    output_filename = 'metaex_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + '_' + str(date.today()) + output_fileext
+    timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
+    output_filename = 'meta_' + timestamp + '_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + output_fileext
     if extraction_files_dir:
         output_filename = os.path.join(extraction_files_dir, output_filename)
         if not os.path.exists(extraction_files_dir):
             os.makedirs(extraction_files_dir)
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
-    print(str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
+    print('[metaextract] ' + str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
     if output_to_console:
         print(output_data)
 
-# Main:
+# main:
 if __name__ == "__main__":
     if sys.version_info[0] < 3:
         #py2
-        print('requires py3k or later')
+        print('[metaextract] requires py3k or later')
         sys.exit()
     else:
         #py3k
-        parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        parser.add_argument('-o', '--output', help='output format xml or json', required=True)
-        parser.add_argument('-e', '--extractsdir', help='output directory for extraction docs', required=True)
-        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
-        args = parser.parse_args()
-        argsdict = vars(args)
-        print('initializing...')
-        # enter rules for r
+        print('[metaextract] initializing...')
+        # rule set for r, compose as: entry name TAB entry subname TAB regex
         rule_set_r = []
-        rule_set_r.append('comment\t' + r'#{1,3}\s*(.{1,})')
-        rule_set_r.append('comment_codefragment\t' + r'#{1,3}\s*(.*\=.*\(.*\))')
-        rule_set_r.append('comment_contact\t' + r'(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')
-        rule_set_r.append('comment_url\t' + r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-        rule_set_r.append('dependent_installs\t' + r'install.packages\((.*)\)')
-        rule_set_r.append('dependent_library\t' + r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
-        rule_set_r.append('dependent_require\t' + r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
-        rule_set_r.append('input_dataset\t' + r'data\..*\((.*)\)')
-        rule_set_r.append('output_file\t' + r'write\..*\((.*)\)')
-        rule_set_r.append('output_result\t' + r'(ggplot|plot|print)\((.*)\)')
-        rule_set_r.append('output_setseed\t' + r'set\.seed\((.*)\)')
+        rule_set_r.append('Comment\tXXXX\t' + r'#{1,3}\s*(.{1,})')
+        rule_set_r.append('Comment\tcodefragment\t' + r'#{1,3}\s*(.*\=.*\(.*\))')
+        rule_set_r.append('Comment\tcontact\t' + r'(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')
+        rule_set_r.append('Comment\turl\t' + r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        rule_set_r.append('Dependency\tinstalls\t' + r'install.packages\((.*)\)')
+        rule_set_r.append('Dependency\tXXXX\t' + r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
+        rule_set_r.append('Dependency\tXXXX\t' + r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')
+        rule_set_r.append('Input\tdataset\t' + r'data\..*\((.*)\)')
+        rule_set_r.append('Output\tfile\t' + r'write\..*\((.*)\)')
+        rule_set_r.append('Output\tresult\t' + r'(ggplot|plot|print)\((.*)\)')
+        rule_set_r.append('Output\tsetseed\t' + r'set\.seed\((.*)\)')
+        # rule set for rmd
         rule_set_rmd_multiline = []
         rule_set_rmd_multiline.append('yaml\t' + r'\-{3}(.*)[\.\-]{3}')
         rule_set_rmd_multiline.append('rblock\t' + r'\`{3}(.*)\`{3}')
-        #other parameters
+        # other parameters
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
-        #process files in target directory
+        # process files in target directory
+        parser = argparse.ArgumentParser(description='description')
+        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
+        parser.add_argument('-m', '--modus', help='output format xml or json', required=True)
+        parser.add_argument('-o', '--outputdir', help='output directory for extraction docs', required=True)
+        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
+        args = parser.parse_args()
+        argsdict = vars(args)
         input_dir = argsdict['inputdir']
-        output_modus = argsdict['output']
-        extraction_files_directory = argsdict['extractsdir']
+        output_modus = argsdict['modus']
+        extraction_files_directory = argsdict['outputdir']
         output_to_console = argsdict['outputtostdout']
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):
                 do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, output_to_console, False, rule_set_r)
             if file.lower().endswith('.rmd'):
                 do_ex(os.path.join(input_dir, file), output_modus, extraction_files_directory, output_to_console, True, rule_set_rmd_multiline)
-        print('done')
+        print('[metaextract] done')
