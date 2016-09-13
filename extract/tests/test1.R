@@ -8,11 +8,19 @@ library('definitivelyUnknownPackage')
 library('minqa')
 library('PBSmapping')
 
+#Trying some seperation lines:
+# ###################################
+#************************
+# ~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~ ~~~~~~~~~~
+# ---------------------------------
+#+++++++++++++++++++++++++++++++
 
 # chunk: random string
 set.seed(42)
+random <- lapply(1:100, function(x) sample(1:12,size=10))
 anotherstr <- paste(sample(LETTERS, 16), collapse = "")
 anotherstr
+# umlaut ö ä ü ß
 l <- nchar(anotherstr)
 l
 
