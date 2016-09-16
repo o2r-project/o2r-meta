@@ -25,6 +25,7 @@ from xml.dom import minidom
 
 import dicttoxml
 import yaml
+from guess_language import guess_language
 
 
 def parse_exobj(parameter):
@@ -116,8 +117,15 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
     data_dict = {'file': my_pathfile, 'ErcIdentifier': erc_id, 'GeneratedBy': 'metaextract.py', 'papersource': papersource}
     with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
         content = inpfile.read()
+        # apply multiline re for rmd, yaml, etc.
         if multiline:
-            # for rmd, yaml, etc.
+            # try guess lang
+            language = ''
+            t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
+            if t is not None:
+                data_dict['language'] = ''
+                data_dict.update(language = guess_language(t.group(1)))
+            # process rules
             for rule in rule_set:
                 this_rule = rule.split('\t')
                 s = re.search(this_rule[1], content, flags=re.DOTALL)

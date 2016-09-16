@@ -9,7 +9,7 @@ This is a collection of mircro services for the o2r-platform.
 
 metaextract.py is a very basic try to automate metadata extraction from Rmd and R scripts.
 
-Required packages: ```PyYAML```, ```dicttoxml```
+Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```
 
 Usage:
 
