@@ -1,6 +1,9 @@
 [![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
 
-# o2r metadata sets
+# o2r meta
+
+This is a collection of mircro services for the o2r-platform.
+
 
 ## metaextract
 
@@ -29,6 +32,27 @@ Example:
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m xml
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json -s
+
+---
+
+
+## metabroker
+
+metabroker.py is a translator for raw metadata from the o2r project and common metadata schemas such as DataCite etc.
+Translation instructions are read from ```crosswalk.csv```.
+
+
+Required package: ```dicttoxml```
+
+Usage:
+
+    python metabroker.py -i INPUT_DIR -o OUTPUT_DIR
+
++ the script parses all json files in the input directory that begin with "meta_" (possible outputs of metaextract.py)
+
+Example:
+
+    python metabroker.py -i"tests" -o"tests"
 
 ---
 

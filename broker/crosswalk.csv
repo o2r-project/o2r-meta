@@ -1,0 +1,15 @@
+Concept,raw,o2r,CodeMeta,DataCite,RADAR
+Author,Author,Author,?,creator,creator
+AuthorAffiliation,AuthorAffiliation,AuthorAffiliation,affiliation,affiliation,creatorAffiliation
+AuthorId,AuthorId,AuthorId,@id,nameIdentifier,?
+AuthorName,AuthorName,AuthorName,name,creator,creatorName
+Description,abstract,Description,description,Description,description
+ErcIdentifier,ErcIdentifier,ErcIdentifier,-,-,-
+Keywords,keywords,keywords,keywords,keyword,keyword
+Language,language,-,?,?,language
+License,-,-,license,Rights,rights
+PersistentIdentifier,identifier,-,identifier,identifier,identifier
+Publisher,publisher,publisher,publisher,publisher,publisher
+SubjectArea,-,-,?,?subjectArea
+Title,title,Title,title,title,title
+Year,-,-,?,?,productionYear
