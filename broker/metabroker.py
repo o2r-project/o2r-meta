@@ -39,7 +39,7 @@ def translate(category, input_element):
     else:
         return None
 
-def do_broker(inputfile, outputdir):
+def do_broker(inputfile, output_dir):
     print('[metabroker] processing ' + inputfile)
     # load raw metadata file
     with open(inputfile) as data_file:
@@ -53,15 +53,16 @@ def do_broker(inputfile, outputdir):
             if translated:
                 data_dict.update({translated: input_dict[key]})
         # save results
-        save_output(data_dict, 'json', file[6:-5] + '_' + this)
-        save_output(data_dict, 'xml', file[6:-5] + '_' + this)
+        save_output(data_dict, 'json', output_dir, file[5:-5] + '_' + this)
+        save_output(data_dict, 'xml', output_dir, file[5:-5] + '_' + this)
 
-
-def save_output(data_dict, format, file_name):
+def save_output(data_dict, format, output_dir, file_name):
     if format == 'json':
         output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
     elif format == 'xml':
-        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
+        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict, attr_type = False)).toprettyxml(indent='\t')
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     output_filename = os.path.join(output_dir,file_name + '.' + format)
     with open(output_filename, 'w', encoding='utf-8') as outfile:
         outfile.write(output_data)
