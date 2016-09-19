@@ -30,6 +30,9 @@ from guess_language import guess_language
 
 def parse_exobj(parameter):
     # to do: get these from live extraction results (o2rexobj.txt)
+    # want to know from this function:
+    # packages, versions of packages
+    # ERCIdentifier
     result = ''
     return result
 
@@ -45,7 +48,7 @@ def parse_yaml(input_text):
     # - key: value
     # - key: list of values
     # - key: subkey: value
-    if yaml_data_dict['author']:
+    if 'author' in yaml_data_dict:
         for key in yaml_data_dict['author']:
             # to do: check if key is present before trying to drop it
             key['AuthorName'] = key.pop('name')
@@ -53,7 +56,7 @@ def parse_yaml(input_text):
             yaml_data_dict.setdefault('Author', []).append(key)
         yaml_data_dict.pop('author')
 
-    if yaml_data_dict['title']:
+    if 'title' in yaml_data_dict:
         found = False
         for key in yaml_data_dict['title']:
             if key == 'plain':
@@ -62,6 +65,33 @@ def parse_yaml(input_text):
         if not found:
             yaml_data_dict['Title'] = yaml_data_dict['title']
         yaml_data_dict.pop('title')
+
+    if 'tags' in yaml_data_dict:
+        for key in yaml_data_dict['tags']:
+            yaml_data_dict['Keywords'] = yaml_data_dict['tags']
+        yaml_data_dict.pop('tags')
+
+    if 'keywords' in yaml_data_dict:
+        found = False
+        for key in yaml_data_dict['keywords']:
+            if key == 'plain':
+                yaml_data_dict['Keywords'] = yaml_data_dict['keywords']['plain']
+                found = True
+        if not found:
+            yaml_data_dict['Keywords'] = yaml_data_dict['keywords']
+        yaml_data_dict.pop('keywords')
+
+    # clean up remaining information from rmd yaml header
+    if 'classoption' in yaml_data_dict:
+        yaml_data_dict['yamlheader_classoption'] = yaml_data_dict.pop('classoption')
+    if 'documentclass' in yaml_data_dict:
+        yaml_data_dict['yamlheader_documentclass'] = yaml_data_dict.pop('documentclass')
+    if 'output' in yaml_data_dict:
+        yaml_data_dict['yamlheader_output'] = yaml_data_dict.pop('output')
+    if 'preamble' in yaml_data_dict:
+        yaml_data_dict['yamlheader_preamble'] = yaml_data_dict.pop('preamble')
+    if 'vignette' in yaml_data_dict:
+        yaml_data_dict['yamlheader_vignette'] = yaml_data_dict.pop('vignette')
 
     return yaml_data_dict
 
@@ -74,23 +104,21 @@ def parse_r(input_text):
             this_rule = rule.split('\t')
             m = re.match(this_rule[2], line)
             if m:
-                # r comment
-                if this_rule[0] == 'Comment':
-                    if this_rule[1] == 'seperator':
-                        segment = {'feature': this_rule[1], 'line': c}
+                if len(m.groups()) > 0:
+                    # r comment
+                    if this_rule[0] == 'Comment':
+                        segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
+                    # r dependency
+                    elif this_rule[0] == 'Dependency':
+                        # get these from live extraction results (o2rexobj.txt)
+                        dep_os = parse_exobj('os')
+                        dep_packetsys = 'https://cloud.r-project.org/'
+                        dep_ver = parse_exobj('version')
+                        segment = {'operatingSystem': dep_os, 'packageSystem': dep_packetsys, 'version': dep_ver, 'line': c, 'category': check_rpacks(m.group(1)), 'packageId': m.group(1)}
+                    # r other
                     else:
                         segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
-                # r dependency
-                elif this_rule[0] == 'Dependency':
-                    # get these from live extraction results (o2rexobj.txt)
-                    dep_os = parse_exobj('os')
-                    dep_packetsys = 'https://cloud.r-project.org/'
-                    dep_ver = parse_exobj('version')
-                    segment = {'operatingSystem': dep_os, 'packageSystem': dep_packetsys, 'version': dep_ver, 'line': c, 'category': check_rpacks(m.group(1)), 'packageId': m.group(1)}
-                # r other
-                else:
-                    segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
-                meta_r_dict.setdefault(this_rule[0], []).append(segment)
+                    meta_r_dict.setdefault(this_rule[0], []).append(segment)
     return meta_r_dict
 
 def check_rpacks(package):
@@ -109,27 +137,28 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
     c = 0
     output_data = None
     output_fileext = None
-    # create data structure for multiline contexts
-    # determine which infos best come from live extraction
     # to do: create args for path_to_liveex_logfile and papersource
-    erc_id = ''
-    papersource = ''
-    data_dict = {'file': my_pathfile, 'ErcIdentifier': erc_id, 'GeneratedBy': 'metaextract.py', 'papersource': papersource}
-    with open(os.path.relpath(my_pathfile), encoding='utf-8') as inpfile:
-        content = inpfile.read()
+    erc_id = '' # find in o2r_run, get via parse_exobj()
+    papersource = os.path.basename(my_pathfile)
+    object_type = 'PaperSourceFile'
+    interaction_method = 'e.g. add docker cmd here' # find entry point in ../container/Dockerfile
+    record_date = datetime.datetime.today().strftime('%Y-%m-%d')
+    data_dict = {'file': my_pathfile, 'ErcIdentifier': erc_id, 'GeneratedBy': 'metaextract.py', 'RecordDateCreated': record_date , 'papersource': papersource, 'ObjectType': object_type, 'InteractionMethod': interaction_method}
+    with open(os.path.relpath(my_pathfile), encoding='utf-8') as input_file:
+        content = input_file.read()
         # apply multiline re for rmd, yaml, etc.
         if multiline:
             # try guess lang
             language = ''
+            data_dict['language'] = ''
             t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
-            if t is not None:
-                data_dict['language'] = ''
+            if t:
                 data_dict.update(language = guess_language(t.group(1)))
             # process rules
             for rule in rule_set:
                 this_rule = rule.split('\t')
                 s = re.search(this_rule[1], content, flags=re.DOTALL)
-                if s is not None:
+                if s:
                     if this_rule[0].startswith('yaml'):
                         data_dict.update(parse_yaml(s.group(1)))
                     if this_rule[0].startswith('rblock'):
@@ -140,13 +169,13 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
             data_dict.update(r_codeblock = parse_r(content))
     # save results
     if modus == 'json':
-        # sorted keys; escaped unicode per default
         output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
         output_fileext = '.json'
     if modus == 'xml':
         output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
         output_fileext = '.xml'
     timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
+    # "meta_" prefix as distinctive feature for metabroker later in workflow
     output_filename = 'meta_' + timestamp + '_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + output_fileext
     if extraction_files_dir:
         output_filename = os.path.join(extraction_files_dir, output_filename)
@@ -170,7 +199,7 @@ if __name__ == "__main__":
         # rule set for r, compose as: category name TAB entry feature name TAB regex
         rule_set_r = []
         rule_set_r.append('Comment\tcomment\t' + r'#{1,3}\s{0,3}([\w\s\:]{1,})')
-        rule_set_r.append('Comment\tseperator\t' + r'#\s?([#*~+-_])\1*')
+        #rule_set_r.append('Comment\tseperator\t' + r'#\s?([#*~+-_])\1*')
         rule_set_r.append('Comment\tcodefragment\t' + r'#{1,3}\s*(.*\=.*\(.*\))')
         rule_set_r.append('Comment\tcontact\t' + r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')
         rule_set_r.append('Comment\turl\t' + r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
