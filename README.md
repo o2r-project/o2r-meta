@@ -2,12 +2,12 @@
 
 # o2r meta
 
-This is a collection of mircro services for the o2r-platform.
+This is a collection of metadata related micro services for the o2r-platform, including our schema and documentation.
 
 
 ## metaextract
 
-metaextract.py is a very basic try to automate metadata extraction from Rmd and R scripts.
+metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts.
 
 Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```
 
@@ -35,6 +35,19 @@ Example:
 
 ---
 
+## metaharvester
+
+metaharvest.py collects OAI-PMH metadata from Datacite and parses them to assist the completion of a metadata set in o2r.
+
+Usage:
+
+    python metaharvest.py -t QUERYTYPE -q QUERYTEXT
+
+Example:
+
+    python metaharvest.py -t"doi" -q"10.14457/CU.THE.1989.1"
+
+---
 
 ## metabroker
 
