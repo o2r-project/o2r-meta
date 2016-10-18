@@ -2,14 +2,14 @@
     "Author": {
        "AuthorAffiliation": "Wesleyan University",
        "AuthorId": "orcid.org/0000-0002-1825-0097",
-       "AuthorName": "Josiah Carberry",
+       "AuthorName": "Josiah Carberry"
     },
     "DateCreated": "2016-10-01",
     "Dependency": {
        "operatingSystem": "raspbian",
        "packageId": "yetAnotherPackage",
        "packageSystem": "https://cloud.r-project.org/",
-       "version": "3.14",
+       "version": "3.14"
     },
     "Description": "It's about something",
     "GeneratedBy": "Josiah Carberry",

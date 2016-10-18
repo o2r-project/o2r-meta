@@ -96,5 +96,5 @@ Example:
 ## License
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
-
+The documentation of the schemas available at ```o2r-meta/schema/docs/``` is licensed under a [CC-BY 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
 Copyright (C) 2016 - o2r project.
