@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "o2r-meta-ui",
+  "description": "o2r ui widgets meta information",
+  "definitions": {
+    "radiobutton": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" },
+        "is_checked": { "type": "string" },
+        "parameter_type": { "type": "string" },
+        "reference_point": { "type": "string" }
+      },
+      "required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
+    },
+    "checkbox": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" },
+        "is_checked": { "type": "string" },
+        "parameter_type": { "type": "string" },
+        "reference_point": { "type": "string" }
+      },
+      "required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
+    },
+    "slider": {
+      "type": "object",
+      "properties": {
+        "label": { "type": "string" },
+        "value": { "type": "string" },
+        "value_min": { "type": "string" },
+        "value_max": { "type": "string" },
+        "is_checked": { "type": "string" },
+        "parameter_type": { "type": "string" },
+        "reference_point": { "type": "string" }
+      },
+      "required": ["label", "value", "value_min", "value_max", "is_checked", "parameter_type", "reference_point"]
+    }
+  },
+  "type": "object",
+  "properties": {
+      "radiobuttons": { "$ref": "#/definitions/radiobutton" },
+      "checkboxes": { "$ref": "#/definitions/checkbox" },
+      "sliders": { "$ref": "#/definitions/slider" }
+   }
+}

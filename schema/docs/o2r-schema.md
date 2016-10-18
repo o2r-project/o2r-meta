@@ -1,19 +1,20 @@
-version 0.01 |
-created for o2r-project |
-created by m-schu <https://github.com/m-schu> |
-CC-BY 4.0
+version 0.02 |
+created by o2r-project |
+part of <https://github.com/o2r-project/o2r-meta> |
+this documentation is licensed under CC-BY 4.0 International
 
 # o2r metadata schema documentation
 
 ## 0. Schema location
+Schema draft for descriptive metadata:
 <https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json>
-
-(belonging to <https://github.com/o2r-project/o2r-meta>)
+Schema draft for interaction metadata, i.e. UI widgets:
+<https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema-ui.json>
 
 ## 1. Purpose
 
-This is a work-in-progress documentation of the metadata schema used for executable research compendia.
-In its current state these metadate elements, properties and definitions strongly rely on the Codemeta software metadata, available at <https://github.com/codemeta/codemeta>. Rationales of codemeta equivalents are taken from or based on the corresponding descriptions.
+This is a work-in-progress documentation of the metadata schema used for _executable research compendia_.
+In its current state these metadate elements, properties and definitions strongly rely on the Codemeta software metadata concepts, available at <https://github.com/codemeta/codemeta>. Rationales of codemeta equivalents are taken from or based on the corresponding descriptions.
 The required information for a complete set of o2r metadata according to this schema are gathered by automated extraction and collection from the creator of the software in executable research compendia.
 
 ## 2. Metadata elements
@@ -25,9 +26,9 @@ The required information for a complete set of o2r metadata according to this sc
 - ```Dependency``` (required, 1-n)
 - ```Description``` (required, 1)
 - ```GeneratedBy``` (required, 1-n)
-- ```InteractionMethod``` (required, 1-n)
-- ```ObjectType``` (required, 1)
-- ```RecordDateCreated``` (required, 1)
+- ```InteractionMethod``` (0-n)
+- ```ObjectType``` (0-1)
+- ```RecordDateCreated``` (0-1)
 - ```SoftwarePaperCitation``` (required, 1-n)
 - ```Version``` (required, 1-n)
 - ```ErcIdentifier``` (required, 1)

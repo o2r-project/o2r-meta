@@ -1,75 +1,109 @@
 <?xml version="1.0" ?>
 <root>
-	<type type="str">object</type>
-	<title type="str">o2r-meta</title>
-	<key name="$schema" type="str">http://json-schema.org/draft-04/schema#</key>
-	<description type="str">derived of codemeta-json-schema</description>
-	<required type="list">
-		<item type="str">AuthorAffiliation</item>
-		<item type="str">AuthorId</item>
-		<item type="str">AuthorName</item>
-		<item type="str">DateCreated</item>
-		<item type="str">Dependency</item>
-		<item type="str">Description</item>
-		<item type="str">GeneratedBy</item>
-		<item type="str">InteractionMethod</item>
-		<item type="str">ObjectType</item>
-		<item type="str">RecordDateCreated</item>
-		<item type="str">SoftwarePaperCitation</item>
-		<item type="str">Version</item>
-		<item type="str">ErcIdentifier</item>
-		<item type="str">Title</item>
-		<item type="str">Keywords</item>
-		<item type="str">PaperLanguage</item>
-	</required>
-	<properties type="dict">
-		<AuthorId type="dict">
-			<type type="str">string</type>
-		</AuthorId>
-		<ObjectType type="dict">
-			<type type="str">string</type>
-		</ObjectType>
-		<AuthorAffiliation type="dict">
-			<type type="str">string</type>
-		</AuthorAffiliation>
-		<GeneratedBy type="dict">
-			<type type="str">string</type>
-		</GeneratedBy>
-		<SoftwarePaperCitation type="dict">
-			<type type="str">string</type>
-		</SoftwarePaperCitation>
-		<Keywords type="dict">
-			<type type="str">string</type>
-		</Keywords>
-		<DateCreated type="dict">
-			<type type="str">string</type>
-		</DateCreated>
-		<InteractionMethod type="dict">
-			<type type="str">string</type>
-		</InteractionMethod>
-		<AuthorName type="dict">
-			<type type="str">string</type>
-		</AuthorName>
-		<Version type="dict">
-			<type type="str">string</type>
-		</Version>
-		<RecordDateCreated type="dict">
-			<type type="str">string</type>
-		</RecordDateCreated>
-		<Title type="dict">
-			<type type="str">string</type>
-		</Title>
-		<PaperLanguage type="dict">
-			<type type="str">string</type>
-		</PaperLanguage>
-		<Dependency type="dict">
-			<type type="str">string</type>
+	<title>o2r-meta</title>
+	<definitions>
+		<Dependency>
+			<type>object</type>
+			<properties>
+				<packageSystem>
+					<type>string</type>
+				</packageSystem>
+				<version>
+					<type>string</type>
+				</version>
+				<packageId>
+					<type>string</type>
+				</packageId>
+				<operatingSystem>
+					<type>string</type>
+				</operatingSystem>
+			</properties>
+			<required>
+				<item>operatingSystem</item>
+				<item>packageId</item>
+				<item>packageSystem</item>
+				<item>version</item>
+			</required>
 		</Dependency>
-		<ErcIdentifier type="dict">
-			<type type="str">string</type>
+		<Author>
+			<type>object</type>
+			<properties>
+				<AuthorName>
+					<type>string</type>
+				</AuthorName>
+				<AuthorAffiliation>
+					<type>string</type>
+				</AuthorAffiliation>
+				<AuthorId>
+					<type>string</type>
+				</AuthorId>
+			</properties>
+			<required>
+				<item>AuthorAffiliation</item>
+				<item>AuthorId</item>
+				<item>AuthorName</item>
+			</required>
+		</Author>
+	</definitions>
+	<properties>
+		<GeneratedBy>
+			<type>string</type>
+		</GeneratedBy>
+		<Dependency>
+			<key name="$ref">#/definitions/Dependency</key>
+		</Dependency>
+		<Title>
+			<type>string</type>
+		</Title>
+		<PaperLanguage>
+			<type>string</type>
+		</PaperLanguage>
+		<Version>
+			<type>string</type>
+		</Version>
+		<Keywords>
+			<type>string</type>
+		</Keywords>
+		<InteractionMethod>
+			<type>string</type>
+		</InteractionMethod>
+		<ObjectType>
+			<type>string</type>
+		</ObjectType>
+		<SoftwarePaperCitation>
+			<type>string</type>
+		</SoftwarePaperCitation>
+		<ErcIdentifier>
+			<type>string</type>
 		</ErcIdentifier>
-		<Description type="dict">
-			<type type="str">string</type>
+		<Author>
+			<key name="$ref">#/definitions/Author</key>
+		</Author>
+		<Description>
+			<type>string</type>
 		</Description>
+		<RecordDateCreated>
+			<type>string</type>
+		</RecordDateCreated>
+		<DateCreated>
+			<type>string</type>
+		</DateCreated>
 	</properties>
+	<type>object</type>
+	<description>derived of codemeta json-schema</description>
+	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
+	<required>
+		<item>Author</item>
+		<item>DateCreated</item>
+		<item>Dependency</item>
+		<item>Description</item>
+		<item>GeneratedBy</item>
+		<item>RecordDateCreated</item>
+		<item>SoftwarePaperCitation</item>
+		<item>Version</item>
+		<item>ErcIdentifier</item>
+		<item>Title</item>
+		<item>Keywords</item>
+		<item>PaperLanguage</item>
+	</required>
 </root>

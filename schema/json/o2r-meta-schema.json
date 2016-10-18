@@ -1,23 +1,38 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "o2r-meta",
-  "description": "derived of codemeta-json-schema",
+  "description": "derived of codemeta json-schema",
+  "definitions": {
+    "Author": {
+      "type": "object",
+      "properties": {
+        "AuthorAffiliation": { "type": "string" },
+        "AuthorId": { "type": "string" },
+        "AuthorName": { "type": "string" }
+      },
+      "required": ["AuthorAffiliation", "AuthorId", "AuthorName"]
+    },
+    "Dependency": {
+      "type": "object",
+      "properties": {
+        "operatingSystem": { "type": "string" },
+        "packageId": { "type": "string" },
+        "packageSystem": { "type": "string" },
+        "version": { "type": "string" }
+      },
+      "required": ["operatingSystem", "packageId", "packageSystem", "version"]
+    }
+  },
   "type": "object",
   "properties": {
-      "AuthorAffiliation":{
-          "type": "string"
-      },
-      "AuthorId":{
-          "type": "string"
-      },
-      "AuthorName":{
-          "type": "string"
+      "Author":{
+          "$ref": "#/definitions/Author"
       },
       "DateCreated":{
           "type": "string"
       },
       "Dependency":{
-          "type": "string"
+          "$ref": "#/definitions/Dependency"
       },
       "Description":{
           "type": "string"
@@ -54,15 +69,11 @@
       }
    },
   "required": [
-     "AuthorAffiliation",
-     "AuthorId",
-     "AuthorName",
+     "Author",
      "DateCreated",
      "Dependency",
      "Description",
      "GeneratedBy",
-     "InteractionMethod",
-     "ObjectType",
      "RecordDateCreated",
      "SoftwarePaperCitation",
      "Version",
