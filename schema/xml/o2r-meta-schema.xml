@@ -1,53 +1,5 @@
 <?xml version="1.0" ?>
 <root>
-	<title>o2r-meta</title>
-	<description>derived of codemeta json-schema</description>
-	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
-	<type>object</type>
-	<definitions>
-		<Dependency>
-			<type>object</type>
-			<required>
-				<item>operatingSystem</item>
-				<item>packageId</item>
-				<item>packageSystem</item>
-				<item>version</item>
-			</required>
-			<properties>
-				<version>
-					<type>string</type>
-				</version>
-				<operatingSystem>
-					<type>string</type>
-				</operatingSystem>
-				<packageId>
-					<type>string</type>
-				</packageId>
-				<packageSystem>
-					<type>string</type>
-				</packageSystem>
-			</properties>
-		</Dependency>
-		<Author>
-			<type>object</type>
-			<required>
-				<item>AuthorAffiliation</item>
-				<item>AuthorId</item>
-				<item>AuthorName</item>
-			</required>
-			<properties>
-				<AuthorAffiliation>
-					<type>string</type>
-				</AuthorAffiliation>
-				<AuthorName>
-					<type>string</type>
-				</AuthorName>
-				<AuthorId>
-					<type>string</type>
-				</AuthorId>
-			</properties>
-		</Author>
-	</definitions>
 	<required>
 		<item>Author</item>
 		<item>DateCreated</item>
@@ -62,48 +14,94 @@
 		<item>Keywords</item>
 		<item>PaperLanguage</item>
 	</required>
+	<type>object</type>
+	<definitions>
+		<Author>
+			<type>array</type>
+			<properties>
+				<AuthorId>
+					<type>array</type>
+				</AuthorId>
+				<AuthorAffiliation>
+					<type>array</type>
+				</AuthorAffiliation>
+				<AuthorName>
+					<type>string</type>
+				</AuthorName>
+			</properties>
+			<required>
+				<item>AuthorAffiliation</item>
+				<item>AuthorName</item>
+			</required>
+		</Author>
+		<Dependency>
+			<type>array</type>
+			<properties>
+				<operatingSystem>
+					<type>string</type>
+				</operatingSystem>
+				<version>
+					<type>string</type>
+				</version>
+				<packageSystem>
+					<type>string</type>
+				</packageSystem>
+				<packageId>
+					<type>string</type>
+				</packageId>
+			</properties>
+			<required>
+				<item>packageId</item>
+				<item>packageSystem</item>
+				<item>version</item>
+			</required>
+		</Dependency>
+	</definitions>
 	<properties>
-		<SoftwarePaperCitation>
+		<InteractionMethod>
 			<type>string</type>
-		</SoftwarePaperCitation>
+		</InteractionMethod>
+		<Dependency>
+			<key name="$ref">#/definitions/Dependency</key>
+		</Dependency>
 		<DateCreated>
 			<type>string</type>
 		</DateCreated>
-		<Description>
-			<type>string</type>
-		</Description>
-		<PaperLanguage>
-			<type>string</type>
-		</PaperLanguage>
 		<Keywords>
 			<type>string</type>
 		</Keywords>
 		<Title>
 			<type>string</type>
 		</Title>
-		<RecordDateCreated>
-			<type>string</type>
-		</RecordDateCreated>
-		<ObjectType>
-			<type>string</type>
-		</ObjectType>
-		<Dependency>
-			<key name="$ref">#/definitions/Dependency</key>
-		</Dependency>
-		<GeneratedBy>
-			<type>string</type>
-		</GeneratedBy>
-		<InteractionMethod>
-			<type>string</type>
-		</InteractionMethod>
-		<Author>
-			<key name="$ref">#/definitions/Author</key>
-		</Author>
-		<ErcIdentifier>
-			<type>string</type>
-		</ErcIdentifier>
 		<Version>
 			<type>string</type>
 		</Version>
+		<Description>
+			<type>string</type>
+		</Description>
+		<ObjectType>
+			<type>string</type>
+		</ObjectType>
+		<GeneratedBy>
+			<type>string</type>
+		</GeneratedBy>
+		<PaperLanguage>
+			<type>string</type>
+		</PaperLanguage>
+		<SoftwarePaperCitation>
+			<type>string</type>
+		</SoftwarePaperCitation>
+		<ErcIdentifier>
+			<type>string</type>
+		</ErcIdentifier>
+		<Author>
+			<key name="$ref">#/definitions/Author</key>
+		</Author>
+		<RecordDateCreated>
+			<type>string</type>
+		</RecordDateCreated>
 	</properties>
+	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
+	<title>o2r-meta</title>
+	<description>derived of codemeta json-schema</description>
 </root>

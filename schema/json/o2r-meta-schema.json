@@ -4,23 +4,23 @@
   "description": "derived of codemeta json-schema",
   "definitions": {
     "Author": {
-      "type": "object",
+      "type": "array",
       "properties": {
-        "AuthorAffiliation": { "type": "string" },
-        "AuthorId": { "type": "string" },
+        "AuthorAffiliation": { "type": "array" },
+        "AuthorId": { "type": "array" },
         "AuthorName": { "type": "string" }
       },
-      "required": ["AuthorAffiliation", "AuthorId", "AuthorName"]
+      "required": ["AuthorAffiliation", "AuthorName"]
     },
     "Dependency": {
-      "type": "object",
+      "type": "array",
       "properties": {
         "operatingSystem": { "type": "string" },
         "packageId": { "type": "string" },
         "packageSystem": { "type": "string" },
         "version": { "type": "string" }
       },
-      "required": ["operatingSystem", "packageId", "packageSystem", "version"]
+      "required": ["packageId", "packageSystem", "version"]
     }
   },
   "type": "object",
