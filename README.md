@@ -71,7 +71,8 @@ Example:
 
 ## schema
 
-+ o2r metadata schema with example and documentation. Currently an adaption of the codemeta json schema for software metadata.
++ o2r metadata schema with example and documentation. Currently the main schema is an adaption of the codemeta schema for software metadata. In addition to that we provide a schema for UI metadata
++ Our schemas are designed as json schemas. XML versions are generated automatically but regarded as secondary.
 
 ---
 

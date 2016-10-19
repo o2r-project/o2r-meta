@@ -1,0 +1,53 @@
+{
+    "ErcIdentifier": "Pd2k9b2xaH",
+    "radiobuttons": [
+    {
+       "label": "wj1du6iv",
+       "value": -42,
+       "is_checked": false,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:8;c:24"
+    },
+    {
+       "label": "test constant",
+       "value": 180.28,
+       "is_checked": true,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:8;c:24"
+    }
+    ],
+    "checkboxes": [
+    {
+       "label": "let0ak6m",
+       "value": 0,
+       "is_checked": true,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:112;c:11"
+    },
+    {
+       "label": "dniyfpeq",
+       "value": 1,
+       "is_checked": false,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:113;c:11"
+    },
+    {
+       "label": "d36rc9mk",
+       "value": 2,
+       "is_checked": false,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:114;c:11"
+    }
+    ],
+    "sliders": [
+    {
+       "label": "p6vkw1qr",
+       "value": 0.004,
+       "value_min": 0.001,
+       "value_max": 0.2,
+       "is_checked": true,
+       "parameter_type": "function_ingest",
+       "reference_point": "f:test_script.R;l:34;c:9"
+    }
+    ]
+}
