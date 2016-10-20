@@ -92,6 +92,13 @@ Example:
 
     python metavalidate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
 
++ use ```docker build``` command with the ```validate``` directory of this repository as the build context to build the Docker image.
+
+Example:
+
+    docker build -t o2r-meta validate
+    docker run --rm -v $(pwd)/validate/tests:/meta o2r-meta -s ../schema/json/o2r-meta-schema.json -c ../schema/json/example1-valid.json
+
 ---
 
 ## License

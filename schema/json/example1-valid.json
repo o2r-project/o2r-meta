@@ -10,13 +10,13 @@
     "DateCreated": "2016-10-01",
     "Dependency": [
     {
-       "operatingSystem": "alpine",
+       "operatingSystem": ["Windows", "OS X", "Linux"],
        "packageId": "LoremizationIssue",
        "packageSystem": "https://cloud.r-project.org/",
        "version": "1"
     },
     {
-       "operatingSystem": "raspbian",
+       "operatingSystem": ["raspbian"],
        "packageId": "yetAnotherPackage",
        "packageSystem": "https://cloud.r-project.org/",
        "version": "3.14"

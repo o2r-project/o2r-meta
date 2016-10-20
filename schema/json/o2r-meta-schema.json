@@ -15,7 +15,7 @@
     "Dependency": {
       "type": "array",
       "properties": {
-        "operatingSystem": { "type": "string" },
+        "operatingSystem": { "type": "array" },
         "packageId": { "type": "string" },
         "packageSystem": { "type": "string" },
         "version": { "type": "string" }

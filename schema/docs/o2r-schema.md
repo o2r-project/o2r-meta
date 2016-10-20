@@ -1,7 +1,10 @@
-version 0.021 |
-created by the o2r-project |
-part of <https://github.com/o2r-project/o2r-meta> |
-this documentation is licensed under CC-BY 4.0 International
+---
+title: 'CodeMeta: a Rosetta Stone for Metadata in Scientific Software'
+author:
+- o2r-project
+version: 0.022
+license: CC-BY 4.0 International
+---
 
 # o2r metadata schema documentation
 
@@ -28,7 +31,7 @@ The required information for a complete set of o2r metadata according to this sc
  - ```AuthorName``` (mandatory, 1)
 - ```DateCreated``` (optional, 0-1)
 - ```Dependency``` (mandatory, 1-n)
- - ```operatingSystem``` (optional, 0-1)
+ - ```operatingSystem``` (optional, 0-n)
  - ```packageId``` (mandatory, 1)
  - ```packageSystem``` (mandatory, 1)
  - ```version``` (mandatory, 1)
@@ -108,3 +111,29 @@ The required information for a complete set of o2r metadata according to this sc
 
 - Version
 > A unique string indicating a specific state of the software, i.e. an initial public release, an update or bug fix release, etc. No version format or schema is enforced for this value.
+
+
+##4. Additional elements for UI metadata
+The following meta information are used to control widgets for interaction with ERCs on our platform.
+
+- ```ErcIdentifier``` (mandatory, 1)
+- ```radiobuttons``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)
+- ```checkboxes``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)
+- ```sliders``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```value_max``` (mandatory, 1)
+ - ```value_min``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)

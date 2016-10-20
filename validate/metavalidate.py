@@ -20,13 +20,14 @@ import json
 import os
 import sys
 
-from jsonspec.validators import load #https://github.com/johnnoone/json-spec
+#from jsonspec.validators import load #https://github.com/johnnoone/json-spec
+import jsonspec.validators
 
 #Main
 if __name__ == "__main__":
     if sys.version_info[0] < 3:
         # py2
-        print('[metaextract] requires py3k or later')
+        print('[metavalidate] requires py3k or later')
         sys.exit()
     else:
         parser = argparse.ArgumentParser(description='description')
@@ -36,11 +37,17 @@ if __name__ == "__main__":
         argsdict = vars(args)
         my_schema = argsdict['schema']
         my_candidate = argsdict['candidate']
-        with open(os.path.abspath(my_schema), encoding='utf-8') as schema_file:
-            that_schema = json.load(schema_file)
-        with open(os.path.abspath(my_candidate), encoding='utf-8') as test_file:
-            that_test = json.load(test_file)
         print('[metavalidate] checking ' + os.path.basename(my_candidate))
-        validator = load(that_schema)
-        validator.validate(that_test)
-        print('[metavalidate] done')
+        try:
+            with open(os.path.abspath(my_schema), encoding='utf-8') as schema_file:
+                that_schema = json.load(schema_file)
+            with open(os.path.abspath(my_candidate), encoding='utf-8') as test_file:
+                that_test = json.load(test_file)
+            validator = jsonspec.validators.load(that_schema)
+            validator.validate(that_test)
+            print('[metavalidate] valid: ' + os.path.basename(my_candidate))
+        except jsonspec.validators.exceptions.ValidationError as exc:
+            print('[metavalidate] !invalid: ' + str(exc.errors))
+        except:
+            print('[metavalidate] error', sys.exc_info()[0])
+            #raise
