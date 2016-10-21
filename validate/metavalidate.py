@@ -20,8 +20,7 @@ import json
 import os
 import sys
 
-#from jsonspec.validators import load #https://github.com/johnnoone/json-spec
-import jsonspec.validators
+import python_jsonschema_objects as pjs #<https://github.com/cwacek/python-jsonschema-objects>
 
 #Main
 if __name__ == "__main__":
@@ -37,17 +36,17 @@ if __name__ == "__main__":
         argsdict = vars(args)
         my_schema = argsdict['schema']
         my_candidate = argsdict['candidate']
-        print('[metavalidate] checking ' + os.path.basename(my_candidate))
+        print('[metavalidate] checking ' + os.path.basename(my_candidate) + ' against ' + os.path.basename(my_schema))
         try:
             with open(os.path.abspath(my_schema), encoding='utf-8') as schema_file:
-                that_schema = json.load(schema_file)
-            with open(os.path.abspath(my_candidate), encoding='utf-8') as test_file:
-                that_test = json.load(test_file)
-            validator = jsonspec.validators.load(that_schema)
-            validator.validate(that_test)
+                schema = json.load(schema_file)
+            with open(os.path.abspath(my_candidate), encoding='utf-8') as candidate_file:
+                candidate = json.load(candidate_file)
+            builder = pjs.ObjectBuilder(schema)
+            builder.validate(candidate)
             print('[metavalidate] valid: ' + os.path.basename(my_candidate))
-        except jsonspec.validators.exceptions.ValidationError as exc:
-            print('[metavalidate] !invalid: ' + str(exc.errors))
+        except pjs.ValidationError as exc:
+            print('[metavalidate] !invalid: ' + str.split(str(exc), '\n')[0])
         except:
             print('[metavalidate] error', sys.exc_info()[0])
             #raise

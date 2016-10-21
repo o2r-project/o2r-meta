@@ -1,7 +1,6 @@
 ---
-title: 'CodeMeta: a Rosetta Stone for Metadata in Scientific Software'
-author:
-- o2r-project
+title: 'o2r metadata schema documentation'
+author: o2r-project
 version: 0.022
 license: CC-BY 4.0 International
 ---
@@ -20,10 +19,12 @@ Current schema draft for interaction metadata, i.e. UI widgets:
 ## 1. Purpose
 
 This is a work-in-progress documentation of the metadata schema used for _executable research compendia_, focusing to depict package dependencies and other requirements for reproducible computational environments as well as compliance with existing modern metadata standards, e.g. DataCite 4.0 schema.
-In its current state these metadate elements, properties and definitions strongly rely on the [CodeMeta](https://github.com/codemeta/codemeta) software metadata concepts. Rationales of CodeMeta equivalents are taken from or based on the corresponding descriptions.
-The required information for a complete set of o2r metadata according to this schema are gathered by automated extraction and collection from the creator of the software in executable research compendia.
+In its current state these metadate elements, properties and definitions strongly rely on the [CodeMeta](https://github.com/codemeta/codemeta) software metadata concepts, extending them for the interaction with software in the context of Reproducible Research. Rationales of CodeMeta equivalents are taken from or based on the corresponding descriptions.
+The required information for a complete set of o2r metadata according to this schema are gathered by automated extraction and collection from the creator of the asset.
 
 ## 2. Metadata elements
+
+### Main Schema
 
 - ```Author``` (mandatory, 1-n)
  - ```AuthorAffiliation``` (mandatory, 1-n)
@@ -46,6 +47,32 @@ The required information for a complete set of o2r metadata according to this sc
 - ```SoftwarePaperCitation``` (optional, 0-1)
 - ```Title``` (mandatory, 1)
 - ```Version``` (mandatory, 1)
+
+### UI Schema
+The following meta information are used to control widgets for interaction with ERCs on our platform.
+
+- ```ErcIdentifier``` (mandatory, 1)
+- ```checkboxes``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)
+- ```radiobuttons``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)
+- ```sliders``` (optional, 0-n)
+ - ```label``` (mandatory, 1)
+ - ```value``` (mandatory, 1)
+ - ```value_max``` (mandatory, 1)
+ - ```value_min``` (mandatory, 1)
+ - ```is_checked``` (mandatory, 1)
+ - ```parameter_type``` (mandatory, 1)
+ - ```reference_point``` (mandatory, 1)
+
 
 ## 3. Rationales
 
@@ -112,28 +139,3 @@ The required information for a complete set of o2r metadata according to this sc
 - Version
 > A unique string indicating a specific state of the software, i.e. an initial public release, an update or bug fix release, etc. No version format or schema is enforced for this value.
 
-
-##4. Additional elements for UI metadata
-The following meta information are used to control widgets for interaction with ERCs on our platform.
-
-- ```ErcIdentifier``` (mandatory, 1)
-- ```radiobuttons``` (optional, 0-n)
- - ```label``` (mandatory, 1)
- - ```value``` (mandatory, 1)
- - ```is_checked``` (mandatory, 1)
- - ```parameter_type``` (mandatory, 1)
- - ```reference_point``` (mandatory, 1)
-- ```checkboxes``` (optional, 0-n)
- - ```label``` (mandatory, 1)
- - ```value``` (mandatory, 1)
- - ```is_checked``` (mandatory, 1)
- - ```parameter_type``` (mandatory, 1)
- - ```reference_point``` (mandatory, 1)
-- ```sliders``` (optional, 0-n)
- - ```label``` (mandatory, 1)
- - ```value``` (mandatory, 1)
- - ```value_max``` (mandatory, 1)
- - ```value_min``` (mandatory, 1)
- - ```is_checked``` (mandatory, 1)
- - ```parameter_type``` (mandatory, 1)
- - ```reference_point``` (mandatory, 1)

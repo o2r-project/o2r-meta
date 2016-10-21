@@ -4,6 +4,9 @@
 
 This is a collection of metadata related micro services for the o2r-platform, including our schema and documentation.
 
+# installation
+
+    pip install -r requirements.txt
 
 ## metaextract
 
@@ -30,8 +33,6 @@ Example:
 
     docker build -t o2r-meta extract
     docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m xml
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json -s
 
 ---
 
@@ -80,7 +81,7 @@ Example:
 
 metavalidate.py is a simple validator for json schemas
 
-Required package: ```json-spec```
+Required package: ```python_jsonschema_objects```
 
 Usage:
 
