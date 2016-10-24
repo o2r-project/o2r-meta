@@ -96,28 +96,33 @@ def map_this(element, value, map_data, xml_root):
 
 #Main
 if __name__ == "__main__":
-    # init
-    seperator = '#' #<-- make this generic
-    # load mappings
-    # XML maps
-    # load map for datacite
-    try:
-        with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:
-            map_datacite_data = json.load(data_file)
-        root = ET.Element(map_datacite_data['!root'])
-        root.set('xmlns', map_datacite_data['!root@xmlns'])
-        root.set('xmlns:xsi', map_datacite_data['!root@xmlns:xsi'])
-        root.set('xsi:schemaLocation', map_datacite_data['!root@xsi:schemaLocation'])
-    except:
-        raise
-    # test o2r output meta
-    with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-        test_data = json.load(data_file)
-    for element in test_data:
+    if sys.version_info[0] < 3:
+        # py2
+        print('[metabroker] requires py3k or later')
+        sys.exit()
+    else:
+        # init
+        seperator = '#' #<-- make this generic
+        # load mappings
+        # XML maps
+        # load map for datacite
         try:
-            map_this(element, test_data[element], map_datacite_data, root)
+            with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:
+                map_datacite_data = json.load(data_file)
+            root = ET.Element(map_datacite_data['!root'])
+            root.set('xmlns', map_datacite_data['!root@xmlns'])
+            root.set('xmlns:xsi', map_datacite_data['!root@xmlns:xsi'])
+            root.set('xsi:schemaLocation', map_datacite_data['!root@xsi:schemaLocation'])
         except:
-            # raise
-            continue
-    output = ET.tostring(root, encoding='utf8', method='xml')
-    print(minidom.parseString(output).toprettyxml(indent='\t'))
+            raise
+        # test o2r output meta
+        with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+            test_data = json.load(data_file)
+        for element in test_data:
+            try:
+                map_this(element, test_data[element], map_datacite_data, root)
+            except:
+                # raise
+                continue
+        output = ET.tostring(root, encoding='utf8', method='xml')
+        print(minidom.parseString(output).toprettyxml(indent='\t'))
