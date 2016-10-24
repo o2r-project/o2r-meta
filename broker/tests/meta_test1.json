@@ -3,61 +3,42 @@
         {
             "AuthorAffiliation": "University of Munster",
             "AuthorName": "Ted Tester",
+            "AuthorId": "http://orcid.org/0000-0002-1825-0097",
             "Telephone": "+00/00/1000-2000",
-            "address": "This might be a correct address Yet it might also be lorem ipsum\newline Another line 252b\\newline 00000 Anywhere, Nomansland\n",
+            "address": "This might be a correct address Yet it might also be lorem ipsum\\newline Another line 252b\\newline 00000 Anywhere, Nomansland\n",
             "affiliation2": "University of Nowhere",
             "email": "ted.tester@awebsite8372930.org",
             "url": "\\url{http://404.awebsite8372930.org}"
         },
         {
             "AuthorAffiliation": "N.O.N.E",
-            "AuthorName": "Carl Connauthora"
+            "AuthorName": "Carl Connauthora",
+            "AuthorId": "http://orcid.org/1234-0002-1825-0097"
         }
     ],
-    "ErcIdentifier": "",
+    "ErcIdentifier": "1afskln23",
     "GeneratedBy": "metaextract.py",
+    "InteractionMethod": "fancy widget",
+    "Keywords": [
+        "lorem",
+        "ipsum",
+        "dolor",
+        "sit",
+        "amet"
+    ],
+    "ObjectType": "PaperSourceFile",
+    "RecordDateCreated": "2016-09-19",
     "Title": "This is the title: it contains a colon",
-    "abstract": "Tempus eget nunc eu, lobortis condimentum nulla. Nam sagittis massa nec libero luctus facilisis. Suspendisse ac ornare ligula. Morbi non dignissim sem. Pellentesque eleifend neque nec dui interdum varius.\n",
-    "classoption": "shortnames",
-    "documentclass": "nojss",
+    "abstract": "Tempus eget nunc eu, lobortis condimentum nulla. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero.\n Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
     "file": "tests\\test2.Rmd",
-    "keywords": {
-        "formatted": [
-            "lorem",
-            "ipsum",
-            "dolor",
-            "sit",
-            "amet"
-        ],
-        "plain": [
-            "lorem",
-            "ipsum",
-            "dolor",
-            "sit",
-            "amet"
-        ]
-    },
-    "output": {
-        "rticles::jss_article": {
-            "pandoc_args": "--natbib"
-        }
-    },
-    "papersource": "",
-    "preamble": "\\usepackage{amsmath} \\usepackage{array} \\usepackage{caption} \\usepackage{subcaption} \\usepackage{float} \\usepackage{framed} \\usepackage{listings}\n",
+    "language": "en",
+    "papersource": "test2.Rmd",
     "r_codeblock": {
         "Comment": [
             {
                 "feature": "comment",
                 "line": 10,
                 "text": "Trying some seperation lines:"
-            },
-            {
-                "feature": "seperator",
-                "line": 10
-            },
-            {
-                "feature": "seperator",
-                "line": 11
             },
             {
                 "feature": "comment",
@@ -138,5 +119,13 @@
             }
         ]
     },
-    "vignette": "%\\VignetteIndexEntry{VforVignetta} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8} %\\VignetteDepends{rticles, ggplot2, scales, reshape2, xtable}\n"
+    "yamlheader_classoption": "shortnames",
+    "yamlheader_documentclass": "nojss",
+    "yamlheader_output": {
+        "rticles::jss_article": {
+            "pandoc_args": "--natbib"
+        }
+    },
+    "yamlheader_preamble": "\\usepackage{amsmath} \\usepackage{array} \\usepackage{caption} \\usepackage{subcaption} \\usepackage{float} \\usepackage{framed} \\usepackage{listings}\n",
+    "yamlheader_vignette": "%\\VignetteIndexEntry{VforVignetta} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8} %\\VignetteDepends{rticles, ggplot2, scales, reshape2, xtable}\n"
 }

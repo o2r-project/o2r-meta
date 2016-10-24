@@ -10,6 +10,6 @@ install:
   - pip install -r requirements.txt
 script:
   - cd extract && python metaextract.py -i"tests" -o"tests" -m"json"
-  - cd ../broker && python metabroker.py -i"tests" -o"tests"
   - cd ../validate && python metavalidate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
   - cd ../validate && python metavalidate.py -s"../schema/json/o2r-meta-ui-schema.json" -c"../schema/json/example2-ui-valid.json"
+  - cd ../broker && python metabroker.py

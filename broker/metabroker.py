@@ -15,96 +15,109 @@
 
 '''
 
-import argparse
-import csv
+#import argparse
 import json
 import os
-import sys
+#import sys
 from xml.dom import minidom
 
-import dicttoxml
+import xml.etree.ElementTree as ET
+#import dicttoxml
 
 
-def translate(category, input_element):
-    # read crosswalk matrix for translation of element names
-    csvfile = open(crosswalk, 'r')
-    reader = csv.DictReader(csvfile, columns, delimiter=',')
-    for row in reader:
-        output_element = ''
-        if input_element == row['raw']:
-            output_element = row[category]
-            break
-    if len(output_element) > 0 and output_element != '-':
-        return output_element
-    else:
-        return None
-
-def do_broker(inputfile, output_dir):
-    print('[metabroker] processing ' + inputfile)
-    # load raw metadata file
-    with open(inputfile) as data_file:
-        input_dict = json.load(data_file)
-    # create translation for each schema category
-    for this in columns:
-        if this == 'Concept' or this == 'raw': continue
-        data_dict = {}
-        for key in input_dict:
-            translated = translate(this, str(key))
-            if translated:
-                data_dict.update({translated: input_dict[key]})
-        # save results
-        save_output(data_dict, 'json', output_dir, file[5:-5] + '_' + this)
-        save_output(data_dict, 'xml', output_dir, file[5:-5] + '_' + this)
-
-def save_output(data_dict, format, output_dir, file_name):
-    if format == 'json':
-        output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
-    elif format == 'xml':
-        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict, attr_type = False)).toprettyxml(indent='\t')
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    output_filename = os.path.join(output_dir,file_name + '.' + format)
-    with open(output_filename, 'w', encoding='utf-8') as outfile:
-        outfile.write(output_data)
-    print('[metabroker] ' + str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
-
-# main:
-if __name__ == "__main__":
-    if sys.version_info[0] < 3:
-        # py2
-        print('[metabroker] requires py3k or later')
-        sys.exit()
-    else:
-        # py3k
-        print('[metabroker] initializing')
-        # process files in target directory
-        parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        parser.add_argument('-o', '--outputdir', help='output directory for extraction docs', required=True)
-        #parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
-        args = parser.parse_args()
-        argsdict = vars(args)
-        input_dir = argsdict['inputdir']
-        output_dir = argsdict['outputdir']
-        #output_to_console = argsdict['outputtostdout']
-        # check args
-        if not os.path.isdir(input_dir):
-            print('[metabroker] ! error, input dir "'+ input_dir + '" does not exist')
-            sys.exit()
-        else: pass
-        #if not os.path.isdir(output_dir):
-        #   print('[metabroker] directory"' + output_dir + '"  will be created during extraction...')
-        crosswalk = 'crosswalk.csv'
-        columns = ['Concept', 'raw', 'o2r', 'CodeMeta', 'DataCite', 'RADAR']
-        print('[metabroker] using ' + crosswalk)
-        # process all files in input directory
-        for file in os.listdir(input_dir):
-            if file.lower().startswith('meta_'):
-                if file.lower().endswith('.json'):
-                    do_broker(os.path.join(input_dir, file), output_dir)
-                elif file.lower().endswith('.xml'):
-                    # to do: xml input processing
-                    pass
+def map_this(element, value, map_data, xml_root):
+    a = None
+    try:
+        if type(value) is list or type(value) is dict:
+            print('[metabroker] unfolding key <' + str(element) +'>')
+            if str(element) in map_data:
+                fields = map_data[element]
+                fieldslist = fields.split(seperator)
+                # nestification along pseudo xpath from map data
+                for field in fieldslist:
+                    # pseudo xpath has no divisions:
+                    if len(fieldslist) == 1:
+                        a = ET.SubElement(xml_root, field)
+                        a.text = value
+                        break
+                    # element has been created in former loop circle because pseudo xpath has divisions:
+                    if a is not None: # do not change to "if a:". needs safe test for xml element class
+                        # insert content values from metadata in innermost element, i.e. last division in pseudo xpath
+                        if field == fieldslist[-1]:
+                            # in case the elements features is a list of lists:
+                            for key in value:
+                                if type(key) is list or type(key) is dict:
+                                    print('[metabroker] unfolding subkey list')
+                                    c = ET.SubElement(a, field)
+                                    for subkey in key:
+                                        if ''.join(subkey) in map_data:
+                                            d = ET.SubElement(c, map_data[subkey])
+                                            d.text = key[subkey]
+                                elif type(key) is str:
+                                    # simple lists added to element:
+                                    b = ET.SubElement(a, field)
+                                    b.text = key
+                                else:
+                                    continue
+                    # all other cases (no element with this name created yet)
+                    else:
+                        a = ET.SubElement(xml_root, field)
+                return xml_root
+            # element is not in map data:
             else:
-                pass
-        print('[metabroker] done')
+                print('[metabroker] skipping nested key <' + str(element) + '> (not in map)')
+        # value from metadata is simple, i.e. not nested, no list, no dictionary, just string:
+        elif type(value) is str:
+            if element in map_data:
+                fields = map_data[element]
+                fieldslist = fields.split(seperator)
+                # nestification along pseudo xpath from map data
+                for field in fieldslist:
+                    if len(fieldslist) == 1:
+                        a = ET.SubElement(xml_root, field)
+                        a.text = value
+                        break
+                    if a is not None: # do not change to "if a:". needs safe test for xml element class
+                        a = ET.SubElement(a, field)
+                        #insert content in innermost node, i.e. last in mapping pseudo xpath
+                        if field == fieldslist[-1]:
+                            a.text = value
+                    else:
+                        #attach to given super element
+                        a = ET.SubElement(xml_root, field)
+                return xml_root
+            else:
+                print('[metabroker] skipping key <'+ element + '> (not in map)')
+        else:
+            print('[metabroker] unknown data type in key')
+    except:
+        print('[metabroker] mapping error')
+        raise
+
+#Main
+if __name__ == "__main__":
+    # init
+    seperator = '#' #<-- make this generic
+    # load mappings
+    # XML maps
+    # load map for datacite
+    try:
+        with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:
+            map_datacite_data = json.load(data_file)
+        root = ET.Element(map_datacite_data['!root'])
+        root.set('xmlns', map_datacite_data['!root@xmlns'])
+        root.set('xmlns:xsi', map_datacite_data['!root@xmlns:xsi'])
+        root.set('xsi:schemaLocation', map_datacite_data['!root@xsi:schemaLocation'])
+    except:
+        raise
+    # test o2r output meta
+    with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+        test_data = json.load(data_file)
+    for element in test_data:
+        try:
+            map_this(element, test_data[element], map_datacite_data, root)
+        except:
+            # raise
+            continue
+    output = ET.tostring(root, encoding='utf8', method='xml')
+    print(minidom.parseString(output).toprettyxml(indent='\t'))

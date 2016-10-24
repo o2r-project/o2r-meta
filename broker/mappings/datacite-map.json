@@ -1,0 +1,16 @@
+{
+	"!map": "DataCite 4.0",
+	"!mode": "xml",
+	"!root": "resource",
+	"!root@xmlns": "http:\/\/datacite.org\/schema\/kernel-4",
+	"!root@xmlns:xsi": "http:\/\/www.w3.org\/2001\/XMLSchema-instance",
+	"!root@xsi:schemaLocation": "http:\/\/datacite.org\/schema\/kernel-4 http:\/\/schema.datacite.org\/meta\/kernel-4\/metadata.xsd",
+	"identifier": "identifier",
+	"Title": "titles#title",
+	"Author": "creators#creator",
+	"AuthorName": "creatorName",
+	"AuthorId": "nameIdentifier",
+	"Keywords": "subjects#subject",
+	"language": "language",
+	"abstract": "descriptions#description"
+}

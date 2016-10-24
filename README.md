@@ -53,10 +53,10 @@ Example:
 ## metabroker
 
 metabroker.py is a translator for raw metadata from the o2r project and common metadata schemas such as DataCite etc.
-Translation instructions are read from ```crosswalk.csv```.
+Translation instructions are read from mapping files (json).
 
 
-Required package: ```dicttoxml```
+Required package: ~~```dicttoxml```~~
 
 Usage:
 
