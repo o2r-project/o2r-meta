@@ -18,7 +18,7 @@
 #import argparse
 import json
 import os
-#import sys
+import sys
 from xml.dom import minidom
 
 import xml.etree.ElementTree as ET
