@@ -109,10 +109,12 @@ if __name__ == "__main__":
         try:
             with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:
                 map_datacite_data = json.load(data_file)
-            root = ET.Element(map_datacite_data['!root'])
-            root.set('xmlns', map_datacite_data['!root@xmlns'])
-            root.set('xmlns:xsi', map_datacite_data['!root@xmlns:xsi'])
-            root.set('xsi:schemaLocation', map_datacite_data['!root@xsi:schemaLocation'])
+                settings_data = map_datacite_data['Settings']
+                map_data = map_datacite_data['Map']
+            root = ET.Element(settings_data['root'])
+            root.set('xmlns', settings_data['root@xmlns'])
+            root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
+            root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
         except:
             raise
         # test o2r output meta
@@ -120,7 +122,7 @@ if __name__ == "__main__":
             test_data = json.load(data_file)
         for element in test_data:
             try:
-                map_this(element, test_data[element], map_datacite_data, root)
+                map_this(element, test_data[element], map_data, root)
             except:
                 # raise
                 continue

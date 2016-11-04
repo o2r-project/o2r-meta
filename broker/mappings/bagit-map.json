@@ -1,0 +1,13 @@
+{
+	"Settings": {
+		"name": "BagIt-14",
+		"mode": "txt",
+		"root": ""
+	},
+	"Map": {
+		"identifier": "External-Identifier",
+		"file": "Internal-Sender-Identifier",
+		"abstract": "External-Description",
+		"RecordDateCreated": "Bagging-Date"
+	}
+}

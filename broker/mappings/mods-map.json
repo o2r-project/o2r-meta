@@ -1,0 +1,20 @@
+{
+	"Settings": {
+		"name": "MODS 3.6",
+		"mode": "xml",
+		"root": "modsCollection",
+		"root@xmlns:xlink": "http:\/\/www.w3.org\/1999\/xlink",
+		"root@xmlns:xsi": "http:\/\/www.w3.org\/2001\/XMLSchema-instance",
+		"root@xsi:schemaLocation": "http:\/\/www.loc.gov\/mods\/v3 http:\/\/www.loc.gov\/standards\/mods\/v3\/mods-3-3.xsd",
+		"child1": "mods",
+		"child1@version": "3.6"
+	},
+	"Map": {
+		"Title": "titleInfo#title",
+		"Author": "name",
+		"AuthorName": "namePart",
+		"Keywords": "subject#topic",
+		"language": "language#languageTerm",
+		"RecordDateCreated": "originInfo#dateCreated"
+	}
+}
