@@ -1,107 +1,111 @@
 <?xml version="1.0" ?>
 <root>
+	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
 	<required>
-		<item>Author</item>
-		<item>DateCreated</item>
-		<item>Dependency</item>
-		<item>Description</item>
-		<item>GeneratedBy</item>
-		<item>RecordDateCreated</item>
-		<item>SoftwarePaperCitation</item>
-		<item>Version</item>
-		<item>ErcIdentifier</item>
-		<item>Title</item>
-		<item>Keywords</item>
-		<item>PaperLanguage</item>
+		<item>author</item>
+		<item>dateCreated</item>
+		<item>dependency</item>
+		<item>description</item>
+		<item>generatedBy</item>
+		<item>recordDateCreated</item>
+		<item>softwarePaperCitation</item>
+		<item>version</item>
+		<item>ercIdentifier</item>
+		<item>title</item>
+		<item>keywords</item>
+		<item>paperLanguage</item>
 	</required>
 	<type>object</type>
 	<definitions>
-		<Author>
-			<type>array</type>
-			<properties>
-				<AuthorId>
-					<type>array</type>
-				</AuthorId>
-				<AuthorAffiliation>
-					<type>array</type>
-				</AuthorAffiliation>
-				<AuthorName>
-					<type>string</type>
-				</AuthorName>
-			</properties>
-			<required>
-				<item>AuthorAffiliation</item>
-				<item>AuthorName</item>
-			</required>
-		</Author>
-		<Dependency>
-			<type>array</type>
-			<properties>
-				<operatingSystem>
-					<type>string</type>
-				</operatingSystem>
-				<version>
-					<type>string</type>
-				</version>
-				<packageSystem>
-					<type>string</type>
-				</packageSystem>
-				<packageId>
-					<type>string</type>
-				</packageId>
-			</properties>
+		<depends>
 			<required>
 				<item>packageId</item>
 				<item>packageSystem</item>
 				<item>version</item>
 			</required>
-		</Dependency>
+			<type>array</type>
+			<items>
+				<properties>
+					<operatingSystem>
+						<type>array</type>
+					</operatingSystem>
+					<version>
+						<type>string</type>
+					</version>
+					<packageId>
+						<type>string</type>
+					</packageId>
+					<packageSystem>
+						<type>string</type>
+					</packageSystem>
+				</properties>
+			</items>
+		</depends>
+		<author>
+			<required>
+				<item>authorAffiliation</item>
+				<item>authorName</item>
+			</required>
+			<type>array</type>
+			<items>
+				<properties>
+					<authorId>
+						<type>array</type>
+					</authorId>
+					<authorAffiliation>
+						<type>array</type>
+					</authorAffiliation>
+					<authorName>
+						<type>string</type>
+					</authorName>
+				</properties>
+			</items>
+		</author>
 	</definitions>
 	<properties>
-		<InteractionMethod>
+		<ercIdentifier>
 			<type>string</type>
-		</InteractionMethod>
-		<Dependency>
-			<key name="$ref">#/definitions/Dependency</key>
-		</Dependency>
-		<DateCreated>
+		</ercIdentifier>
+		<author>
+			<key name="$ref">#/definitions/author</key>
+		</author>
+		<objectType>
 			<type>string</type>
-		</DateCreated>
-		<Keywords>
+		</objectType>
+		<generatedBy>
 			<type>string</type>
-		</Keywords>
-		<Title>
+		</generatedBy>
+		<depends>
+			<key name="$ref">#/definitions/depends</key>
+		</depends>
+		<title>
 			<type>string</type>
-		</Title>
-		<Version>
+		</title>
+		<dateCreated>
 			<type>string</type>
-		</Version>
-		<Description>
+		</dateCreated>
+		<softwarePaperCitation>
 			<type>string</type>
-		</Description>
-		<ObjectType>
+		</softwarePaperCitation>
+		<paperLanguage>
 			<type>string</type>
-		</ObjectType>
-		<GeneratedBy>
+		</paperLanguage>
+		<recordDateCreated>
 			<type>string</type>
-		</GeneratedBy>
-		<PaperLanguage>
+		</recordDateCreated>
+		<interactionMethod>
 			<type>string</type>
-		</PaperLanguage>
-		<SoftwarePaperCitation>
+		</interactionMethod>
+		<version>
 			<type>string</type>
-		</SoftwarePaperCitation>
-		<ErcIdentifier>
+		</version>
+		<description>
 			<type>string</type>
-		</ErcIdentifier>
-		<Author>
-			<key name="$ref">#/definitions/Author</key>
-		</Author>
-		<RecordDateCreated>
+		</description>
+		<keywords>
 			<type>string</type>
-		</RecordDateCreated>
+		</keywords>
 	</properties>
-	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
+	<description>o2r metadata schema</description>
 	<title>o2r-meta</title>
-	<description>derived of codemeta json-schema</description>
 </root>

@@ -1,13 +1,14 @@
 {
 	"Settings": {
 		"name": "BagIt-14",
+		"map_description": "maps to bagit",
 		"mode": "txt",
 		"root": ""
 	},
 	"Map": {
 		"identifier": "External-Identifier",
 		"file": "Internal-Sender-Identifier",
-		"abstract": "External-Description",
-		"RecordDateCreated": "Bagging-Date"
+		"description": "External-Description",
+		"recordDateCreated": "Bagging-Date"
 	}
 }

@@ -22,7 +22,7 @@ import sys
 from xml.dom import minidom
 
 import xml.etree.ElementTree as ET
-#import dicttoxml
+
 
 
 def map_this(element, value, map_data, xml_root):
@@ -103,8 +103,13 @@ if __name__ == "__main__":
     else:
         # init
         seperator = '#' #<-- make this generic
-        # load mappings
-        # XML maps
+        # to do: transform o2r raw extraced to o2r schema using o2r-map.json
+        #try:
+        #    with open(os.path.join('mappings', 'o2r-map.json'), encoding='utf-8') as data_file:
+        #    ...
+        #except:
+        #    raise
+        # ------ XML maps ------
         # load map for datacite
         try:
             with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:

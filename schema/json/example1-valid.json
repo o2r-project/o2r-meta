@@ -1,35 +1,30 @@
 {
-    "ErcIdentifier": "Pd2k9b2xaH",
-    "Author": [
-    {
-       "AuthorAffiliation": "Wesleyan University",
-       "AuthorId": "orcid.org/0000-0002-1825-0097",
-       "AuthorName": "Josiah Carberry"
-    }
-    ],
-    "DateCreated": "2016-10-01",
-    "Dependency": [
-    {
-       "operatingSystem": ["Windows", "OS X", "Linux"],
-       "packageId": "LoremizationIssue",
-       "packageSystem": "https://cloud.r-project.org/",
-       "version": "1"
-    },
-    {
-       "operatingSystem": ["raspbian"],
-       "packageId": "yetAnotherPackage",
-       "packageSystem": "https://cloud.r-project.org/",
-       "version": "3.14"
-    }
-    ],
-    "Description": "It's about something. Moreover it can be very యూనికోడ్.",
-    "GeneratedBy": "Josiah Carberry",
-    "InteractionMethod": "script",
-    "ObjectType": "software",
-    "RecordDateCreated": "2016-07-14",
-    "SoftwarePaperCitation": "Deconstructing Write-Back Caches, http://dx.doi.org/10.5555/777766665555",
-    "Version": "v1.2",
-    "Title": "A measurement framework for write-back caches",
-    "Keywords": "wbc, frameworks",
-    "PaperLanguage": "en"
+	"ercIdentifier": "Pd2k9b2xaH",
+	"author": [{
+		"authorAffiliation": ["Wesleyan University"],
+		"authorId": ["orcid.org/0000-0002-1825-0097"],
+		"authorName": "Josiah Carberry"
+	}],
+	"dateCreated": "2016-10-01",
+	"dependency": [{
+		"operatingSystem": ["Windows", "OS X", "Linux"],
+		"packageId": "LoremizationIssue",
+		"packageSystem": "https://cloud.r-project.org/",
+		"version": "1"
+	},{
+		"operatingSystem": ["raspbian"],
+		"packageId": "yetAnotherPackage",
+		"packageSystem": "https://cloud.r-project.org/",
+		"version": "3.14"
+	}],
+	"description": "It's about something. Moreover it can be very యూనికోడ్.",
+	"generatedBy": "Josiah Carberry",
+	"interactionMethod": "script",
+	"objectType": "software",
+	"recordDateCreated": "2016-07-14",
+	"softwarePaperCitation": "Deconstructing Write-Back Caches, http://dx.doi.org/10.5555/777766665555",
+	"version": "v1.2",
+	"title": "A measurement framework for write-back caches",
+	"keywords": "wbc, frameworks",
+	"paperLanguage": "en"
 }

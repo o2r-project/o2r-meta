@@ -1,4 +1,4 @@
 dicttoxml
 PyYAML
-python_jsonschema_objects
+jsonschema
 guess_language-spirit

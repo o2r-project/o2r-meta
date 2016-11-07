@@ -33,67 +33,17 @@ def parse_exobj(parameter):
     # want to know from this function:
     # packages, versions of packages
     # ERCIdentifier
+    # uses list(...list(),list(),...) for packages
     result = ''
     return result
 
 def parse_yaml(input_text):
-    yaml_data_dict = []
     try:
+        #yaml_data_dict = []
         yaml_data_dict = yaml.safe_load(input_text)
+        return yaml_data_dict
     except yaml.YAMLError as exc:
         print('[metaextract] ! error, yaml parser -' + str(exc.problem_mark) + str(exc.problem))
-    # restructure and rename header data as:
-    # to do: simplify this as def() call
-    # different cases:
-    # - key: value
-    # - key: list of values
-    # - key: subkey: value
-    if 'author' in yaml_data_dict:
-        for key in yaml_data_dict['author']:
-            # to do: check if key is present before trying to drop it
-            key['AuthorName'] = key.pop('name')
-            key['AuthorAffiliation'] = key.pop('affiliation')
-            yaml_data_dict.setdefault('Author', []).append(key)
-        yaml_data_dict.pop('author')
-
-    if 'title' in yaml_data_dict:
-        found = False
-        for key in yaml_data_dict['title']:
-            if key == 'plain':
-                yaml_data_dict['Title'] = yaml_data_dict['title']['plain']
-                found = True
-        if not found:
-            yaml_data_dict['Title'] = yaml_data_dict['title']
-        yaml_data_dict.pop('title')
-
-    if 'tags' in yaml_data_dict:
-        for key in yaml_data_dict['tags']:
-            yaml_data_dict['Keywords'] = yaml_data_dict['tags']
-        yaml_data_dict.pop('tags')
-
-    if 'keywords' in yaml_data_dict:
-        found = False
-        for key in yaml_data_dict['keywords']:
-            if key == 'plain':
-                yaml_data_dict['Keywords'] = yaml_data_dict['keywords']['plain']
-                found = True
-        if not found:
-            yaml_data_dict['Keywords'] = yaml_data_dict['keywords']
-        yaml_data_dict.pop('keywords')
-
-    # clean up remaining information from rmd yaml header
-    if 'classoption' in yaml_data_dict:
-        yaml_data_dict['yamlheader_classoption'] = yaml_data_dict.pop('classoption')
-    if 'documentclass' in yaml_data_dict:
-        yaml_data_dict['yamlheader_documentclass'] = yaml_data_dict.pop('documentclass')
-    if 'output' in yaml_data_dict:
-        yaml_data_dict['yamlheader_output'] = yaml_data_dict.pop('output')
-    if 'preamble' in yaml_data_dict:
-        yaml_data_dict['yamlheader_preamble'] = yaml_data_dict.pop('preamble')
-    if 'vignette' in yaml_data_dict:
-        yaml_data_dict['yamlheader_vignette'] = yaml_data_dict.pop('vignette')
-
-    return yaml_data_dict
 
 def parse_r(input_text):
     c = 0
@@ -106,10 +56,10 @@ def parse_r(input_text):
             if m:
                 if len(m.groups()) > 0:
                     # r comment
-                    if this_rule[0] == 'Comment':
+                    if this_rule[0] == 'comment':
                         segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
                     # r dependency
-                    elif this_rule[0] == 'Dependency':
+                    elif this_rule[0] == 'depends':
                         # get these from live extraction results (o2rexobj.txt)
                         dep_os = parse_exobj('os')
                         dep_packetsys = 'https://cloud.r-project.org/'
@@ -140,17 +90,17 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
     # to do: create args for path_to_liveex_logfile and papersource
     erc_id = '' # find in o2r_run, get via parse_exobj()
     papersource = os.path.basename(my_pathfile)
-    object_type = 'PaperSourceFile'
+    object_type = 'paperSourceFile'
     interaction_method = 'e.g. add docker cmd here' # find entry point in ../container/Dockerfile
     record_date = datetime.datetime.today().strftime('%Y-%m-%d')
-    data_dict = {'file': my_pathfile, 'ErcIdentifier': erc_id, 'GeneratedBy': 'metaextract.py', 'RecordDateCreated': record_date , 'papersource': papersource, 'ObjectType': object_type, 'InteractionMethod': interaction_method}
+    data_dict = {'file': my_pathfile, 'ercIdentifier': erc_id, 'generatedBy': 'metaextract.py', 'recordDateCreated': record_date , 'paperSource': papersource, 'objectType': object_type, 'interactionMethod': interaction_method}
     with open(os.path.relpath(my_pathfile), encoding='utf-8') as input_file:
         content = input_file.read()
         # apply multiline re for rmd, yaml, etc.
         if multiline:
             # try guess lang
             language = ''
-            data_dict['language'] = ''
+            data_dict['paperLanguage'] = ''
             t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
             if t:
                 data_dict.update(language = guess_language(t.group(1)))
@@ -172,7 +122,7 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
         output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
         output_fileext = '.json'
     if modus == 'xml':
-        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict)).toprettyxml(indent='\t')
+        output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict, attr_type = False)).toprettyxml(indent='\t')
         output_fileext = '.xml'
     timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
     # "meta_" prefix as distinctive feature for metabroker later in workflow
@@ -195,6 +145,29 @@ if __name__ == "__main__":
         sys.exit()
     else:
         # py3k
+        parser = argparse.ArgumentParser(description='description')
+        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
+        parser.add_argument('-m', '--modus', help='output format xml or json', required=True)
+        parser.add_argument('-o', '--outputdir', help='output directory for extraction docs', required=True)
+        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
+        args = parser.parse_args()
+        argsdict = vars(args)
+        input_dir = argsdict['inputdir']
+        output_modus = argsdict['modus']
+        output_dir = argsdict['outputdir']
+        output_to_console = argsdict['outputtostdout']
+        # check args
+        if not os.path.isdir(input_dir):
+            print('[metaextract] ! error, input dir "'+ input_dir + '" does not exist')
+            sys.exit()
+        else: pass
+        if not os.path.isdir(output_dir):
+           print('[metaextract] directory"' + output_dir + '"  will be created during extraction...')
+        if not output_modus == 'json' and not output_modus == 'xml':
+            print('[metaextract] ! error, modus "'+ output_modus +'" is not available, choose -m "json" or "xml"')
+            sys.exit()
+        else: pass
+        #load rules:
         print('[metaextract] initializing')
         # rule set for r, compose as: category name TAB entry feature name TAB regex
         rule_set_r = []
@@ -218,28 +191,6 @@ if __name__ == "__main__":
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
         # process files in target directory
-        parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        parser.add_argument('-m', '--modus', help='output format xml or json', required=True)
-        parser.add_argument('-o', '--outputdir', help='output directory for extraction docs', required=True)
-        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
-        args = parser.parse_args()
-        argsdict = vars(args)
-        input_dir = argsdict['inputdir']
-        output_modus = argsdict['modus']
-        output_dir = argsdict['outputdir']
-        output_to_console = argsdict['outputtostdout']
-        # check args
-        if not os.path.isdir(input_dir):
-            print('[metaextract] ! error, input dir "'+ input_dir + '" does not exist')
-            sys.exit()
-        else: pass
-        if not os.path.isdir(output_dir):
-           print('[metaextract] directory"' + output_dir + '"  will be created during extraction...')
-        if not output_modus == 'json' and not output_modus == 'xml':
-            print('[metaextract] ! error, modus "'+ output_modus +'" is not available, choose -m "json" or "xml"')
-            sys.exit()
-        else: pass
         # process all files in input directory
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):

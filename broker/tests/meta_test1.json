@@ -1,38 +1,52 @@
 {
-    "Author": [
+    "abstract": "Tempus eget nunc eu, lobortis condimentum nulla. Nam sagittis massa nec libero luctus facilisis. Suspendisse ac ornare ligula. Morbi non dignissim sem. Pellentesque eleifend neque nec dui interdum varius.\n",
+    "author": [
         {
-            "AuthorAffiliation": "University of Munster",
-            "AuthorName": "Ted Tester",
-            "AuthorId": "http://orcid.org/0000-0002-1825-0097",
             "Telephone": "+00/00/1000-2000",
             "address": "This might be a correct address Yet it might also be lorem ipsum\\newline Another line 252b\\newline 00000 Anywhere, Nomansland\n",
+            "affiliation": "University of Munster",
             "affiliation2": "University of Nowhere",
             "email": "ted.tester@awebsite8372930.org",
+            "name": "Ted Tester",
             "url": "\\url{http://404.awebsite8372930.org}"
         },
         {
-            "AuthorAffiliation": "N.O.N.E",
-            "AuthorName": "Carl Connauthora",
-            "AuthorId": "http://orcid.org/1234-0002-1825-0097"
+            "affiliation": "N.O.N.E",
+            "name": "Carl Connauthora"
         }
     ],
-    "ErcIdentifier": "1afskln23",
-    "GeneratedBy": "metaextract.py",
-    "InteractionMethod": "fancy widget",
-    "Keywords": [
-        "lorem",
-        "ipsum",
-        "dolor",
-        "sit",
-        "amet"
-    ],
-    "ObjectType": "PaperSourceFile",
-    "RecordDateCreated": "2016-09-19",
-    "Title": "This is the title: it contains a colon",
-    "abstract": "Tempus eget nunc eu, lobortis condimentum nulla. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero.\n Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
+    "classoption": "shortnames",
+    "documentclass": "nojss",
+    "ercIdentifier": "",
     "file": "tests\\test2.Rmd",
+    "generatedBy": "metaextract.py",
+    "interactionMethod": "e.g. add docker cmd here",
+    "keywords": {
+        "formatted": [
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet"
+        ],
+        "plain": [
+            "lorem",
+            "ipsum",
+            "dolor",
+            "sit",
+            "amet"
+        ]
+    },
     "language": "en",
-    "papersource": "test2.Rmd",
+    "objectType": "paperSourceFile",
+    "output": {
+        "rticles::jss_article": {
+            "pandoc_args": "--natbib"
+        }
+    },
+    "paperLanguage": "",
+    "paperSource": "test2.Rmd",
+    "preamble": "\\usepackage{amsmath} \\usepackage{array} \\usepackage{caption} \\usepackage{subcaption} \\usepackage{float} \\usepackage{framed} \\usepackage{listings}\n",
     "r_codeblock": {
         "Comment": [
             {
@@ -58,52 +72,34 @@
         ],
         "Dependency": [
             {
-                "category": "geo sciences,CRAN Top100",
+                "feature": "",
                 "line": 3,
-                "operatingSystem": "",
-                "packageId": "RColorBrewer",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "RColorBrewer"
             },
             {
-                "category": "geo sciences,CRAN Top100",
+                "feature": "",
                 "line": 4,
-                "operatingSystem": "",
-                "packageId": "dplyr",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "dplyr"
             },
             {
-                "category": "geo sciences,CRAN Top100",
+                "feature": "",
                 "line": 5,
-                "operatingSystem": "",
-                "packageId": "ggplot2",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "ggplot2"
             },
             {
-                "category": "none",
+                "feature": "",
                 "line": 6,
-                "operatingSystem": "",
-                "packageId": "definitivelyUnknownPackage",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "definitivelyUnknownPackage"
             },
             {
-                "category": "CRAN Top100",
+                "feature": "",
                 "line": 7,
-                "operatingSystem": "",
-                "packageId": "minqa",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "minqa"
             },
             {
-                "category": "geo sciences",
+                "feature": "",
                 "line": 8,
-                "operatingSystem": "",
-                "packageId": "PBSmapping",
-                "packageSystem": "https://cloud.r-project.org/",
-                "version": ""
+                "text": "PBSmapping"
             }
         ],
         "Output": [
@@ -119,13 +115,7 @@
             }
         ]
     },
-    "yamlheader_classoption": "shortnames",
-    "yamlheader_documentclass": "nojss",
-    "yamlheader_output": {
-        "rticles::jss_article": {
-            "pandoc_args": "--natbib"
-        }
-    },
-    "yamlheader_preamble": "\\usepackage{amsmath} \\usepackage{array} \\usepackage{caption} \\usepackage{subcaption} \\usepackage{float} \\usepackage{framed} \\usepackage{listings}\n",
-    "yamlheader_vignette": "%\\VignetteIndexEntry{VforVignetta} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8} %\\VignetteDepends{rticles, ggplot2, scales, reshape2, xtable}\n"
+    "recordDateCreated": "2016-11-07",
+    "title": "This is the title: it contains a colon",
+    "vignette": "%\\VignetteIndexEntry{VforVignetta} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8} %\\VignetteDepends{rticles, ggplot2, scales, reshape2, xtable}\n"
 }

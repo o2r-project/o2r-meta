@@ -1,85 +1,103 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "o2r-meta",
-  "description": "derived of codemeta json-schema",
-  "definitions": {
-    "Author": {
-      "type": "array",
-      "properties": {
-        "AuthorAffiliation": { "type": "array" },
-        "AuthorId": { "type": "array" },
-        "AuthorName": { "type": "string" }
-      },
-      "required": ["AuthorAffiliation", "AuthorName"]
-    },
-    "Dependency": {
-      "type": "array",
-      "properties": {
-        "operatingSystem": { "type": "array" },
-        "packageId": { "type": "string" },
-        "packageSystem": { "type": "string" },
-        "version": { "type": "string" }
-      },
-      "required": ["packageId", "packageSystem", "version"]
-    }
-  },
-  "type": "object",
-  "properties": {
-      "Author":{
-          "$ref": "#/definitions/Author"
-      },
-      "DateCreated":{
-          "type": "string"
-      },
-      "Dependency":{
-          "$ref": "#/definitions/Dependency"
-      },
-      "Description":{
-          "type": "string"
-      },
-      "GeneratedBy":{
-          "type": "string"
-      },
-      "InteractionMethod":{
-          "type": "string"
-      },
-      "ObjectType":{
-          "type": "string"
-      },
-      "RecordDateCreated":{
-          "type": "string"
-      },
-      "SoftwarePaperCitation":{
-          "type": "string"
-      },
-      "Version":{
-          "type": "string"
-      },
-      "ErcIdentifier":{
-          "type": "string"
-      },
-      "Title":{
-          "type": "string"
-      },
-      "Keywords":{
-          "type": "string"
-      },
-      "PaperLanguage":{
-          "type": "string"
-      }
-   },
-  "required": [
-     "Author",
-     "DateCreated",
-     "Dependency",
-     "Description",
-     "GeneratedBy",
-     "RecordDateCreated",
-     "SoftwarePaperCitation",
-     "Version",
-     "ErcIdentifier",
-     "Title",
-     "Keywords",
-     "PaperLanguage"
-  ]
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "o2r-meta",
+	"description": "o2r metadata schema",
+	"definitions": {
+		"author": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"authorAffiliation": {
+						"type": "array"
+					},
+					"authorId": {
+						"type": "array"
+					},
+					"authorName": {
+						"type": "string"
+					}
+				}
+			},
+			"required": ["authorAffiliation", "authorName"]
+		},
+		"depends": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"operatingSystem": {
+						"type": "array"
+					},
+					"packageId": {
+						"type": "string"
+					},
+					"packageSystem": {
+						"type": "string"
+					},
+					"version": {
+						"type": "string"
+					}
+				}
+			},
+			"required": ["packageId", "packageSystem", "version"]
+		}
+	},
+	"type": "object",
+	"properties": {
+		"author": {
+			"$ref": "#/definitions/author"
+		},
+		"dateCreated": {
+			"type": "string"
+		},
+		"depends": {
+			"$ref": "#/definitions/depends"
+		},
+		"description": {
+			"type": "string"
+		},
+		"generatedBy": {
+			"type": "string"
+		},
+		"interactionMethod": {
+			"type": "string"
+		},
+		"objectType": {
+			"type": "string"
+		},
+		"recordDateCreated": {
+			"type": "string"
+		},
+		"softwarePaperCitation": {
+			"type": "string"
+		},
+		"version": {
+			"type": "string"
+		},
+		"ercIdentifier": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		},
+		"keywords": {
+			"type": "string"
+		},
+		"paperLanguage": {
+			"type": "string"
+		}
+	},
+	"required": [
+		"author",
+		"dateCreated",
+		"dependency",
+		"description",
+		"generatedBy",
+		"recordDateCreated",
+		"softwarePaperCitation",
+		"version",
+		"ercIdentifier",
+		"title",
+		"keywords",
+		"paperLanguage"
+	]
 }

@@ -2,13 +2,40 @@
 
 # o2r meta
 
-This is a collection of metadata related micro services for the o2r-platform, including our schema and documentation.
+This is a collection of metadata related micro services for the o2r-platform:
 
-# installation
+1. schema & documentation of the o2r metadata
+2. metaextract - collect meta information from files or session
+3. metaharvest - collect metadata from external sources via OAI-PMH
+4. metavalidate - check if metadata set is valid to the schema
+5. metabroker - translate metadat from o2r to third party schemas
+
+
+## License
+
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
+The documentation of the schemas available at ```o2r-meta/schema/docs/``` is licensed under a [CC-BY 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
+Copyright (C) 2016 - o2r project.
+
+
+## Installation
 
     pip install -r requirements.txt
 
-## metaextract
+or use dockerfiles where applicable.
+
+---
+
+## 1. schema & documentation
+
++ o2r metadata schema with example and documentation. Currently the main schema is an adaption of the codemeta schema for software metadata. In addition to that we provide a schema for UI metadata
++ Our schemas are designed as json schemas. XML versions are generated automatically but regarded as secondary.
+
+
+---
+
+
+## 2. metaextract
 
 metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts.
 
@@ -36,7 +63,7 @@ Example:
 
 ---
 
-## metaharvester
+## 3. metaharvester
 
 metaharvest.py collects OAI-PMH metadata from Datacite and parses them to assist the completion of a metadata set in o2r.
 
@@ -50,38 +77,12 @@ Example:
 
 ---
 
-## metabroker
 
-metabroker.py is a translator for raw metadata from the o2r project and common metadata schemas such as DataCite etc.
-Translation instructions are read from mapping files (json).
-
-
-Required package: ~~```dicttoxml```~~
-
-Usage:
-
-    python metabroker.py -i INPUT_DIR -o OUTPUT_DIR
-
-+ the script parses all json files in the input directory that begin with "meta_" (possible outputs of metaextract.py)
-
-Example:
-
-    python metabroker.py -i"tests" -o"tests"
-
----
-
-## schema
-
-+ o2r metadata schema with example and documentation. Currently the main schema is an adaption of the codemeta schema for software metadata. In addition to that we provide a schema for UI metadata
-+ Our schemas are designed as json schemas. XML versions are generated automatically but regarded as secondary.
-
----
-
-## metavalidate
+## 4. metavalidate
 
 metavalidate.py is a simple validator for json schemas
 
-Required package: ```python_jsonschema_objects```
+Required package: ```jsonschema```
 
 Usage:
 
@@ -102,8 +103,22 @@ Example:
 
 ---
 
-## License
+## 5. metabroker
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
-The documentation of the schemas available at ```o2r-meta/schema/docs/``` is licensed under a [CC-BY 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
-Copyright (C) 2016 - o2r project.
+metabroker.py is a translator for raw metadata from the o2r project and common metadata schemas such as DataCite etc.
+Translation instructions are read from mapping files (json).
+
+
+Required package: %
+
+Usage:
+
+    python metabroker.py -i INPUT_DIR -o OUTPUT_DIR
+
++ the script parses all json files in the input directory that begin with "meta_" (possible outputs of metaextract.py)
+
+Example:
+
+    python metabroker.py -i"tests" -o"tests"
+
+

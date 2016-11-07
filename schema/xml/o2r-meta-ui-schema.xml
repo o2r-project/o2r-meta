@@ -1,29 +1,25 @@
 <?xml version="1.0" ?>
 <root>
-	<required>
-		<item>ErcIdentifier</item>
-	</required>
+	<properties>
+		<checkboxes>
+			<key name="$ref">#/definitions/checkboxes</key>
+		</checkboxes>
+		<ercIdentifier>
+			<type>string</type>
+		</ercIdentifier>
+		<sliders>
+			<key name="$ref">#/definitions/sliders</key>
+		</sliders>
+		<radiobuttons>
+			<key name="$ref">#/definitions/radiobuttons</key>
+		</radiobuttons>
+	</properties>
 	<key name="$schema">http://json-schema.org/draft-04/schema#</key>
+	<description>o2r metadata for ui widgets</description>
 	<title>o2r-meta-ui</title>
 	<definitions>
 		<checkboxes>
-			<properties>
-				<value>
-					<type>number</type>
-				</value>
-				<reference_point>
-					<type>string</type>
-				</reference_point>
-				<label>
-					<type>string</type>
-				</label>
-				<parameter_type>
-					<type>string</type>
-				</parameter_type>
-				<is_checked>
-					<type>boolean</type>
-				</is_checked>
-			</properties>
+			<type>array</type>
 			<required>
 				<item>label</item>
 				<item>value</item>
@@ -31,85 +27,91 @@
 				<item>parameter_type</item>
 				<item>reference_point</item>
 			</required>
-			<type>array</type>
+			<items>
+				<properties>
+					<is_checked>
+						<type>boolean</type>
+					</is_checked>
+					<reference_point>
+						<type>string</type>
+					</reference_point>
+					<label>
+						<type>string</type>
+					</label>
+					<parameter_type>
+						<type>string</type>
+					</parameter_type>
+					<value>
+						<type>number</type>
+					</value>
+				</properties>
+			</items>
 		</checkboxes>
-		<radiobuttons>
-			<properties>
-				<value>
-					<type>number</type>
-				</value>
-				<reference_point>
-					<type>string</type>
-				</reference_point>
-				<label>
-					<type>string</type>
-				</label>
-				<parameter_type>
-					<type>string</type>
-				</parameter_type>
-				<is_checked>
-					<type>boolean</type>
-				</is_checked>
-			</properties>
-			<required>
-				<item>label</item>
-				<item>value</item>
-				<item>is_checked</item>
-				<item>parameter_type</item>
-				<item>reference_point</item>
-			</required>
-			<type>array</type>
-		</radiobuttons>
 		<sliders>
-			<properties>
-				<value_max>
-					<type>number</type>
-				</value_max>
-				<reference_point>
-					<type>string</type>
-				</reference_point>
-				<label>
-					<type>string</type>
-				</label>
-				<value_min>
-					<type>number</type>
-				</value_min>
-				<is_checked>
-					<type>boolean</type>
-				</is_checked>
-				<value>
-					<type>number</type>
-				</value>
-				<parameter_type>
-					<type>string</type>
-				</parameter_type>
-			</properties>
+			<type>array</type>
 			<required>
 				<item>label</item>
 				<item>value</item>
 				<item>value_min</item>
 				<item>value_max</item>
+				<item>parameter_type</item>
+				<item>reference_point</item>
+			</required>
+			<items>
+				<properties>
+					<reference_point>
+						<type>string</type>
+					</reference_point>
+					<label>
+						<type>string</type>
+					</label>
+					<parameter_type>
+						<type>string</type>
+					</parameter_type>
+					<value>
+						<type>number</type>
+					</value>
+					<value_max>
+						<type>number</type>
+					</value_max>
+					<value_min>
+						<type>number</type>
+					</value_min>
+				</properties>
+			</items>
+		</sliders>
+		<radiobuttons>
+			<type>array</type>
+			<required>
+				<item>label</item>
+				<item>value</item>
 				<item>is_checked</item>
 				<item>parameter_type</item>
 				<item>reference_point</item>
 			</required>
-			<type>array</type>
-		</sliders>
-	</definitions>
-	<description>o2r ui widgets meta information</description>
-	<properties>
-		<ErcIdentifier>
-			<type>string</type>
-		</ErcIdentifier>
-		<checkboxes>
-			<key name="$ref">#/definitions/checkboxes</key>
-		</checkboxes>
-		<radiobuttons>
-			<key name="$ref">#/definitions/radiobuttons</key>
+			<items>
+				<properties>
+					<is_checked>
+						<type>boolean</type>
+					</is_checked>
+					<reference_point>
+						<type>string</type>
+					</reference_point>
+					<label>
+						<type>string</type>
+					</label>
+					<parameter_type>
+						<type>string</type>
+					</parameter_type>
+					<value>
+						<type>number</type>
+					</value>
+				</properties>
+			</items>
 		</radiobuttons>
-		<sliders>
-			<key name="$ref">#/definitions/sliders</key>
-		</sliders>
-	</properties>
+	</definitions>
 	<type>object</type>
+	<required>
+		<item>ercIdentifier</item>
+	</required>
 </root>

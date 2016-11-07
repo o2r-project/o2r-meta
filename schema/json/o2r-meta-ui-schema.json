@@ -1,52 +1,97 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "o2r-meta-ui",
-  "description": "o2r ui widgets meta information",
-  "definitions": {
-    "radiobuttons": {
-      "type": "array",
-      "properties": {
-        "label": { "type": "string" },
-        "value": { "type": "number" },
-        "is_checked": { "type": "boolean" },
-        "parameter_type": { "type": "string" },
-        "reference_point": { "type": "string" }
-      },
-      "required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
-    },
-    "checkboxes": {
-      "type": "array",
-      "properties": {
-        "label": { "type": "string" },
-        "value": { "type": "number" },
-        "is_checked": { "type": "boolean" },
-        "parameter_type": { "type": "string" },
-        "reference_point": { "type": "string" }
-      },
-      "required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
-    },
-    "sliders": {
-      "type": "array",
-      "properties": {
-        "label": { "type": "string" },
-        "value": { "type": "number" },
-        "value_min": { "type": "number" },
-        "value_max": { "type": "number" },
-        "is_checked": { "type": "boolean" },
-        "parameter_type": { "type": "string" },
-        "reference_point": { "type": "string" }
-      },
-      "required": ["label", "value", "value_min", "value_max", "is_checked", "parameter_type", "reference_point"]
-    }
-  },
-  "type": "object",
-  "properties": {
-      "ErcIdentifier": { "type": "string" },
-      "radiobuttons": { "$ref": "#/definitions/radiobuttons" },
-      "checkboxes": { "$ref": "#/definitions/checkboxes" },
-      "sliders": { "$ref": "#/definitions/sliders" }
-   },
-  "required": [
-      "ErcIdentifier"
-   ]  
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "o2r-meta-ui",
+	"description": "o2r metadata for ui widgets",
+	"definitions": {
+		"radiobuttons": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"value": {
+						"type": "number"
+					},
+					"is_checked": {
+						"type": "boolean"
+					},
+					"parameter_type": {
+						"type": "string"
+					},
+					"reference_point": {
+						"type": "string"
+					}
+				}
+			},
+			"required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
+		},
+		"checkboxes": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"value": {
+						"type": "number"
+					},
+					"is_checked": {
+						"type": "boolean"
+					},
+					"parameter_type": {
+						"type": "string"
+					},
+					"reference_point": {
+						"type": "string"
+					}
+				}
+			},
+			"required": ["label", "value", "is_checked", "parameter_type", "reference_point"]
+		},
+		"sliders": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"label": {
+						"type": "string"
+					},
+					"value": {
+						"type": "number"
+					},
+					"value_min": {
+						"type": "number"
+					},
+					"value_max": {
+						"type": "number"
+					},
+					"parameter_type": {
+						"type": "string"
+					},
+					"reference_point": {
+						"type": "string"
+					}
+				}
+			},
+			"required": ["label", "value", "value_min", "value_max", "parameter_type", "reference_point"]
+		}
+	},
+	"type": "object",
+	"properties": {
+		"ercIdentifier": {
+			"type": "string"
+		},
+		"radiobuttons": {
+			"$ref": "#/definitions/radiobuttons"
+		},
+		"checkboxes": {
+			"$ref": "#/definitions/checkboxes"
+		},
+		"sliders": {
+			"$ref": "#/definitions/sliders"
+		}
+	},
+	"required": [
+		"ercIdentifier"
+	]
 }

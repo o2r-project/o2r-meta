@@ -1,7 +1,7 @@
 ---
 title: 'o2r metadata schema documentation'
 author: o2r-project
-version: 0.022
+version: 0.023
 license: CC-BY 4.0 International
 ---
 
@@ -26,32 +26,32 @@ The required information for a complete set of o2r metadata according to this sc
 
 ### Main Schema
 
-- ```Author``` (mandatory, 1-n)
- - ```AuthorAffiliation``` (mandatory, 1-n)
- - ```AuthorId``` (optional, 0-n)
- - ```AuthorName``` (mandatory, 1)
-- ```DateCreated``` (optional, 0-1)
-- ```Dependency``` (mandatory, 1-n)
+- ```author``` (mandatory, 1-n)
+ - ```authorAffiliation``` (mandatory, 1-n)
+ - ```authorId``` (optional, 0-n)
+ - ```authorName``` (mandatory, 1)
+- ```dateCreated``` (optional, 0-1)
+- ```depends``` (mandatory, 1-n)
  - ```operatingSystem``` (optional, 0-n)
  - ```packageId``` (mandatory, 1)
  - ```packageSystem``` (mandatory, 1)
  - ```version``` (mandatory, 1)
-- ```Description``` (mandatory, 1)
-- ```ErcIdentifier``` (mandatory, 1)
-- ```GeneratedBy``` (mandatory, 1)
-- ```InteractionMethod``` (optional, 0-n)
-- ```Keywords``` (mandatory, 1-n)
-- ```ObjectType``` (optional, 0-1)
-- ```PaperLanguage``` (optional, 0-n)
-- ```RecordDateCreated``` (optional, 0-1)
-- ```SoftwarePaperCitation``` (optional, 0-1)
-- ```Title``` (mandatory, 1)
-- ```Version``` (mandatory, 1)
+- ```description``` (mandatory, 1)
+- ```ercIdentifier``` (mandatory, 1)
+- ```generatedBy``` (mandatory, 1)
+- ```interactionMethod``` (optional, 0-n)
+- ```keywords``` (mandatory, 1-n)
+- ```objectType``` (optional, 0-1)
+- ```paperLanguage``` (optional, 0-n)
+- ```recordDateCreated``` (optional, 0-1)
+- ```softwarePaperCitation``` (optional, 0-1)
+- ```title``` (mandatory, 1)
+- ```version``` (mandatory, 1)
 
 ### UI Schema
 The following meta information are used to control widgets for interaction with ERCs on our platform.
 
-- ```ErcIdentifier``` (mandatory, 1)
+- ```ercIdentifier``` (mandatory, 1)
 - ```checkboxes``` (optional, 0-n)
  - ```label``` (mandatory, 1)
  - ```value``` (mandatory, 1)
@@ -69,73 +69,72 @@ The following meta information are used to control widgets for interaction with 
  - ```value``` (mandatory, 1)
  - ```value_max``` (mandatory, 1)
  - ```value_min``` (mandatory, 1)
- - ```is_checked``` (mandatory, 1)
  - ```parameter_type``` (mandatory, 1)
  - ```reference_point``` (mandatory, 1)
 
 
 ## 3. Rationales
 
-- Author
+- author
 > A block for each creator of the asset.
 
-- ⌞ Author/AuthorAffiliation
+- ⌞ author/authorAffiliation
 > The institution, organization or other group that the creator of the asset is associated with.
 
-- ⌞ Author/AuthorId
+- ⌞ author/authorId
 > A universally unique character string that is associated with the author, e.g."http://orcid.org/0000-0002-1825-0097".
 
-- ⌞ Author/AuthorName
+- ⌞ author/authorName
 > The name of the human individual, institution, organization, machine or other entity that acts as creator of the asset.
 
-- DateCreated
+- dateCreated
 > The date that a published version of the asset was created by the author.
 
-- Dependency
+- depends
 > A block for each entity that the software is dependent on for execution.
 
-- ⌞ Dependency/operatingSystem
+- ⌞ depends/operatingSystem
 > The operating system for the software to run under.
 
-- ⌞ Dependency/packageId
+- ⌞ depends/packageId
 > An identification string for the dependency entity that is unique in the corresponding package system.
  
-- ⌞ Dependency/packageSystem
+- ⌞ depends/packageSystem
 > The package manager system that makes the dependency entity available.
  
-- ⌞ Dependency/version
+- ⌞ depends/version
 > The computer software and hardware required to run the software.
 
-- Description
+- description
 > A text representation conveying the purpose and scope of the asset.
 
-- ErcIdentifier
+- ercIdentifier
 > A universally unique character string associated with the asset as _executable research compendium_.
 
-- GeneratedBy
+- generatedBy
 > The entity, person or tool, that created the software.
 
-- InteractionMethod
+- interactionMethod
 > The specified method(s) that can be used to interact with the software (e.g. command-line vs. GUI vs. Excel..., entry points).
 
-- Keywords
+- keywords
 > Keywords (tags) associated with the asset.
 
-- ObjectType
+- objectType
 > The category of the resource that is associated with the software. TO DO: controlled list, such as software, paper, data, image...
 
-- PaperLanguage
+- paperLanguage
 > A list of the specific counties or regions that the software has been adapted to, e.g. “en-GB,en-US,zh-CN,zh-TW” (if using the ISO 639-1 standard codes).
 
-- RecordDateCreated
+- recordDateCreated
 > The date that this metadata record describing the asset was created.
 
-- SoftwarePaperCitation
+- softwarePaperCitation
 > A text string that can be used to authoritatively cite a research paper, conference proceedings or other scholarly work that describes the design, development, usage, significance or other aspect of the software.
 
-- Title
+- title
 > The distinguishing name associated with the asset.
 
-- Version
+- version
 > A unique string indicating a specific state of the software, i.e. an initial public release, an update or bug fix release, etc. No version format or schema is enforced for this value.
 

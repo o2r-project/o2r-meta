@@ -20,7 +20,7 @@ import json
 import os
 import sys
 
-import python_jsonschema_objects as pjs #<https://github.com/cwacek/python-jsonschema-objects>
+import jsonschema
 
 #Main
 if __name__ == "__main__":
@@ -42,11 +42,11 @@ if __name__ == "__main__":
                 schema = json.load(schema_file)
             with open(os.path.abspath(my_candidate), encoding='utf-8') as candidate_file:
                 candidate = json.load(candidate_file)
-            builder = pjs.ObjectBuilder(schema)
-            builder.validate(candidate)
+            jsonschema.validate(candidate, schema)
             print('[metavalidate] valid: ' + os.path.basename(my_candidate))
-        except pjs.ValidationError as exc:
-            print('[metavalidate] !invalid: ' + str.split(str(exc), '\n')[0])
+        except jsonschema.exceptions.ValidationError as exc:
+            print('[metavalidate] !invalid: ' + str(exc))
+            #raise
         except:
-            print('[metavalidate] error', sys.exc_info()[0])
+            print('[metavalidate] !error', sys.exc_info()[0])
             #raise
