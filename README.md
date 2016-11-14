@@ -63,17 +63,20 @@ Example:
 
 ---
 
-## 3. metaharvester
+## 3. metaharvest
 
-metaharvest.py collects OAI-PMH metadata from Datacite and parses them to assist the completion of a metadata set in o2r.
+metaharvest.py collects OAI-PMH metadata from aggregation services like DataCite and parses them to assist the completion of a metadata set in o2r.
+
+Required package: ```lxml```
 
 Usage:
 
-    python metaharvest.py -t QUERYTYPE -q QUERYTEXT
+    python metaharvest.py -i INPUT_TYPE -q QUERY_STRING
+
 
 Example:
 
-    python metaharvest.py -t"doi" -q"10.14457/CU.THE.1989.1"
+    python metaharvest.py -i"doi" -q"10.14457/CU.THE.1989.1"
 
 ---
 

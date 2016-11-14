@@ -1,0 +1,15 @@
+{
+	"Settings": {
+		"name": "o2r",
+		"mode": "oai2"
+	},
+	"BaseURLs": {
+		"b2share": "http:\/\/b2share.eudat.eu\/oai2d",
+		"Crossref": "http:\/\/oai.crossref.org\/OAIHandler?verb=",
+		"DataCite": "http:\/\/oai.datacite.org\/oai?verb=ListRecords&metadataPrefix=oai_datacite&set=~",
+		"o2r": "",
+		"openaire": "http:\/\/eudat-oai.dkrz.de:8080\/oai\/provider",
+		"Zenodo": "https:\/\/zenodo.org\/oai2d",
+		"Zenodo_sandbox": "http:\/\/sandbox.zenodo.org\/oai2d"
+	}
+}

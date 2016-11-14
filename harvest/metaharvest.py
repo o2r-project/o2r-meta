@@ -17,9 +17,16 @@
 
 import argparse
 import base64
+import json
 import sys
 import urllib.request
 
+from lxml import etree
+
+
+def parse_from_unicode(unicode_str):
+    s = unicode_str.encode('utf-8')
+    return etree.fromstring(s, parser=utf8_parser)
 
 def qu(q_type,q_string,q_base):
     accepted = ['doi','creator']
@@ -32,12 +39,7 @@ def qu(q_type,q_string,q_base):
         headers = {}
         req = urllib.request.Request(my_url, None, headers)
         http = urllib.request.urlopen(req).read()
-        # save as file
-        #my_file = 'test.txt'
-        #with open(my_file, 'wb') as f:
-        #    f.write(http)
-        # print to screen
-        print(str(http, 'utf-8'))
+        return(str(http, 'utf-8'))
     else:
         print('query type not available')
         return None
@@ -50,16 +52,37 @@ if __name__ == "__main__":
         sys.exit()
     else:
         parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-t', '--typequery', help='query type, e.g. doi or creator', required=True)
-        parser.add_argument('-q', '--query', help='searched string for that type', required=True)
+        parser.add_argument('-i', '--input', help='type of provided metadata element for input, e.g. doi or creator', required=True)
+        parser.add_argument('-q', '--query', help='query string', required=True)
         args = parser.parse_args()
         argsdict = vars(args)
-        t = argsdict['typequery']
+        i = argsdict['input']
         q = argsdict['query']
         #inits
-        datacite_base = 'http://oai.datacite.org/oai?verb=ListRecords&metadataPrefix=oai_datacite&set=~'
-        crossref_base = 'http://oai.crossref.org/OAIHandler?verb='
-        # http://doi.crossref.org/schemas/unixref1.1.xsd
-        print('starting request')
-        # currently using datacite
-        qu(t,q,datacite_base)
+        # load map for datacite
+        try:
+            with open('bases.json', encoding='utf-8') as data_file:
+                bases = json.load(data_file)
+                settings_data = bases['Settings']
+                baseurl_data = bases['BaseURLs']
+        except:
+            raise
+        print('[metaharvest] starting request')
+        #test datacite
+        result = qu(i.lower(),q,baseurl_data['DataCite'])
+        try:
+            print('[metaharvest]' + result[:128])
+            print('[metaharvest] ...')
+            utf8_parser = etree.XMLParser(encoding='utf-8')
+            tree = parse_from_unicode(result)
+            # e.g. return author from datacite creatorName
+            output = {}
+            for node in tree.xpath('//ns:creatorName', namespaces={'ns': 'http://datacite.org/schema/kernel-3'}):
+                output['authorName'] = node.text
+            json_output = json.dumps(output)
+            #output if not empty
+            if str(json_output) != '{}':
+                print(str(json_output))
+        except:
+            raise
+            #pass
