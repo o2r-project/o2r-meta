@@ -69,7 +69,7 @@ if __name__ == "__main__":
             raise
         print('[metaharvest] starting request')
         #test datacite
-        result = qu(i.lower(),q,baseurl_data['DataCite'])
+        result = qu(i.lower(),q,baseurl_data['DataCite']['url'])
         try:
             print('[metaharvest]' + result[:128])
             print('[metaharvest] ...')
