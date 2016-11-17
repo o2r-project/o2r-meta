@@ -82,7 +82,7 @@ def check_rpacks(package):
     return label[:-1]
 
 # extract
-def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline, rule_set):
+def do_ex(my_pathfile, out_format, out_mode, multiline, rule_set):
     print('[metaextract] processing ' + my_pathfile)
     c = 0
     output_data = None
@@ -118,24 +118,31 @@ def do_ex(my_pathfile, modus, extraction_files_dir, output_to_console, multiline
             # parse entire file as one code block
             data_dict.update(r_codeblock = parse_r(content))
     # save results
-    if modus == 'json':
+    if out_format == 'json':
         output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
         output_fileext = '.json'
-    if modus == 'xml':
+    if out_format == 'xml':
         output_data = minidom.parseString(dicttoxml.dicttoxml(data_dict, attr_type = False)).toprettyxml(indent='\t')
         output_fileext = '.xml'
-    timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
-    # "meta_" prefix as distinctive feature for metabroker later in workflow
-    output_filename = 'meta_' + timestamp + '_' + os.path.basename(my_pathfile)[:8].replace('.', '_') + output_fileext
-    if extraction_files_dir:
-        output_filename = os.path.join(extraction_files_dir, output_filename)
-        if not os.path.exists(extraction_files_dir):
-            os.makedirs(extraction_files_dir)
-    with open(output_filename, 'w', encoding='utf-8') as outfile:
-        outfile.write(output_data)
-    print('[metaextract] ' + str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(output_filename))
-    if output_to_console:
+    if out_mode == '@s':
+        # give out to screen
         print(output_data)
+    elif out_mode == '@none':
+        # silent mode
+        pass
+    else:
+        # output path is given in <out_mode>
+        timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
+        # "meta_" prefix as distinctive feature for metabroker later in workflow
+        output_filename = 'meta_' + timestamp + '_' + os.path.basename(my_pathfile)[:8].replace('.',
+                                                                                                '_') + output_fileext
+        output_filename = os.path.join(out_mode, output_filename)
+        if not os.path.exists(out_mode):
+            os.makedirs(out_mode)
+        with open(output_filename, 'w', encoding='utf-8') as outfile:
+            outfile.write(output_data)
+        print('[metaextract] ' + str(os.stat(output_filename).st_size) + ' bytes written to ' + os.path.abspath(
+            output_filename))
 
 # main:
 if __name__ == "__main__":
@@ -147,27 +154,40 @@ if __name__ == "__main__":
         # py3k
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        parser.add_argument('-m', '--modus', help='output format xml or json', required=True)
-        parser.add_argument('-o', '--outputdir', help='output directory for extraction docs', required=True)
-        parser.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
+        parser.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
+        group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
         args = parser.parse_args()
         argsdict = vars(args)
         input_dir = argsdict['inputdir']
-        output_modus = argsdict['modus']
+        output_xml = argsdict['modexml']
         output_dir = argsdict['outputdir']
         output_to_console = argsdict['outputtostdout']
+        # output format
+        if output_xml:
+            output_format = 'xml'
+        else:
+            output_format = 'json'
+        # output mode
+        if output_to_console:
+            output_mode = '@s'
+        elif output_dir:
+            output_mode = output_dir
+        else:
+            # not possible currently because output arg group is on mutual exclusive
+            output_mode = '@none'
+
         # check args
-        if not os.path.isdir(input_dir):
-            print('[metaextract] ! error, input dir "'+ input_dir + '" does not exist')
-            sys.exit()
-        else: pass
-        if not os.path.isdir(output_dir):
-           print('[metaextract] directory"' + output_dir + '"  will be created during extraction...')
-        if not output_modus == 'json' and not output_modus == 'xml':
-            print('[metaextract] ! error, modus "'+ output_modus +'" is not available, choose -m "json" or "xml"')
-            sys.exit()
-        else: pass
-        #load rules:
+        if input_dir:
+            if not os.path.isdir(input_dir):
+                print('[metaextract] ! error, input dir "'+ input_dir + '" does not exist')
+                sys.exit()
+        if output_dir:
+            if not os.path.isdir(output_dir):
+                print('[metaextract] directory"' + output_dir + '"  will be created during extraction...')
+
+        # load rules:
         print('[metaextract] initializing')
         # rule set for r, compose as: category name TAB entry feature name TAB regex
         rule_set_r = []
@@ -190,13 +210,13 @@ if __name__ == "__main__":
         # other parameters
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
-        # process files in target directory
+
         # process all files in input directory
         for file in os.listdir(input_dir):
             if file.lower().endswith('.r'):
-                do_ex(os.path.join(input_dir, file), output_modus, output_dir, output_to_console, False, rule_set_r)
+                do_ex(os.path.join(input_dir, file), output_format, output_mode, False, rule_set_r)
             elif file.lower().endswith('.rmd'):
-                do_ex(os.path.join(input_dir, file), output_modus, output_dir, output_to_console, True, rule_set_rmd_multiline)
+                do_ex(os.path.join(input_dir, file), output_format, output_mode, True, rule_set_rmd_multiline)
             else:
                 pass
         print('[metaextract] done')
