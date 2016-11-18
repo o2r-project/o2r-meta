@@ -2,24 +2,23 @@
 	"Settings": {
 		"name": "o2r",
 		"map_description": "maps raw extracted metadata to o2r schema compliant metadata",
-		"mode": "xml",
-		"root": "resource",
-		"root@xmlns": "http:\/\/datacite.org\/schema\/kernel-4",
-		"root@xmlns:xsi": "http:\/\/www.w3.org\/2001\/XMLSchema-instance",
-		"root@xsi:schemaLocation": "http:\/\/datacite.org\/schema\/kernel-4 http:\/\/schema.datacite.org\/meta\/kernel-4\/metadata.xsd"
+		"mode": "json",
+		"root": ""
 	},
 	"Map": {
-		"identifier": "identifier",
-		"title": "title",
 		"author": "name",
-		"authorName": "authorName",
-		"authorName": "authorName",
-		"authorId": "authorId",
-		"tags": "keywords",
-		"keywords": "keywords",
-		"language": "paperLanguage",
+		"authorAffiliation": "author#affiliation",
+		"authorId": "author#id",
+		"authorName": "author#name",
+		"description": "abstract",
+		"description": "description",
+		"depends": "Dependency",
+		"depends": "depends",
+		"ercIdentifier": "ercIdentifier",
+		"identifier": "identifier",
+		"paperLanguage": "language",
 		"paperLanguage": "paperLanguage",
-		"abstract": "description",
-		"description": "description"
+		"keywords": "keywords#plain",
+		"title": "title"
 	}
 }

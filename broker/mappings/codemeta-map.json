@@ -1,0 +1,20 @@
+{
+	"Settings": {
+		"name": "codemeta",
+		"map_description": "maps o2r to codemeta",
+		"mode": "json",
+		"root": "",
+		"root_ns": "",
+		"@context": "https:\/\/raw.githubusercontent.com\/codemeta\/codemeta\/master\/codemeta.jsonld"
+	},
+	"Map": {
+		"author": "agents",
+		"authorId": "@id",
+		"authorAffiliation": "affiliation",
+		"authorName": "name",
+		"description": "description",
+		"keywords": "tags",
+		"depends": "depends",
+		"dateCreated": "dateCreated"
+	}
+}
