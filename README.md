@@ -37,21 +37,23 @@ or use dockerfiles where applicable.
 
 ## 2. metaextract
 
-metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts.
+metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts. It outputs raw metadata that are not yet o2r schema compliant but can be refined using the metabroker with o2r mapping on the outputs.
 
 Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```
 
 Usage:
 
-    python metaextract.py -i INPUT_DIR -o OUTPUT_DIR -m MODUS [-s]
+    python metaextract.py -i INPUT_DIR [-o OUTPUT_DIR -s] [-xml]
 
 
-+ use ```xml``` or ```json``` as ```MODUS```.
-+ use optional ```-s``` to output to screen.
++ the parameters ```-o``` and ```-s``` are mutual exclusive choice, one of them is required.
++ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files. 
++ default output format is _json_. use -xml to change it to _xml_.
+
 
 Example:
 
-    python metaextract.py -i"tests" -o"tests" -m"json" [-s]
+    python metaextract.py -i"tests" -o"tests"
 
 
 + use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
@@ -59,7 +61,7 @@ Example:
 Example:
 
     docker build -t o2r-meta extract
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts -m json
+    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts
 
 ---
 
