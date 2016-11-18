@@ -1,4 +1,4 @@
-'''
+"""
     Copyright (c) 2016 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,23 +13,76 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-'''
+"""
 
-#import argparse
+import argparse
 import json
 import os
 import sys
+import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-import xml.etree.ElementTree as ET
+
+def do_outputs(output_data, out_mode, file_ext):
+    if out_mode == '@s':
+        # give out to screen
+        print(output_data)
+    elif out_mode == '@none':
+        # silent mode
+        pass
+    else:
+        try:
+            # output path is given in <out_mode>
+            output_filename = os.path.join(out_mode, '_'.join(('o2r', 'meta', 'test', file_ext)))
+            if not os.path.exists(out_mode):
+                os.makedirs(out_mode)
+            with open(output_filename, 'w', encoding='utf-8') as outfile:
+                if file_ext == '.json':
+                    output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
+                outfile.write(str(output_data))
+            status_note(''.join(
+                (str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename))))
+        except Exception as exc:
+            status_note(''.join(('! error while creating outputs: ', exc.args[0])))
 
 
+def map_json(element, value, map_data, output_dict):
+    # parse complete map, find out how keys translate to target schema
+    for key in map_data:
+        # reset list here
+        fieldslist = []
+        # resolve pseudo xpath from map file to list of string
+        if element in map_data[key]:
+            if seperator in map_data[key]:
+                fieldslist = map_data[key].split(seperator)
+        # distinguish data types of value
+        if type(value) is dict:  # case json nested key dict, e.g. <keywords> either <plain> or <formatted>
+            for k in value:
+                if k in fieldslist:
+                    # e.g. keywords['plain'] from .Rmd is {'keywords': ['lorem', 'ipsum', 'dolor', 'sit', 'amet']}
+                    output_dict[key] = value[fieldslist[1]]
+        elif type(value) is list:  # case json array, e.g. author consists of n packs of author properties
+            for d in value:
+                # this <d> in the array is an array itself
+                if type(d) is dict:
+                    for c in d:
+                        if len(fieldslist) > 0:
+                            # this <c> is desired element of maps pseudo xpath
+                            if c == fieldslist[1]:
+                                output_dict[key] = d[c]
+                            else:
+                                pass
+        else:  # case value is plain string
+            if element == key or element == map_data[key]:
+                output_dict[key] = value
+    return output_dict
 
-def map_this(element, value, map_data, xml_root):
+
+def map_xml(element, value, map_data, xml_root):
     a = None
     try:
         if type(value) is list or type(value) is dict:
-            print('[metabroker] unfolding key <' + str(element) +'>')
+            status_note(''.join(('unfolding key <', str(element),'>')))
             if str(element) in map_data:
                 fields = map_data[element]
                 fieldslist = fields.split(seperator)
@@ -47,7 +100,7 @@ def map_this(element, value, map_data, xml_root):
                             # in case the elements features is a list of lists:
                             for key in value:
                                 if type(key) is list or type(key) is dict:
-                                    print('[metabroker] unfolding subkey list')
+                                    status_note('unfolding subkey list')
                                     c = ET.SubElement(a, field)
                                     for subkey in key:
                                         if ''.join(subkey) in map_data:
@@ -65,7 +118,7 @@ def map_this(element, value, map_data, xml_root):
                 return xml_root
             # element is not in map data:
             else:
-                print('[metabroker] skipping nested key <' + str(element) + '> (not in map)')
+                status_note(''.join(('skipping nested key <', str(element), '> (not in map)')))
         # value from metadata is simple, i.e. not nested, no list, no dictionary, just string:
         elif type(value) is str:
             if element in map_data:
@@ -87,49 +140,91 @@ def map_this(element, value, map_data, xml_root):
                         a = ET.SubElement(xml_root, field)
                 return xml_root
             else:
-                print('[metabroker] skipping key <'+ element + '> (not in map)')
+                status_note(''.join(('skipping key <', element, '> (not in map)')))
         else:
-            print('[metabroker] unknown data type in key')
+            status_note('unknown data type in key')
     except:
-        print('[metabroker] mapping error')
+        status_note('! error while mapping xml')
         raise
 
-#Main
+
+def status_note(msg):
+    print(''.join(('[metabroker] ', msg)))
+
+
+# Main
 if __name__ == "__main__":
     if sys.version_info[0] < 3:
         # py2
-        print('[metabroker] requires py3k or later')
+        status_note('requires py3k or later')
         sys.exit()
     else:
         # init
+        status_note('initializing')
+        parser = argparse.ArgumentParser(description='description')
+        parser.add_argument('-m', '--map', help='name of the mapping file', required=True)
+        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
+        group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
+        args = parser.parse_args()
+        args_dict = vars(args)
+        input_dir = args_dict['inputdir']
+        output_dir = args_dict['outputdir']
+        output_to_console = args_dict['outputtostdout']
         seperator = '#' #<-- make this generic
-        # to do: transform o2r raw extraced to o2r schema using o2r-map.json
-        #try:
-        #    with open(os.path.join('mappings', 'o2r-map.json'), encoding='utf-8') as data_file:
-        #    ...
-        #except:
-        #    raise
-        # ------ XML maps ------
-        # load map for datacite
+        my_map = args_dict['map']
+        # output mode
+        if output_to_console:
+            output_mode = '@s'
+        elif output_dir:
+            output_mode = output_dir
+            if not os.path.isdir(output_dir):
+                status_note(''.join(('directory <', output_dir, '> will be created during extraction...')))
+        else:
+            # not possible currently because output arg group is on mutual exclusive
+            output_mode = '@none'
+
+        # open map file and find out mode
         try:
-            with open(os.path.join('mappings', 'datacite-map.json'), encoding='utf-8') as data_file:
-                map_datacite_data = json.load(data_file)
-                settings_data = map_datacite_data['Settings']
-                map_data = map_datacite_data['Map']
+            with open(os.path.join('mappings', my_map), encoding='utf-8') as data_file:
+                map_file = json.load(data_file)
+                settings_data = map_file['Settings']
+                map_data = map_file['Map']
+                my_mode = settings_data['mode']
+        except:
+            raise
+        # distinguish format for output
+        if my_mode == 'json':
+            # to do: handle json based maps like o2r non-raw or codemeta
+            json_output = {}
+            # test o2r output meta
+            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+                test_data = json.load(data_file)
+            for element in test_data:
+                try:
+                    map_json(element, test_data[element], map_data, json_output)
+                except:
+                    raise
+            do_outputs(json_output, output_mode, '.json')
+        elif my_mode == 'txt':
+            # to do: handle txt based maps like bagit
+            txt_output = ''
+            do_outputs(txt_output, output_mode, '.txt')
+        elif my_mode == 'xml':
             root = ET.Element(settings_data['root'])
+            # to do: generify for complex xml maps
             root.set('xmlns', settings_data['root@xmlns'])
             root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
             root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
-        except:
-            raise
-        # test o2r output meta
-        with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-            test_data = json.load(data_file)
-        for element in test_data:
-            try:
-                map_this(element, test_data[element], map_data, root)
-            except:
-                # raise
-                continue
-        output = ET.tostring(root, encoding='utf8', method='xml')
-        print(minidom.parseString(output).toprettyxml(indent='\t'))
+            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+                test_data = json.load(data_file)
+            for element in test_data:
+                try:
+                    map_xml(element, test_data[element], map_data, root)
+                except:
+                    raise
+            output = ET.tostring(root, encoding='utf8', method='xml')
+            do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
+        else:
+            print('[metabroker] !error: cannot process map mode of <' + my_map + '>')

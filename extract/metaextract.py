@@ -185,7 +185,7 @@ if __name__ == "__main__":
         elif output_dir:
             output_mode = output_dir
             if not os.path.isdir(output_dir):
-                status_note(''.join(('directory <', output_dir, '>  will be created during extraction...')))
+                status_note(''.join(('directory <', output_dir, '> will be created during extraction...')))
         else:
             # not possible currently because output arg group is on mutual exclusive
             output_mode = '@none'
@@ -219,12 +219,14 @@ if __name__ == "__main__":
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
 
-        # process all files in input directory
-        for file in os.listdir(input_dir):
-            if file.lower().endswith('.r'):
-                do_ex(os.path.join(input_dir, file), output_format, output_mode, False, rule_set_r)
-            elif file.lower().endswith('.rmd'):
-                do_ex(os.path.join(input_dir, file), output_format, output_mode, True, rule_set_rmd_multiline)
-            else:
-                pass
+        # process all files in input directory +recursive
+        for root, subdirs, files in os.walk(input_dir):
+            for file in files:
+                if file.lower().endswith('.r'):
+                    do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
+                elif file.lower().endswith('.rmd'):
+                    do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
+                else:
+                    pass
+
         status_note('done.')

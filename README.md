@@ -46,9 +46,10 @@ Usage:
     python metaextract.py -i INPUT_DIR [-o OUTPUT_DIR -s] [-xml]
 
 
-+ the parameters ```-o``` and ```-s``` are mutual exclusive choice, one of them is required.
++ use ```-i``` to specify a new directory for input. metaextract will attempt to parse all ```.R``` and ```.Rmd``` files in the input directory.
++ the parameters ```-o``` and ```-s``` are mutually exclusive choices, one of them is required.
 + use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files. 
-+ default output format is _json_. use -xml to change it to _xml_.
++ default output format is _json_. use ```-xml``` to change it to _xml_.
 
 
 Example:
@@ -118,12 +119,17 @@ Required package: %
 
 Usage:
 
-    python metabroker.py -i INPUT_DIR -o OUTPUT_DIR
+    python metabroker.py -m MAP_FILE -i INPUT_DIR [-o OUTPUT_DIR -s]
 
-+ the script parses all json files in the input directory that begin with "meta_" (possible outputs of metaextract.py)
++ use ```-i``` to specify a new directory for input.
++ metabroker will attempt to parse all json files in the input directory having a filename that starts with "meta_" (possible outputs of metaextract.py).
++ use the name of the ```MAP_FILE``` found in ```/mappings```.
++ the parameters ```-o``` and ```-s``` are mutually exclusive choices, one of them is required.
++ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files. 
+
 
 Example:
 
-    python metabroker.py -i"tests" -o"tests"
+    python metabroker.py -m"o2r-map.json" -i"tests" -o"tests"
 
 
