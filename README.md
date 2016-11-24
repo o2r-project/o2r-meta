@@ -37,9 +37,9 @@ or use dockerfiles where applicable.
 
 ## 2. metaextract
 
-metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts. It outputs raw metadata that are not yet o2r schema compliant but can be refined using the metabroker with o2r mapping on the outputs.
+metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts. It outputs raw metadata that are not yet o2r schema compliant but can be refined using the metabroker with o2r mapping on the outputs. The script will try to retrieve ORCiDs (currently from sandbox only) for authors in Rmd yaml-header metadata.
 
-Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```
+Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```, ```orcid```
 
 Usage:
 

@@ -24,8 +24,19 @@ import sys
 from xml.dom import minidom
 
 import dicttoxml
+import orcid
 import yaml
 from guess_language import guess_language
+
+
+def find_orcid(txt_input, bln_sandbox):
+    try:
+        api = orcid.SearchAPI(sandbox=bln_sandbox)
+        r = api.search_public(txt_input)
+        return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
+    except:
+        status_note('!warning, could not retrieve author identifier for <'+txt_input+'>')
+        return '0000-0000-0000-0000'
 
 
 def parse_exobj(parameter):
@@ -40,8 +51,15 @@ def parse_exobj(parameter):
 
 def parse_yaml(input_text):
     try:
-        #yaml_data_dict = []
         yaml_data_dict = yaml.safe_load(input_text)
+        # get authors and possible ids
+        if yaml_data_dict['author']:
+            for anyone in yaml_data_dict['author']:
+                if anyone['name']:
+                    # TO DO: stop using sandbox for orcid retrieval
+                    id_found = find_orcid(anyone['name'], True)
+                    status_note('!debug: '+anyone['name']+' '+id_found)
+                    anyone['orcid'] = id_found
         return yaml_data_dict
     except yaml.YAMLError as exc:
         status_note(''.join(('! error, yaml parser -', str(exc.problem_mark), str(exc.problem))))

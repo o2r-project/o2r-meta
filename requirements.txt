@@ -3,3 +3,4 @@ guess_language-spirit
 jsonschema
 lxml
 PyYAML
+orcid

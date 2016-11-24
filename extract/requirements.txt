@@ -1,3 +1,4 @@
 dicttoxml
 PyYAML
 guess_language-spirit
+orcid
