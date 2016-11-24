@@ -10,6 +10,7 @@ This is a collection of metadata related micro services for the o2r-platform:
 4. metavalidate - check if metadata set is valid to the schema
 5. metabroker - translate metadat from o2r to third party schemas
 
+For their role within o2r, please see [o2r-architecture](https://github.com/o2r-project/architecture).
 
 ## License
 
@@ -86,9 +87,9 @@ Example:
 
 ## 4. metavalidate
 
-metavalidate.py is a simple validator for json schemas
+metavalidate.py validates .json and .xml files against json-schema files and xsd schemas respectively.
 
-Required package: ```jsonschema```
+Required package: ```jsonschema```, ```lxml```
 
 Usage:
 

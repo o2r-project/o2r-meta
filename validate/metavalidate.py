@@ -1,4 +1,4 @@
-'''
+"""
     Copyright (c) 2016 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-'''
+"""
 
 import argparse
 import json
@@ -21,12 +21,53 @@ import os
 import sys
 
 import jsonschema
+from lxml import etree
 
-#Main
+
+def json_validate(c, s):
+    try:
+        with open(os.path.abspath(s), encoding='utf-8') as schema_file:
+            schema = json.load(schema_file)
+        with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
+            candidate = json.load(candidate_file)
+        jsonschema.validate(candidate, schema)
+        status_note('valid: ' + os.path.basename(c))
+    except jsonschema.exceptions.ValidationError as exc:
+        status_note('!invalid: ' + str(exc))
+        #raise
+    except:
+        status_note('!error: ' + str(sys.exc_info()[0]))
+        #raise
+
+
+def xml_validate(c, s):
+    try:
+        with open(os.path.abspath(s), encoding='utf-8') as schema_file:
+            schema = etree.parse(schema_file)
+        with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
+            candidate = etree.parse(candidate_file)
+        xmlschema = etree.XMLSchema(schema)
+        if xmlschema(candidate):
+            status_note('valid: ' + os.path.basename(c))
+        else:
+            status_note('invalid: ' + os.path.basename(c))
+    except etree.XMLSchemaParseError as exc:
+        status_note('!error: ' + str(exc))
+        #raise
+    except:
+        status_note('!error: ' + str(sys.exc_info()[0]))
+        #raise
+
+
+def status_note(msg):
+    print(''.join(('[metavalidate] ', msg)))
+
+
+# main
 if __name__ == "__main__":
     if sys.version_info[0] < 3:
         # py2
-        print('[metavalidate] requires py3k or later')
+        status_note('requires py3k or later')
         sys.exit()
     else:
         parser = argparse.ArgumentParser(description='description')
@@ -36,17 +77,11 @@ if __name__ == "__main__":
         argsdict = vars(args)
         my_schema = argsdict['schema']
         my_candidate = argsdict['candidate']
-        print('[metavalidate] checking ' + os.path.basename(my_candidate) + ' against ' + os.path.basename(my_schema))
-        try:
-            with open(os.path.abspath(my_schema), encoding='utf-8') as schema_file:
-                schema = json.load(schema_file)
-            with open(os.path.abspath(my_candidate), encoding='utf-8') as candidate_file:
-                candidate = json.load(candidate_file)
-            jsonschema.validate(candidate, schema)
-            print('[metavalidate] valid: ' + os.path.basename(my_candidate))
-        except jsonschema.exceptions.ValidationError as exc:
-            print('[metavalidate] !invalid: ' + str(exc))
-            #raise
-        except:
-            print('[metavalidate] !error', sys.exc_info()[0])
-            #raise
+        status_note('checking ' + os.path.basename(my_candidate) + ' against ' + os.path.basename(my_schema))
+        if os.path.basename(my_candidate).endswith('.json'):
+            json_validate(my_candidate, my_schema)
+        elif os.path.basename(my_candidate).endswith('.xml'):
+            xml_validate(my_candidate, my_schema)
+        else:
+            status_note('!warning, could not process this type of file')
+            sys.exit()
