@@ -4,3 +4,4 @@ jsonschema
 lxml
 PyYAML
 orcid
+requests

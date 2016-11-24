@@ -21,17 +21,26 @@ import os
 import sys
 
 import jsonschema
+import requests
 from lxml import etree
 
 
-def json_validate(c, s):
+def json_validate(c, s, bln_c_http, bln_s_http):
     try:
-        with open(os.path.abspath(s), encoding='utf-8') as schema_file:
-            schema = json.load(schema_file)
-        with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
-            candidate = json.load(candidate_file)
+        if bln_s_http:
+            r = requests.get(s)
+            schema = json.loads(r.text)
+        else:
+            with open(os.path.abspath(s), encoding='utf-8') as schema_file:
+                schema = json.load(schema_file)
+        if bln_c_http:
+            r = requests.get(c)
+            candidate = json.loads(r.text)
+        else:
+            with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
+                candidate = json.load(candidate_file)
         jsonschema.validate(candidate, schema)
-        status_note('valid: ' + os.path.basename(c))
+        status_note('valid: ' + c)
     except jsonschema.exceptions.ValidationError as exc:
         status_note('!invalid: ' + str(exc))
         #raise
@@ -40,12 +49,18 @@ def json_validate(c, s):
         #raise
 
 
-def xml_validate(c, s):
+def xml_validate(c, s, bln_c_http, bln_s_http):
     try:
-        with open(os.path.abspath(s), encoding='utf-8') as schema_file:
-            schema = etree.parse(schema_file)
-        with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
-            candidate = etree.parse(candidate_file)
+        if bln_s_http:
+            schema = etree.parse(s)
+        else:
+            with open(os.path.abspath(s), encoding='utf-8') as schema_file:
+                schema = etree.parse(schema_file)
+        if bln_c_http:
+            candidate = etree.parse(c)
+        else:
+            with open(os.path.abspath(c), encoding='utf-8') as candidate_file:
+                candidate = etree.parse(candidate_file)
         xmlschema = etree.XMLSchema(schema)
         if xmlschema(candidate):
             status_note('valid: ' + os.path.basename(c))
@@ -71,17 +86,17 @@ if __name__ == "__main__":
         sys.exit()
     else:
         parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-s', '--schema', help='path to schema', required=True)
-        parser.add_argument('-c', '--candidate', help='path to candidate', required=True)
+        parser.add_argument('-s', '--schema', help='path to schema', type=str, required=True)
+        parser.add_argument('-c', '--candidate', help='path to candidate', type=str, required=True)
         args = parser.parse_args()
         argsdict = vars(args)
         my_schema = argsdict['schema']
         my_candidate = argsdict['candidate']
         status_note('checking ' + os.path.basename(my_candidate) + ' against ' + os.path.basename(my_schema))
-        if os.path.basename(my_candidate).endswith('.json'):
-            json_validate(my_candidate, my_schema)
-        elif os.path.basename(my_candidate).endswith('.xml'):
-            xml_validate(my_candidate, my_schema)
+        if my_candidate.endswith('.json'):
+            json_validate(my_candidate, my_schema, my_candidate.startswith('http'), my_schema.startswith('http'))
+        elif my_candidate.endswith('.xml'):
+            xml_validate(my_candidate, my_schema, my_candidate.startswith('http'), my_schema.startswith('http'))
         else:
             status_note('!warning, could not process this type of file')
             sys.exit()

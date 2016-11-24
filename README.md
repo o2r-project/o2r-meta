@@ -87,7 +87,7 @@ Example:
 
 ## 4. metavalidate
 
-metavalidate.py validates .json and .xml files against json-schema files and xsd schemas respectively.
+metavalidate.py validates .json and .xml files against json-schema files and xsd files respectively. The script also works with URLs.
 
 Required package: ```jsonschema```, ```lxml```
 
@@ -95,7 +95,8 @@ Usage:
 
     python metavalidate.py -s SCHEMA_PATH -c CANDIDATE_PATH
 
-+ use relative paths.
++ use ```-s``` to specify a relative paths to the schema file or an URL where the schema is located.
++ use ```-c``` to specify a relative paths to the candidate file or an URL where the candidate is located.
 
 Example:
 
