@@ -1,0 +1,65 @@
+{
+	"Settings": {
+		"name": "zenodo",
+		"map_description": "maps o2r schema compliant MD to Zenodo for deposition creation",
+		"mode": "json",
+		"root": "metadata"
+	},
+	"Map": {
+		"author":  {
+			"translatesTo": "creators",
+			"type": "array",
+			"parent": "none"
+		},
+		"todo": "upload_type",
+		"todo": "publication_type",
+		"todo": "image_type",
+		"dateCreated": "publication_date",
+		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"parent": "root"
+		},
+		"title":  {
+			"translatesTo": "title",
+			"type": "string",
+			"parent": "root"
+		},
+		"todo": "access_right",
+		"todo": "license",
+		"todo": "embargo_date",
+		"todo": "access_conditions",
+		"todo": "doi",
+		"todo": "prereserve_doi",
+		"keywords":  {
+			"translatesTo": "keywords",
+			"type": "array",
+			"parent": "none"
+		},
+		"todo": "notes",
+		"todo": "related_identifiers",
+		"todo": "contributors",
+		"todo": "references",
+		"todo": "communities",
+		"todo": "grants",
+		"todo": "journal_title",
+		"todo": "journal_volume",
+		"todo": "journal_issue",
+		"todo": "journal_pages",
+		"todo": "conference_title",
+		"todo": "conference_acronym",
+		"todo": "conference_dates",
+		"todo": "conference_place",
+		"todo": "conference_url",
+		"todo": "conference_session",
+		"todo": "conference_session_part",
+		"todo": "imprint_publisher",
+		"todo": "imprint_isbn",
+		"todo": "imprint_place",
+		"todo": "partof_title",
+		"todo": "partof_pages",
+		"todo": "thesis_supervisors",
+		"todo": "thesis_university",
+		"todo": "subjects"
+	}
+}

@@ -8,11 +8,13 @@
             "affiliation2": "University of Nowhere",
             "email": "ted.tester@awebsite8372930.org",
             "name": "Ted Tester",
+            "orcid": "0000-0002-5728-0264",
             "url": "\\url{http://404.awebsite8372930.org}"
         },
         {
             "affiliation": "N.O.N.E",
-            "name": "Carl Connauthora"
+            "name": "Carl Connauthora",
+            "orcid": "0000-0003-2212-8358"
         }
     ],
     "classoption": "shortnames",
@@ -37,14 +39,13 @@
             "amet"
         ]
     },
-    "language": "en",
-    "objectType": "paperSourceFile",
+    "objectType": "",
     "output": {
         "rticles::jss_article": {
             "pandoc_args": "--natbib"
         }
     },
-    "paperLanguage": "",
+    "paperLanguage": "en",
     "paperSource": "test2.Rmd",
     "preamble": "\\usepackage{amsmath} \\usepackage{array} \\usepackage{caption} \\usepackage{subcaption} \\usepackage{float} \\usepackage{framed} \\usepackage{listings}\n",
     "r_codeblock": {
@@ -70,38 +71,6 @@
                 "text": "some plot"
             }
         ],
-        "Dependency": [
-            {
-                "feature": "",
-                "line": 3,
-                "text": "RColorBrewer"
-            },
-            {
-                "feature": "",
-                "line": 4,
-                "text": "dplyr"
-            },
-            {
-                "feature": "",
-                "line": 5,
-                "text": "ggplot2"
-            },
-            {
-                "feature": "",
-                "line": 6,
-                "text": "definitivelyUnknownPackage"
-            },
-            {
-                "feature": "",
-                "line": 7,
-                "text": "minqa"
-            },
-            {
-                "feature": "",
-                "line": 8,
-                "text": "PBSmapping"
-            }
-        ],
         "Output": [
             {
                 "feature": "setseed",
@@ -113,9 +82,59 @@
                 "line": 26,
                 "text": "print"
             }
+        ],
+        "depends": [
+            {
+                "category": "geo sciences,CRAN Top100",
+                "line": 3,
+                "operatingSystem": "",
+                "packageId": "RColorBrewer",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            },
+            {
+                "category": "geo sciences,CRAN Top100",
+                "line": 4,
+                "operatingSystem": "",
+                "packageId": "dplyr",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            },
+            {
+                "category": "geo sciences,CRAN Top100",
+                "line": 5,
+                "operatingSystem": "",
+                "packageId": "ggplot2",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            },
+            {
+                "category": "none",
+                "line": 6,
+                "operatingSystem": "",
+                "packageId": "definitivelyUnknownPackage",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            },
+            {
+                "category": "CRAN Top100",
+                "line": 7,
+                "operatingSystem": "",
+                "packageId": "minqa",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            },
+            {
+                "category": "geo sciences",
+                "line": 8,
+                "operatingSystem": "",
+                "packageId": "PBSmapping",
+                "packageSystem": "https://cloud.r-project.org/",
+                "version": ""
+            }
         ]
     },
-    "recordDateCreated": "2016-11-07",
+    "recordDateCreated": "2016-11-29",
     "title": "This is the title: it contains a colon",
     "vignette": "%\\VignetteIndexEntry{VforVignetta} %\\VignetteEngine{knitr::rmarkdown} %\\VignetteEncoding{UTF-8} %\\VignetteDepends{rticles, ggplot2, scales, reshape2, xtable}\n"
 }

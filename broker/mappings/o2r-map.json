@@ -6,19 +6,100 @@
 		"root": ""
 	},
 	"Map": {
-		"author": "name",
-		"authorAffiliation": "author#affiliation",
-		"authorId": "author#id",
-		"authorName": "author#name",
-		"description": "abstract",
-		"description": "description",
-		"depends": "Dependency",
-		"depends": "depends",
-		"ercIdentifier": "ercIdentifier",
-		"identifier": "identifier",
-		"paperLanguage": "language",
-		"paperLanguage": "paperLanguage",
-		"keywords": "keywords#plain",
-		"title": "title"
+		"author":  {
+			"translatesTo": "author",
+			"type": "array",
+			"parent": "none"
+		},
+		"name": {
+			"translatesTo": "authorName",
+			"type": "string",
+			"parent": "author"
+		},
+		"affiliation":  {
+			"translatesTo": "affiliation",
+			"type": "string",
+			"parent": "author"
+		},
+		"orcid":  {
+			"translatesTo": "authorId",
+			"type": "string",
+			"parent": "author"
+		},
+		"objectType": {
+			"translatesTo": "objectType",
+			"type": "string",
+			"parent": "root"
+		},
+		"recordDateCreated": {
+			"translatesTo": "dateCreated",
+			"type": "string",
+			"parent": "root"
+		},
+		"abstract": {
+			"translatesTo": "description",
+			"type": "string",
+			"parent": "root"
+		},
+		"depends": {
+			"translatesTo": "depends",
+			"type": "array",
+			"parent": "none"
+		},
+		"packageId": {
+			"translatesTo": "packageId",
+			"type": "string",
+			"parent": "depends"
+		},
+		"operatingSystem": {
+			"translatesTo": "operatingSystem",
+			"type": "string",
+			"parent": "depends"
+		},
+		"packageSystem": {
+			"translatesTo": "packageSystem",
+			"type": "string",
+			"parent": "depends"
+		},
+		"interactionMethod": {
+			"translatesTo": "interactionMethod",
+			"type": "string",
+			"parent": "root"
+		},
+		"generatedBy": {
+			"translatesTo": "generatedBy",
+			"type": "string",
+			"parent": "root"
+		},
+		"ercIdentifier": {
+			"translatesTo": "ercIdentifier",
+			"type": "string",
+			"parent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"parent": "root"
+		},
+		"paperLanguage": {
+			"translatesTo": "paperLanguage",
+			"type": "string",
+			"parent": "root"
+		},
+		"plain": {
+			"translatesTo": "keywords",
+			"type": "list",
+			"parent": "keywords"
+		},
+		"title": {
+			"translatesTo": "title",
+			"type": "string",
+			"parent": "root"
+		},
+		"version": {
+			"translatesTo": "version",
+			"type": "string",
+			"parent": "depends"
+		}
 	}
 }

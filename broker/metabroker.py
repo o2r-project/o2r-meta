@@ -23,7 +23,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 
-def do_outputs(output_data, out_mode, file_ext):
+def do_outputs(output_data, out_mode, out_name, file_ext):
     if out_mode == '@s':
         # give out to screen
         print(output_data)
@@ -33,7 +33,7 @@ def do_outputs(output_data, out_mode, file_ext):
     else:
         try:
             # output path is given in <out_mode>
-            output_filename = os.path.join(out_mode, '_'.join(('o2r', 'meta', 'test', file_ext)))
+            output_filename = os.path.join(out_mode, '_'.join((out_name, file_ext)))
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(output_filename, 'w', encoding='utf-8') as outfile:
@@ -48,33 +48,74 @@ def do_outputs(output_data, out_mode, file_ext):
 
 def map_json(element, value, map_data, output_dict):
     # parse complete map, find out how keys translate to target schema
-    for key in map_data:
-        # reset list here
-        fieldslist = []
-        # resolve pseudo xpath from map file to list of string
-        if element in map_data[key]:
-            if seperator in map_data[key]:
-                fieldslist = map_data[key].split(seperator)
-        # distinguish data types of value
-        if type(value) is dict:  # case json nested key dict, e.g. <keywords> either <plain> or <formatted>
-            for k in value:
-                if k in fieldslist:
-                    # e.g. keywords['plain'] from .Rmd is {'keywords': ['lorem', 'ipsum', 'dolor', 'sit', 'amet']}
-                    output_dict[key] = value[fieldslist[1]]
-        elif type(value) is list:  # case json array, e.g. author consists of n packs of author properties
-            for d in value:
-                # this <d> in the array is an array itself
-                if type(d) is dict:
-                    for c in d:
-                        if len(fieldslist) > 0:
-                            # this <c> is desired element of maps pseudo xpath
-                            if c == fieldslist[1]:
-                                output_dict[key] = d[c]
-                            else:
-                                pass
-        else:  # case value is plain string
-            if element == key or element == map_data[key]:
-                output_dict[key] = value
+    if element in map_data:
+        # prepare types:
+        if map_data[element]['parent'] != 'root':
+            pass
+        else:
+            # most simple 1:1
+            if map_data[element]['type'] == 'string':
+                output_dict[map_data[element]['translatesTo']] = value
+        if map_data[element]['type'] == 'array':
+            # e. g. author array (is list in py)
+            output_dict[map_data[element]['translatesTo']] = []
+    if type(value) is list or type(value) is dict:
+        # list of keys, nestedness:
+        c = 0
+        for key in value:
+            # ---<key:string>----------------------------------------------
+            if type(key) is str:
+                if key in map_data:
+                    d = 0
+                    # ---<subkey:string>----------------------------------------------
+                    if type(value[key]) is list:
+                        for sub_list_key in value[key]:
+                            # ---<subkey:string>----------------------------------------------
+                            if type(sub_list_key) is str:
+                                # e.g. keywords as list of string
+                                output_dict[map_data[key]['translatesTo']] = value[key]
+                            # ---<subkey:dictionary>------------------------------------------
+                            elif type(sub_list_key) is dict:
+                                # as for r_code_block#Dependency#text
+                                temp = {}
+                                for subsub_list_key in sub_list_key:
+                                    if subsub_list_key in map_data:
+                                        location = map_data[subsub_list_key]['parent']
+                                        temp[map_data[subsub_list_key]['translatesTo']] = value[key][d][subsub_list_key]
+                                    else:
+                                        continue
+                                # now add to results under the appropriate key:
+                                d += 1
+                                if location:
+                                    try:
+                                        output_dict[location].append(temp)
+                                        pass
+                                    except:
+                                        output_dict[location] = []
+                                        output_dict[location].append(temp)
+                                else:
+                                    output_dict[location] = []
+            # ---<key:list>----------------------------------------------
+            elif type(key) is list:
+                for y in key:
+                    if y in map_data:
+                        # to do: fix 'parent' to 'translatesTo'
+                        if output_dict[map_data[y]['parent']]:
+                            output_dict[map_data[y]['parent']].append(value[c][y])
+            # ---<key:dict>----------------------------------------------
+            elif type(key) is dict:
+                # as for 'authors'
+                location = ''
+                temp = {}
+                for sub_dict_key in key:
+                    if sub_dict_key in map_data:
+                        location = map_data[sub_dict_key]['parent']
+                        temp[map_data[sub_dict_key]['translatesTo']] = value[c][sub_dict_key]
+                # to do: error handler if location empty or output misses the key
+                output_dict[location].append(temp)
+            else:
+                pass
+            c += 1
     return output_dict
 
 
@@ -196,17 +237,17 @@ if __name__ == "__main__":
             raise
         # distinguish format for output
         if my_mode == 'json':
-            # to do: handle json based maps like o2r non-raw or codemeta
-            json_output = {}
-            # test o2r output meta
-            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-                test_data = json.load(data_file)
-            for element in test_data:
-                try:
-                    map_json(element, test_data[element], map_data, json_output)
-                except:
-                    raise
-            do_outputs(json_output, output_mode, '.json')
+            for file in os.listdir(input_dir):
+                if os.path.basename(file).startswith('meta_'):
+                    json_output = {}
+                    with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
+                        test_data = json.load(data_file)
+                    for element in test_data:
+                        try:
+                            map_json(element, test_data[element], map_data, json_output)
+                        except:
+                            raise
+                    do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
         elif my_mode == 'txt':
             # to do: handle txt based maps like bagit
             txt_output = ''
@@ -227,4 +268,4 @@ if __name__ == "__main__":
             output = ET.tostring(root, encoding='utf8', method='xml')
             do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
         else:
-            print('[metabroker] !error: cannot process map mode of <' + my_map + '>')
+            print('[metabroker] ! error: cannot process map mode of <' + my_map + '>')
