@@ -53,14 +53,19 @@ def parse_exobj(parameter):
 def parse_yaml(input_text):
     try:
         yaml_data_dict = yaml.safe_load(input_text)
-        # get authors and possible ids
-        if yaml_data_dict['author']:
-            for anyone in yaml_data_dict['author']:
-                if anyone['name']:
-                    # TO DO: stop using sandbox for orcid retrieval
-                    id_found = find_orcid(anyone['name'], True)
-                    #status_note('<! debug: '+anyone['name']+' '+id_found+'>')
-                    anyone['orcid'] = id_found
+        # get authors and possible ids // orcid
+        if yaml_data_dict is not None and not skip_orcid:
+            if 'author' in yaml_data_dict:
+                if type(yaml_data_dict['author']) is str:
+                    id_found = find_orcid(yaml_data_dict['author'], True)
+                    yaml_data_dict['orcid'] = id_found
+                elif type(yaml_data_dict['author']) is list:
+                    for anyone in yaml_data_dict['author']:
+                        if 'name' in anyone:
+                            # TO DO: stop using sandbox for orcid retrieval
+                            id_found = find_orcid(anyone['name'], True)
+                            # status_note('<! debug: '+anyone['name']+' '+id_found+'>')
+                            anyone['orcid'] = id_found
         return yaml_data_dict
     except yaml.YAMLError as exc:
         status_note(''.join(('! error while parsing yaml input:', str(exc.problem_mark), str(exc.problem))))
@@ -112,8 +117,6 @@ def check_rpacks(package):
 def do_ex(path_file, out_format, out_mode, multiline, rule_set):
     try:
         status_note(''.join(('processing ', path_file)))
-        output_data = None
-        output_fileext = None
         md_object_type = ''
         md_interaction_method = ''  # find entry point in ../container/Dockerfile
         md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
@@ -141,7 +144,28 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
             else:
                 # parse entire file as one code block
                 data_dict.update(r_codeblock=parse_r(content))
-        # save results
+        # save information on this extracted file for comparison with others
+        # for testing, decide this based on overall size (which is not precise due to r comment extraction)
+        current_size = sys.getsizeof(data_dict)
+        if 'size' not in compare_extracted:
+            compare_extracted['size'] = current_size
+            compare_extracted['best'] = data_dict
+        else:
+            if 'size' < current_size:
+                compare_extracted['size'] = current_size
+                compare_extracted['best'] = data_dict
+        # save or output results
+        if  metafiles_all:
+            output_extraction(data_dict, out_format, out_mode, path_file)
+    except Exception as exc:
+        #raise
+        status_note(''.join(('! error while extracting: ', exc.args[0])))
+
+
+def output_extraction(data_dict, out_format, out_mode, out_path_file):
+    try:
+        output_data = None
+        output_fileext = None
         if out_format == 'json':
             output_data = json.dumps(data_dict, sort_keys=True, indent=4, separators=(',', ': '))
             output_fileext = '.json'
@@ -151,25 +175,30 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         if out_mode == '@s':
             # give out to screen
             print(output_data)
+            return None
         elif out_mode == '@none':
             # silent mode
             pass
         else:
             # output path is given in <out_mode>
-            timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
-            # "meta_" prefix as distinctive feature for metabroker later in workflow
-            output_filename = os.path.join(out_mode, '_'.join(('meta', timestamp, os.path.basename(path_file)[:8].replace('.', '_'), output_fileext)))
+            if out_path_file is not None:
+                timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
+                # "meta_" prefix as distinctive feature for metabroker later in workflow
+                out_path_file = os.path.join(out_mode, '_'.join(
+                    ('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
+            else:
+                pass
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
-            with open(output_filename, 'w', encoding='utf-8') as outfile:
+            with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note(''.join((str(os.stat(output_filename).st_size),' bytes written to ', os.path.abspath(output_filename))))
-    except Exception as exc:
-        status_note(''.join(('! error while extracting:', exc.args[0])))
+            status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.abspath(out_path_file))))
+    except:
+        raise
 
 
 def status_note(msg):
-    print(''.join(('[metaextract] ', msg)))
+    print(''.join(('[metaextract] ', str(msg))))
 
 
 # main:
@@ -179,19 +208,24 @@ if __name__ == "__main__":
         status_note('requires py3k or later')
         sys.exit()
     else:
-        # py3k
         status_note('initializing')
-        parser = argparse.ArgumentParser(description='description')
+        # args required
+        parser = argparse.ArgumentParser(description='args for metaextract')
         parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        parser.add_argument('-e', '--ercid', help='erc identifier', required=False)
-        parser.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
         group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
+        # args optional
+        parser.add_argument('-e', '--ercid', help='erc identifier', required=False)
+        parser.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
+        parser.add_argument('-xo', '--skiporcid', help='skip orcid requests', action='store_true', default=False, required=False)
+        parser.add_argument('-m', '--metafiles', help='output all metafiles', action='store_true', default=False,  required=False)
         args = parser.parse_args()
         args_dict = vars(args)
         input_dir = args_dict['inputdir']
         md_erc_id = args_dict['ercid']
+        skip_orcid = args_dict['skiporcid']
+        metafiles_all = args_dict['metafiles']
         # to do: create args for path_to_liveex_logfile and papersource
         output_xml = args_dict['modexml']
         output_dir = args_dict['outputdir']
@@ -242,7 +276,12 @@ if __name__ == "__main__":
         packlist_geosci = 'list_geosci.txt'
         n = 0
         nr = 0
+        if skip_orcid:
+            status_note('orcid api search disabled...')
         md_paper_source = ''
+        compare_extracted = {}  # dict for evaluations to find best metafile for main output
+        main_metadata = ''  # main output
+
         # process all files in input directory +recursive
         for root, subdirs, files in os.walk(input_dir):
             for file in files:
@@ -256,3 +295,11 @@ if __name__ == "__main__":
                 else:
                     pass
         status_note(''.join(('done. ', str(nr), ' files processed. ', str(n), ' files found.')))
+        status_note('creating output for main metadata...')
+        if 'best' in compare_extracted:
+            if output_mode == '@s' or output_dir is None:
+                # write to sceen
+                output_extraction(compare_extracted['best'], output_format, output_mode, None)
+            else:
+                # write to file
+                output_extraction(compare_extracted['best'], output_format, output_mode, os.path.join(output_dir, 'metadata.json'))

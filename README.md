@@ -44,13 +44,15 @@ Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```, `
 
 Usage:
 
-    python metaextract.py -i INPUT_DIR [-o OUTPUT_DIR -s] [-xml]
+    python metaextract.py -i INPUT_DIR [-o OUTPUT_DIR -s] [-m] [-xml] [-xo]
 
 
 + use ```-i``` to specify a new directory for input. metaextract will attempt to parse all ```.R``` and ```.Rmd``` files in the input directory.
 + the parameters ```-o``` and ```-s``` are mutually exclusive choices, one of them is required.
-+ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files. 
-+ default output format is _json_. use ```-xml``` to change it to _xml_.
++ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files.
++ optionally use ```-m``` to additionally output every parsed file's raw metadata
++ optionally use ```-xml``` to change the output format to _xml_. Default is _json_.
++ optionally use ```-xo``` to skip all orcid api requests, thus excluding orcid from resulting author metadata
 
 
 Example:
