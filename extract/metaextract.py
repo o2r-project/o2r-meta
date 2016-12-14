@@ -151,7 +151,7 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
             compare_extracted['size'] = current_size
             compare_extracted['best'] = data_dict
         else:
-            if 'size' < current_size:
+            if compare_extracted['size'] < current_size:
                 compare_extracted['size'] = current_size
                 compare_extracted['best'] = data_dict
         # save or output results
@@ -182,12 +182,11 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         else:
             # output path is given in <out_mode>
             if out_path_file is not None:
-                timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
-                # "meta_" prefix as distinctive feature for metabroker later in workflow
-                out_path_file = os.path.join(out_mode, '_'.join(
-                    ('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
-            else:
-                pass
+                if os.path.basename(out_path_file) != main_metadata_filename:
+                    timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
+                    # "meta_" prefix as distinctive feature for metabroker later in workflow
+                    out_path_file = os.path.join(out_mode, '_'.join(
+                        ('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
@@ -245,12 +244,10 @@ if __name__ == "__main__":
         else:
             # not possible currently because output arg group is on mutual exclusive
             output_mode = '@none'
-
         if input_dir:
             if not os.path.isdir(input_dir):
                 status_note(''.join(('! error, input dir <', input_dir, '> does not exist')))
                 sys.exit()
-
         # load rules:
         # rule set for r, compose as: category name TAB entry feature name TAB regex
         rule_set_r = ['\t'.join(('comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
@@ -264,9 +261,7 @@ if __name__ == "__main__":
                       '\t'.join(('output', 'file', r'write\..*\((.*)\)')),
                       '\t'.join(('output', 'result', r'(ggplot|plot|print)\((.*)\)')),
                       '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
-
         #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
-
         # rule set for rmd
         rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)[\.\-]{3}')),
                                   '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
@@ -281,7 +276,7 @@ if __name__ == "__main__":
         md_paper_source = ''
         compare_extracted = {}  # dict for evaluations to find best metafile for main output
         main_metadata = ''  # main output
-
+        main_metadata_filename = 'metadata.json'
         # process all files in input directory +recursive
         for root, subdirs, files in os.walk(input_dir):
             for file in files:
@@ -294,12 +289,11 @@ if __name__ == "__main__":
                     nr += 1
                 else:
                     pass
-        status_note(''.join(('done. ', str(nr), ' files processed. ', str(n), ' files found.')))
-        status_note('creating output for main metadata...')
+        status_note(''.join(('done. ', str(nr), ' files processed. ', str(n), ' files seen in dir structure.')))
         if 'best' in compare_extracted:
             if output_mode == '@s' or output_dir is None:
                 # write to sceen
                 output_extraction(compare_extracted['best'], output_format, output_mode, None)
             else:
                 # write to file
-                output_extraction(compare_extracted['best'], output_format, output_mode, os.path.join(output_dir, 'metadata.json'))
+                output_extraction(compare_extracted['best'], output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
