@@ -68,6 +68,7 @@ def parse_yaml(input_text):
                             anyone['orcid'] = id_found
         return yaml_data_dict
     except yaml.YAMLError as exc:
+        #raise
         status_note(''.join(('! error while parsing yaml input:', str(exc.problem_mark), str(exc.problem))))
 
 
@@ -98,8 +99,9 @@ def parse_r(input_text):
                         meta_r_dict.setdefault(this_rule[0], []).append(segment)
         return meta_r_dict
     except Exception as exc:
+        raise
         status_note(''.join(('! error while parsing R input: ', exc.args[0])))
-        #raise
+
 
 
 def check_rpacks(package):
@@ -263,9 +265,9 @@ if __name__ == "__main__":
                       '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
         #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
         # rule set for rmd
-        rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)[\.\-]{3}')),
+        rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)[\-]{3}')),
                                   '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
-
+        #todo: yaml "---" to "---" check line begin and add "..." as closing tag
         # other parameters
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
