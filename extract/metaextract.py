@@ -119,7 +119,6 @@ def parse_r(input_text):
         status_note(''.join(('! error while parsing R input: ', exc.args[0])))
 
 
-
 def check_rpacks(package):
     label = ''
     if package in open(packlist_geosci).read():
@@ -301,8 +300,8 @@ if __name__ == "__main__":
                       '\t'.join(('output', 'result', r'(ggplot|plot|print)\((.*)\)')),
                       '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
         #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
-        # rule set for rmd
-        rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)^(\-{3})')),
+        # rule set for rmd #
+        rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                                   '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
         # other parameters
         packlist_crantop100 = 'list_crantop100.txt'
