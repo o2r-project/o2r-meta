@@ -35,9 +35,10 @@ def find_orcid(txt_input, bln_sandbox):
         api = orcid.SearchAPI(sandbox=bln_sandbox)
         r = api.search_public(txt_input)
         return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
-    except:
-        status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>')))
+    except Exception as exc:
+        status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
         return '0000-0000-0000-0000'
+        #return None
 
 
 def parse_exobj(parameter):
@@ -48,6 +49,16 @@ def parse_exobj(parameter):
     # uses list(...list(),list(),...) for packages
     result = ''
     return result
+
+
+def parse_txt_bagitfile(file_path):
+    txt_dict = {'bagittxt_file': file_path}
+    with open(file_path) as f:
+        lines = f.readlines()
+        for line in lines:
+            s = line.rstrip('\n').split(': ')
+            txt_dict[s[0]] = s[1]
+    return txt_dict
 
 
 def parse_yaml(input_text):
@@ -62,7 +73,7 @@ def parse_yaml(input_text):
                 elif type(yaml_data_dict['author']) is list:
                     for anyone in yaml_data_dict['author']:
                         if 'name' in anyone:
-                            # TO DO: stop using sandbox for orcid retrieval
+                            # todo: stop using sandbox for orcid retrieval
                             id_found = find_orcid(anyone['name'], True)
                             # status_note('<! debug: '+anyone['name']+' '+id_found+'>')
                             anyone['orcid'] = id_found
@@ -92,14 +103,19 @@ def parse_r(input_text):
                             dep_os = parse_exobj('os')
                             dep_packetsys = 'https://cloud.r-project.org/'
                             dep_ver = parse_exobj('version')
-                            segment = {'operatingSystem': dep_os, 'packageSystem': dep_packetsys, 'version': dep_ver, 'line': c, 'category': check_rpacks(m.group(1)), 'packageId': m.group(1)}
+                            segment = {'operatingSystem': dep_os,
+                                       'packageSystem': dep_packetsys,
+                                       'version': dep_ver,
+                                       'line': c,
+                                       'category': check_rpacks(m.group(1)),
+                                       'packageId': m.group(1)}
                         # r other
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
                         meta_r_dict.setdefault(this_rule[0], []).append(segment)
         return meta_r_dict
     except Exception as exc:
-        raise
+        #raise
         status_note(''.join(('! error while parsing R input: ', exc.args[0])))
 
 
@@ -123,7 +139,14 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         md_interaction_method = ''  # find entry point in ../container/Dockerfile
         md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
         md_file = os.path.basename(path_file)
-        data_dict = {'file': md_file, 'filepath': path_file, 'ercIdentifier': md_erc_id, 'generatedBy': 'metaextract.py', 'recordDateCreated': md_record_date, 'paperSource': md_paper_source, 'objectType': md_object_type, 'interactionMethod': md_interaction_method}
+        data_dict = {'file': md_file,
+                     'filepath': path_file,
+                     'ercIdentifier': md_erc_id,
+                     'generatedBy': os.path.basename(__file__),
+                     'recordDateCreated': md_record_date,
+                     'paperSource': md_paper_source,
+                     'objectType': md_object_type,
+                     'interactionMethod': md_interaction_method}
         with open(os.path.relpath(path_file), encoding='utf-8') as input_file:
             content = input_file.read()
             # apply multiline re for rmd, yaml, etc.
@@ -146,18 +169,32 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
             else:
                 # parse entire file as one code block
                 data_dict.update(r_codeblock=parse_r(content))
-        # save information on this extracted file for comparison with others
-        # for testing, decide this based on overall size (which is not precise due to r comment extraction)
-        current_size = sys.getsizeof(data_dict)
-        if 'size' not in compare_extracted:
-            compare_extracted['size'] = current_size
+        # save information on this extracted file for comparison with others, so to find best MD
+        # ! keep hierarchy:
+        # condition: file extension:
+        current_ext = os.path.splitext(path_file)[1].lower()
+        if 'ext' not in compare_extracted:
+            compare_extracted['ext'] = current_ext
             compare_extracted['best'] = data_dict
         else:
-            if compare_extracted['size'] < current_size:
-                compare_extracted['size'] = current_size
+            if compare_extracted['ext'] == '.r' and current_ext == '.rmd':
+                compare_extracted['ext'] = current_ext
                 compare_extracted['best'] = data_dict
+            elif compare_extracted['ext'] == '.rmd' and current_ext == '.r':
+                pass
+            elif compare_extracted['ext'] == '.rmd' and current_ext == '.rmd':
+                # already had rmd, and now again rmd, let size decide
+                # condition: total size of output:
+                current_size = sys.getsizeof(data_dict)
+                if 'size' not in compare_extracted:
+                    compare_extracted['size'] = current_size
+                    compare_extracted['best'] = data_dict
+                else:
+                    if compare_extracted['size'] < current_size:
+                        compare_extracted['size'] = current_size
+                        compare_extracted['best'] = data_dict
         # save or output results
-        if  metafiles_all:
+        if metafiles_all:
             output_extraction(data_dict, out_format, out_mode, path_file)
     except Exception as exc:
         #raise
@@ -187,15 +224,15 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 if os.path.basename(out_path_file) != main_metadata_filename:
                     timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
                     # "meta_" prefix as distinctive feature for metabroker later in workflow
-                    out_path_file = os.path.join(out_mode, '_'.join(
-                        ('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
+                    out_path_file = os.path.join(out_mode, '_'.join(('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.abspath(out_path_file))))
-    except:
-        raise
+            status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file))))
+    except Exception as exc:
+        #raise
+        status_note(''.join(('! error while ceating output', exc.args[0])))
 
 
 def status_note(msg):
@@ -265,36 +302,42 @@ if __name__ == "__main__":
                       '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
         #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
         # rule set for rmd
-        rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)[\-]{3}')),
+        rule_set_rmd_multiline = ['\t'.join(('yaml', r'\-{3}(.*)^(\-{3})')),
                                   '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
-        #todo: yaml "---" to "---" check line begin and add "..." as closing tag
         # other parameters
         packlist_crantop100 = 'list_crantop100.txt'
         packlist_geosci = 'list_geosci.txt'
-        n = 0
-        nr = 0
+        nr = 0  # number of files processed
         if skip_orcid:
             status_note('orcid api search disabled...')
         md_paper_source = ''
+        bagit_txt_file = None
         compare_extracted = {}  # dict for evaluations to find best metafile for main output
         main_metadata = ''  # main output
         main_metadata_filename = 'metadata.json'
         # process all files in input directory +recursive
         for root, subdirs, files in os.walk(input_dir):
             for file in files:
-                n += 1
                 if file.lower().endswith('.r'):
                     do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
+                    nr += 1
+                elif file.lower() == 'bagit.txt':
+                    status_note(''.join(('processing ', os.path.join(root, file))))
+                    bagit_txt_file = (parse_txt_bagitfile(os.path.join(root, file)))
                     nr += 1
                 elif file.lower().endswith('.rmd'):
                     do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
                     nr += 1
                 else:
                     pass
-        status_note(''.join(('done. ', str(nr), ' files processed. ', str(n), ' files seen in dir structure.')))
+        status_note(''.join((str(nr), ' files processed ')))
         if 'best' in compare_extracted:
+            # we have a candidate best suited for metadata.json main output
+            if bagit_txt_file is not None:
+                # add data from bagit metafile
+                compare_extracted['best']['bagit'] = bagit_txt_file
             if output_mode == '@s' or output_dir is None:
-                # write to sceen
+                # write to screen
                 output_extraction(compare_extracted['best'], output_format, output_mode, None)
             else:
                 # write to file
