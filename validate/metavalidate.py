@@ -19,6 +19,7 @@ import argparse
 import json
 import os
 import sys
+import datetime
 
 import jsonschema
 import requests
@@ -85,6 +86,13 @@ if __name__ == "__main__":
         status_note('requires py3k or later')
         sys.exit()
     else:
+        my_version = 1
+        my_mod = ''
+        try:
+            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
+        except OSError:
+            pass
+        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-s', '--schema', help='path to schema', type=str, required=True)
         parser.add_argument('-c', '--candidate', help='path to candidate', type=str, required=True)

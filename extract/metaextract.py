@@ -245,7 +245,13 @@ if __name__ == "__main__":
         status_note('requires py3k or later')
         sys.exit()
     else:
-        status_note('initializing')
+        my_version = 1
+        my_mod = ''
+        try:
+            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
+        except OSError:
+            pass
+        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
         # args required
         parser = argparse.ArgumentParser(description='args for metaextract')
         parser.add_argument('-i', '--inputdir', help='input directory', required=True)

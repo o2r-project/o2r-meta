@@ -1,4 +1,4 @@
-'''
+"""
     Copyright (c) 2016 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,15 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-'''
+"""
 
 import argparse
 import base64
 import json
 import sys
 import urllib.request
+import datetime
+import os
 
 from lxml import etree
 
@@ -27,6 +29,7 @@ from lxml import etree
 def parse_from_unicode(unicode_str):
     s = unicode_str.encode('utf-8')
     return etree.fromstring(s, parser=utf8_parser)
+
 
 def qu(q_type,q_string,q_base):
     accepted = ['doi','creator']
@@ -39,10 +42,15 @@ def qu(q_type,q_string,q_base):
         headers = {}
         req = urllib.request.Request(my_url, None, headers)
         http = urllib.request.urlopen(req).read()
-        return(str(http, 'utf-8'))
+        return str(http, 'utf-8')
     else:
         print('query type not available')
         return None
+
+
+def status_note(msg):
+    print(''.join(('[metavharvest] ', msg)))
+
 
 # main:
 if __name__ == "__main__":
@@ -51,6 +59,13 @@ if __name__ == "__main__":
         print('requires py3k or later')
         sys.exit()
     else:
+        my_version = 1
+        my_mod = ''
+        try:
+            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
+        except OSError:
+            pass
+        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-i', '--input', help='type of provided metadata element for input, e.g. doi or creator', required=True)
         parser.add_argument('-q', '--query', help='query string', required=True)

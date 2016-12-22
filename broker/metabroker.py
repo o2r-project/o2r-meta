@@ -19,6 +19,7 @@ import argparse
 import json
 import os
 import sys
+import datetime
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
@@ -200,8 +201,13 @@ if __name__ == "__main__":
         status_note('requires py3k or later')
         sys.exit()
     else:
-        # init
-        status_note('initializing')
+        my_version = 1
+        my_mod = ''
+        try:
+            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
+        except OSError:
+            pass
+        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-m', '--map', help='name of the mapping file', required=True)
         parser.add_argument('-i', '--inputdir', help='input directory', required=True)
