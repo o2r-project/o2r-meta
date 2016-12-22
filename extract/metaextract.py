@@ -322,6 +322,7 @@ if __name__ == "__main__":
         main_metadata_filename = 'metadata.json'
         # process all files in input directory +recursive
         for root, subdirs, files in os.walk(input_dir):
+            status_note(''.join(('debug: encountering ', str(list(files)))))
             for file in files:
                 if file.lower().endswith('.r'):
                     do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
