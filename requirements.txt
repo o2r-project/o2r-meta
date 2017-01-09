@@ -1,4 +1,5 @@
 dicttoxml
+fiona
 guess_language-spirit
 jsonschema
 lxml

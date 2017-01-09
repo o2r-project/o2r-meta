@@ -24,6 +24,7 @@ import sys
 from xml.dom import minidom
 
 import dicttoxml
+import fiona
 import orcid
 import yaml
 from guess_language import guess_language
@@ -234,6 +235,28 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         status_note(''.join(('! error while ceating output', exc.args[0])))
 
 
+def do_shp(filepath, data):
+    try:
+        global md_bbox_list
+        status_note('processing '+filepath)
+        c = fiona.open(filepath, 'r')
+        if 'spacial' not in data:
+            data['spacial'] = []
+        added_key = {}
+        added_key['source_file'] = filepath
+        added_key['geojson'] = {}
+        added_key['geojson']['bbox'] = c.bounds
+        added_key['geojson']['type'] = 'Feature'
+        added_key['geojson']['geometry'] = {}
+        added_key['geojson']['geometry']['type'] = 'Polygon'
+        added_key['geojson']['geometry']['coordinates'] = [[[c.bounds[0], c.bounds[1]],  [c.bounds[2],  c.bounds[3]]]]
+        data['spacial'].append(added_key)
+
+    except:
+        raise
+
+
+
 def status_note(msg):
     print(''.join(('[metaextract] ', str(msg))))
 
@@ -316,10 +339,12 @@ if __name__ == "__main__":
         if skip_orcid:
             status_note('orcid api search disabled...')
         md_paper_source = ''
+        md_bbox_list = {}
+        MASTER_MD_DICT = {}  # todo: this one is being updated per function call
         bagit_txt_file = None
         compare_extracted = {}  # dict for evaluations to find best metafile for main output
         main_metadata = ''  # main output
-        main_metadata_filename = 'metadata.json'
+        main_metadata_filename = 'metadata_raw.json'
         # process all files in input directory +recursive
         for root, subdirs, files in os.walk(input_dir):
             status_note(''.join(('debug: encountering ', str(list(files)))))
@@ -329,22 +354,25 @@ if __name__ == "__main__":
                     nr += 1
                 elif file.lower() == 'bagit.txt':
                     status_note(''.join(('processing ', os.path.join(root, file))))
-                    bagit_txt_file = (parse_txt_bagitfile(os.path.join(root, file)))
+                    MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file)))
                     nr += 1
                 elif file.lower().endswith('.rmd'):
                     do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
+                    nr += 1
+                elif file.lower().endswith('.shp'):
+                    do_shp(os.path.join(root, file), MASTER_MD_DICT)
                     nr += 1
                 else:
                     pass
         status_note(''.join((str(nr), ' files processed ')))
         if 'best' in compare_extracted:
-            # we have a candidate best suited for metadata.json main output
-            if bagit_txt_file is not None:
-                # add data from bagit metafile
-                compare_extracted['best']['bagit'] = bagit_txt_file
+            # we have a candidate best suited for <metadata_raw.json> main output
+            # now merge data_dicts:
+            for key in compare_extracted['best']:
+                MASTER_MD_DICT[key] = compare_extracted['best'][key]
             if output_mode == '@s' or output_dir is None:
                 # write to screen
-                output_extraction(compare_extracted['best'], output_format, output_mode, None)
+                output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
             else:
                 # write to file
-                output_extraction(compare_extracted['best'], output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+                output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))

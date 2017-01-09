@@ -1,4 +1,5 @@
 dicttoxml
+fiona
 PyYAML
 guess_language-spirit
 orcid
