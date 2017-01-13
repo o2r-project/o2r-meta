@@ -1,7 +1,5 @@
 PyYAML
 dicttoxml
-GDAL==2.1.0
-fiona
 guess_language-spirit
 jsonschema
 lxml
