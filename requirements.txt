@@ -6,3 +6,4 @@ jsonschema
 lxml
 orcid
 requests
+GDAL==1.11.2
