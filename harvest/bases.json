@@ -3,68 +3,78 @@
 		"name": "o2r",
 		"description": "configuration data for OAI endpoints used in metadata harvest of the o2r-project",
 		"mode": "OAI-PMH 2.0",
-		"schema_default": "https:\/\/schema.datacite.org\/meta\/kernel-3\/metadata.xsd"
+		"schema_default": "\\url{https://schema.datacite.org/meta/kernel-3/metadata.xsd}"
 	},
 	"BaseURLs": {
 		"b2share": {
-			"url": "http:\/\/b2share.eudat.eu\/oai2d",
+			"url": "\\url{http://b2share.eudat.eu/oai2d}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"b2share_sandbox": {
-			"url": "https:\/\/trng-b2share.eudat.eu\/oai2d",
+			"url": "\\url{https://trng-b2share.eudat.eu/oai2d}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"Crossref": {
-			"url": "http:\/\/oai.crossref.org\/OAIHandler",
+			"url": "\\url{http://oai.crossref.org/OAIHandler}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": true,
 			"schema": ""
 		},
 		"DataCite": {
-			"url": "http:\/\/oai.datacite.org\/oai?verb=ListRecords&metadataPrefix=oai_datacite&set=~",
+			"url": "\\url{http://oai.datacite.org/oai}",
+			"default_parameter": "?verb=ListRecords&metadataPrefix=oai_datacite&set=~",
 			"isActive": true,
 			"isSubscriberOnly": false,
-			"schema": "https:\/\/schema.datacite.org\/meta\/kernel-3\/metadata.xsd"
+			"schema": "\\url{https://schema.datacite.org/meta/kernel-3/metadata.xsd}"
 		},
 		"DLI": {
-			"url": "http:\/\/dliservice.research-infrastructures.eu/oai",
+			"url": "\\url{http://dliservice.research-infrastructures.eu/oai}",
+			"default_parameter": "",
 			"isActive": false,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"MIAMI": {
-			"url": "https:\/\/repositorium.uni-muenster.de\/oai\/mamo?",
+			"url": "\\url{https://repositorium.uni-muenster.de/oai/mamo}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"o2r": {
-			"url": "",
+			"url": "\\url{https://sandbox.zenodo.org/oai2d}",
+			"default_parameter": "?verb=ListRecords&set=user-o2r&metadataPrefix=oai_dc",
 			"isActive": false,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"OpenAIRE": {
-			"url": "http:\/\/api.openaire.eu\/oai_pmh",
+			"url": "\\url{http://api.openaire.eu/oai_pmh}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
 		"Zenodo": {
-			"url": "https:\/\/zenodo.org\/oai2d",
+			"url": "\\url{https://zenodo.org/oai2d}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
-			"schema": "https:\/\/schema.datacite.org\/meta\/kernel-3\/metadata.xsd"
+			"schema": "\\url{https://schema.datacite.org/meta/kernel-3/metadata.xsd}"
 		},
 		"Zenodo_sandbox": {
-			"url": "https:\/\/sandbox.zenodo.org\/oai2d",
+			"url": "\\url{https://sandbox.zenodo.org/oai2d}",
+			"default_parameter": "",
 			"isActive": true,
 			"isSubscriberOnly": false,
-			"schema": "https:\/\/schema.datacite.org\/meta\/kernel-3\/metadata.xsd"
+			"schema": "\\url{https://schema.datacite.org/meta/kernel-3/metadata.xsd}"
 		}
 	}
 }

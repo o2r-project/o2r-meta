@@ -5,10 +5,11 @@
 This is a collection of metadata related micro services for the o2r-platform:
 
 1. schema & documentation of the o2r metadata
-2. metaextract - collect meta information from files or session
-3. metaharvest - collect metadata from external sources via OAI-PMH
-4. metavalidate - check if metadata set is valid to the schema
-5. metabroker - translate metadat from o2r to third party schemas
+2. extract - collect meta information from files or session
+3. broker - translate metadata from o2r to third party schemas
+4. validate - check if metadata set is valid to the schema
+5. harvest - collect metadata from external sources via OAI-PMH
+ 
 
 For their role within o2r, please see [o2r-architecture](https://github.com/o2r-project/architecture).
 
@@ -16,124 +17,51 @@ For their role within o2r, please see [o2r-architecture](https://github.com/o2r-
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
 The documentation of the schemas available at ```o2r-meta/schema/docs/``` is licensed under a [CC-BY 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
-Copyright (C) 2016 - o2r project.
+Copyright (C) 2016,2017 - o2r project.
 
 
 ## Installation
+(1) Acquire Python version 3.6.
+(2) Install the required modules:
 
     pip install -r requirements.txt
 
-or use dockerfiles where applicable.
+	
+## Usage
 
----
+Chosing the right tool:
 
-## 1. schema & documentation
+    python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>
 
-+ o2r metadata schema with example and documentation. Currently the main schema is an adaption of the codemeta schema for software metadata. In addition to that we provide a schema for UI metadata
-+ Our schemas are designed as json schemas. XML versions are generated automatically but regarded as secondary.
+Explanation of the main switches:
++ `debug` : option to enable verbose debug info where applicable	
 
+Providing arguments for each tool:
 
----
+#(1) Extractor tool:
 
+	python o2rmeta extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
+	
+Example call:
+	
+	python o2rmeta extract -i new/tests -o myOutputDir -xo -m
+	
+Explanation of the switches:
 
-## 2. metaextract
-
-metaextract.py is a basic try to automate metadata extraction from Rmd and R scripts. It outputs raw metadata that are not yet o2r schema compliant but can be refined using the metabroker with o2r mapping on the outputs. The script will try to retrieve ORCiDs (currently from sandbox only) for authors in Rmd yaml-header metadata.
-
-Required packages: ```PyYAML```, ```dicttoxml```, ```guess_language-spirit```, ```orcid```
-
-Usage:
-
-    python metaextract.py -i INPUT_DIR [-o OUTPUT_DIR -s] [-m] [-xml] [-xo]
-
-
-+ use ```-i``` to specify a new directory for input. metaextract will attempt to parse all ```.R``` and ```.Rmd``` files in the input directory.
-+ the parameters ```-o``` and ```-s``` are mutually exclusive choices, one of them is required.
-+ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files.
-+ optionally use ```-m``` to additionally output every parsed file's raw metadata
-+ optionally use ```-xml``` to change the output format to _xml_. Default is _json_.
-+ optionally use ```-xo``` to skip all orcid api requests, thus excluding orcid from resulting author metadata
-
-
-Example:
-
-    python metaextract.py -i"tests" -o"tests"
++ `-i` <INPUT_DIR> : required starting path for recursive search for parsable files
++ `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
++ `-o` <OUTPUT_DIR> : required output path, where data should be saved. This switch is mutually exclusive with `-s`. At least one of them must be given.
++ `-xo` : option to disable orcid public API calls	
++ `-m` : option to disable orcid public API calls	
++ `-xml` : option to change output format from json (default) to xml
++ `-ercid` <ERC_ID>: option to provide an ERC identifier
 
 
-+ use ```docker build``` command with the ```extract``` directory of this repository as the build context to build the Docker image.
+#(2) broker
+TBD
 
-Example:
+#(3) validate
+TBD
 
-    docker build -t o2r-meta extract
-    docker run --rm -v $(pwd)/extract/tests:/meta o2r-meta -i /meta -o /meta/extracts
-
----
-
-## 3. metaharvest
-
-metaharvest.py collects OAI-PMH metadata from aggregation services like DataCite and parses them to assist the completion of a metadata set in o2r.
-
-Required package: ```lxml```
-
-Usage:
-
-    python metaharvest.py -i INPUT_TYPE -q QUERY_STRING
-
-
-Example:
-
-    python metaharvest.py -i"doi" -q"10.14457/CU.THE.1989.1"
-
----
-
-
-## 4. metavalidate
-
-metavalidate.py validates .json and .xml files against json-schema files and xsd files respectively. The script also works with URLs.
-
-Required package: ```jsonschema```, ```lxml```
-
-Usage:
-
-    python metavalidate.py -s SCHEMA_PATH -c CANDIDATE_PATH
-
-+ use ```-s``` to specify a relative paths to the schema file or an URL where the schema is located.
-+ use ```-c``` to specify a relative paths to the candidate file or an URL where the candidate is located.
-
-Example:
-
-    python metavalidate.py -s"../schema/json/o2r-meta-schema.json" -c"../schema/json/example1-valid.json"
-
-+ use ```docker build``` command with the ```validate``` directory of this repository as the build context to build the Docker image.
-
-Example:
-
-    docker build -t o2r-meta validate
-    docker run --rm -v $(pwd)/validate/tests:/meta o2r-meta -s ../schema/json/o2r-meta-schema.json -c ../schema/json/example1-valid.json
-
----
-
-## 5. metabroker
-
-metabroker.py is a translator for raw metadata from the o2r project and common metadata schemas such as DataCite etc.
-Translation instructions are read from mapping files (json).
-
-
-Required package: %
-
-Usage:
-
-    python metabroker.py -m MAP_FILE -i INPUT_DIR [-o OUTPUT_DIR -s]
-
-+ use ```-i``` to specify a new directory for input.
-+ metabroker will attempt to parse all json files in the input directory having a filename that starts with "meta_" (possible outputs of metaextract.py).
-+ use the name of the ```MAP_FILE``` found in ```/mappings```.
-+ the parameters ```-o``` and ```-s``` are mutually exclusive choices, one of them is required.
-+ use ```-s``` to print outputs to screen. use ```-o``` together with a valid relative path to write output files. 
-
-
-Example:
-
-    python metabroker.py -m"o2r-map.json" -i"tests" -o"tests"
-
-
+#(4) harvest
+TBD

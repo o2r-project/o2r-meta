@@ -1,4 +1,4 @@
-"""
+'''
     Copyright (c) 2016 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-"""
+'''
 
 import argparse
 import base64
 import json
 import sys
 import urllib.request
-import datetime
-import os
 
 from lxml import etree
 
@@ -30,9 +28,11 @@ def parse_from_unicode(unicode_str):
     s = unicode_str.encode('utf-8')
     return etree.fromstring(s, parser=utf8_parser)
 
-
 def qu(q_type,q_string,q_base):
-    accepted = ['doi','creator']
+    # check if json url has been parsed correctly
+    if q_base.startswith('\\url{'):
+        q_base = q_base[5:].replace('}', '')
+    accepted = ['doi','creator'] #<-- generify
     if q_type in accepted:
         # datacite solr query encoding ideolect:
         my_query = str.encode('q='+q_type+'%3A'+q_string)
@@ -42,15 +42,10 @@ def qu(q_type,q_string,q_base):
         headers = {}
         req = urllib.request.Request(my_url, None, headers)
         http = urllib.request.urlopen(req).read()
-        return str(http, 'utf-8')
+        return(str(http, 'utf-8'))
     else:
         print('query type not available')
         return None
-
-
-def status_note(msg):
-    print(''.join(('[metavharvest] ', msg)))
-
 
 # main:
 if __name__ == "__main__":
@@ -59,13 +54,6 @@ if __name__ == "__main__":
         print('requires py3k or later')
         sys.exit()
     else:
-        my_version = 1
-        my_mod = ''
-        try:
-            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
-        except OSError:
-            pass
-        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
         parser = argparse.ArgumentParser(description='description')
         parser.add_argument('-i', '--input', help='type of provided metadata element for input, e.g. doi or creator', required=True)
         parser.add_argument('-q', '--query', help='query string', required=True)
@@ -73,8 +61,6 @@ if __name__ == "__main__":
         argsdict = vars(args)
         i = argsdict['input']
         q = argsdict['query']
-        #inits
-        # load map for datacite
         try:
             with open('bases.json', encoding='utf-8') as data_file:
                 bases = json.load(data_file)
@@ -84,10 +70,10 @@ if __name__ == "__main__":
             raise
         print('[metaharvest] starting request')
         #test datacite
-        result = qu(i.lower(),q,baseurl_data['DataCite']['url'])
+        my_base = 'DataCite' #<-- make this parsed arg
         try:
-            print('[metaharvest]' + result[:128])
-            print('[metaharvest] ...')
+            result = qu(i.lower(), q, baseurl_data[my_base]['url'] + baseurl_data[my_base]['default_parameter'])
+            print('[metaharvest] !debug using ' + result[:128] + ' ...')
             utf8_parser = etree.XMLParser(encoding='utf-8')
             tree = parse_from_unicode(result)
             # e.g. return author from datacite creatorName

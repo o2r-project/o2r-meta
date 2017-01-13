@@ -1,8 +1,9 @@
+PyYAML
 dicttoxml
 fiona
+gdal
 guess_language-spirit
 jsonschema
 lxml
-PyYAML
 orcid
 requests

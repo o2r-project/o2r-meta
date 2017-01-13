@@ -108,7 +108,7 @@ def parse_r(input_text):
                                        'packageSystem': dep_packetsys,
                                        'version': dep_ver,
                                        'line': c,
-                                       'category': check_rpacks(m.group(1)),
+                                       'category': classify_r_package(m.group(1)),
                                        'packageId': m.group(1)}
                         # r other
                         else:
@@ -116,19 +116,50 @@ def parse_r(input_text):
                         meta_r_dict.setdefault(this_rule[0], []).append(segment)
         return meta_r_dict
     except Exception as exc:
-        #raise
-        status_note(''.join(('! error while parsing R input: ', exc.args[0])))
+        raise
+        #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
 
 
-def check_rpacks(package):
-    label = ''
-    if package in open(packlist_geosci).read():
-        label += 'geo sciences,'
-    if package in open(packlist_crantop100).read():
-        label += 'CRAN Top100,'
-    if len(label) < 1:
-        label = 'none,'
-    return label[:-1]
+def classify_r_package(package):
+    try:
+        list_crantop100 = ['BH', 'DBI', 'Formula', 'Hmisc', 'MASS', 'Matrix',
+                           'MatrixModels', 'NMF', 'R6', 'RColorBrewer', 'RCurl', 'RJSONIO',
+                           'Rcpp', 'RcppArmadillo', 'RcppEigen', 'SparseM', 'TH.data', 'XML',
+                           'acepack', 'assertthat', 'bitops', 'caTools', 'car', 'chron',
+                           'colorspace', 'crayon', 'curl', 'data.table', 'devtools', 'dichromat',
+                           'digest', 'doParallel', 'dplyr', 'e1071', 'evaluate', 'foreach',
+                           'formatR', 'gdata', 'ggplot2', 'git2r', 'gridBase', 'gridExtra',
+                           'gtable', 'gtools', 'highr', 'htmltools', 'httr', 'igraph',
+                           'irlba', 'iterators', 'jsonlite', 'knitr', 'labeling', 'latticeExtra',
+                           'lazyeval', 'lme4', 'lmtest', 'lubridate', 'magrittr', 'maps',
+                           'markdown', 'memoise', 'mgcv', 'mime', 'minqa', 'multcomp',
+                           'munsell', 'mvtnorm', 'nlme', 'nloptr', 'nnet', 'openssl',
+                           'pbkrtest', 'pkgmaker', 'plotrix', 'plyr', 'praise', 'quantreg',
+                           'rJava', 'registry', 'reshape2', 'rgl', 'rmarkdown', 'rngtools',
+                           'rstudioapi', 'sandwich', 'scales', 'shiny', 'sp', 'stringi',
+                           'stringr', 'testthat', 'tidyr', 'whisker', 'withr', 'xlsx',
+                           'xlsxjars', 'xtable', 'yaml', 'zoo']
+        list_geoscience = ['bfast', 'biclust', 'CARBayes', 'custer', 'devtools', 'dplyr',
+                           'fpc', 'geonames', 'geoR', 'georob', 'geospt', 'ggmap',
+                           'ggplot2', 'glmmBUGS', 'gstat', 'igraph', 'INLA', 'knitr',
+                           'landsat', 'mapdata', 'maps', 'maptools', 'mapview', 'move',
+                           'OpenStreetMap', 'PBSmapping', 'plyr', 'RandomFields', 'raster', 'RColorBrewer',
+                           'reshape', 'rgdal', 'RgoogleMaps', 'rJava', 'rmarkdown', 'RPostgreSQL',
+                           'RStoolbox', 'scidb', 'SciDBR', 'scidbst', 'SDMtools', 'sgeostat',
+                           'Snowball', 'sos4R', 'sp', 'spacetime', 'sparr', 'spate',
+                           'spatial', 'spatialCovariance', 'SpatioTemporal', 'spatstat', 'spatsurv', 'stats',
+                           'stringr', 'strucchange', 'tm', 'tmap', 'trajectories', 'WordCloud',
+                           'zoo']
+        label = ''
+        if package in list_geoscience:
+            label += 'geo sciences,'
+        if package in list_crantop100:
+            label += 'CRAN Top100,'
+        if len(label) < 1:
+            label = 'none,'
+        return label[:-1]
+    except:
+        raise
 
 
 # extract
@@ -197,12 +228,13 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         if metafiles_all:
             output_extraction(data_dict, out_format, out_mode, path_file)
     except Exception as exc:
-        #raise
-        status_note(''.join(('! error while extracting: ', exc.args[0])))
+        raise
+        #status_note(''.join(('! error while extracting: ', exc.args[0])))
 
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
     try:
+
         output_data = None
         output_fileext = None
         if out_format == 'json':
@@ -251,128 +283,111 @@ def do_shp(filepath, data):
         added_key['geojson']['geometry']['type'] = 'Polygon'
         added_key['geojson']['geometry']['coordinates'] = [[[c.bounds[0], c.bounds[1]],  [c.bounds[2],  c.bounds[3]]]]
         data['spacial'].append(added_key)
-
     except:
         raise
 
 
 
 def status_note(msg):
-    print(''.join(('[metaextract] ', str(msg))))
+    print(''.join(('[o2rmeta][extract] ', str(msg))))
 
 
-# main:
-if __name__ == "__main__":
-    if sys.version_info[0] < 3:
-        # py2
-        status_note('requires py3k or later')
-        sys.exit()
+def start(**kwargs):
+    input_dir = kwargs.get('i', None)
+    global md_erc_id
+    md_erc_id = '' ##kwargs.get('e', None)
+    global skip_orcid
+    skip_orcid = kwargs.get('xo', None)
+    global metafiles_all
+    metafiles_all = kwargs.get('m', None)
+    # to do: create args for path_to_liveex_logfile and papersource
+    output_xml = kwargs.get('xml', None)
+    output_dir = kwargs.get('o', None)
+    output_to_console = kwargs.get('s', None)
+    # output format
+    if output_xml:
+        output_format = 'xml'
     else:
-        my_version = 1
-        my_mod = ''
-        try:
-            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
-        except OSError:
-            pass
-        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
-        # args required
-        parser = argparse.ArgumentParser(description='args for metaextract')
-        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
-        group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
-        # args optional
-        parser.add_argument('-e', '--ercid', help='erc identifier', required=False)
-        parser.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
-        parser.add_argument('-xo', '--skiporcid', help='skip orcid requests', action='store_true', default=False, required=False)
-        parser.add_argument('-m', '--metafiles', help='output all metafiles', action='store_true', default=False,  required=False)
-        args = parser.parse_args()
-        args_dict = vars(args)
-        input_dir = args_dict['inputdir']
-        md_erc_id = args_dict['ercid']
-        skip_orcid = args_dict['skiporcid']
-        metafiles_all = args_dict['metafiles']
-        # to do: create args for path_to_liveex_logfile and papersource
-        output_xml = args_dict['modexml']
-        output_dir = args_dict['outputdir']
-        output_to_console = args_dict['outputtostdout']
-        # output format
-        if output_xml:
-            output_format = 'xml'
-        else:
-            output_format = 'json'
-        # output mode
-        if output_to_console:
-            output_mode = '@s'
-        elif output_dir:
-            output_mode = output_dir
-            if not os.path.isdir(output_dir):
-                status_note(''.join(('directory <', output_dir, '> will be created during extraction...')))
-        else:
-            # not possible currently because output arg group is on mutual exclusive
-            output_mode = '@none'
-        if input_dir:
-            if not os.path.isdir(input_dir):
-                status_note(''.join(('! error, input dir <', input_dir, '> does not exist')))
-                sys.exit()
-        # load rules:
-        # rule set for r, compose as: category name TAB entry feature name TAB regex
-        rule_set_r = ['\t'.join(('comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
-                      '\t'.join(('comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
-                      '\t'.join(('comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
-                      '\t'.join(('comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
-                      '\t'.join(('depends', 'installs', r'install.packages\((.*)\)')),
-                      '\t'.join(('depends', '', r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                      '\t'.join(('depends', '', r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                      '\t'.join(('input', 'dataset', r'data\..*\((.*)\)')),
-                      '\t'.join(('output', 'file', r'write\..*\((.*)\)')),
-                      '\t'.join(('output', 'result', r'(ggplot|plot|print)\((.*)\)')),
-                      '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
-        #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
-        # rule set for rmd #
-        rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
-                                  '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
-        # other parameters
-        packlist_crantop100 = 'list_crantop100.txt'
-        packlist_geosci = 'list_geosci.txt'
-        nr = 0  # number of files processed
-        if skip_orcid:
-            status_note('orcid api search disabled...')
-        md_paper_source = ''
-        md_bbox_list = {}
-        MASTER_MD_DICT = {}  # todo: this one is being updated per function call
-        bagit_txt_file = None
-        compare_extracted = {}  # dict for evaluations to find best metafile for main output
-        main_metadata = ''  # main output
-        main_metadata_filename = 'metadata_raw.json'
-        # process all files in input directory +recursive
-        for root, subdirs, files in os.walk(input_dir):
-            status_note(''.join(('debug: encountering ', str(list(files)))))
-            for file in files:
-                if file.lower().endswith('.r'):
-                    do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
-                    nr += 1
-                elif file.lower() == 'bagit.txt':
-                    status_note(''.join(('processing ', os.path.join(root, file))))
-                    MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file)))
-                    nr += 1
-                elif file.lower().endswith('.rmd'):
-                    do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
-                    nr += 1
-                elif file.lower().endswith('.shp'):
-                    do_shp(os.path.join(root, file), MASTER_MD_DICT)
-                    nr += 1
-                else:
-                    pass
-        status_note(''.join((str(nr), ' files processed ')))
-        if 'best' in compare_extracted:
-            # we have a candidate best suited for <metadata_raw.json> main output
-            # now merge data_dicts:
-            for key in compare_extracted['best']:
-                MASTER_MD_DICT[key] = compare_extracted['best'][key]
-            if output_mode == '@s' or output_dir is None:
-                # write to screen
-                output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
+        output_format = 'json'
+    # output mode
+    if output_to_console:
+        output_mode = '@s'
+    elif output_dir:
+        output_mode = output_dir
+        if not os.path.isdir(output_dir):
+            status_note(''.join(('directory <', output_dir, '> will be created during extraction...')))
+    else:
+        # not possible if output arg group is on mutual exclusive
+        output_mode = '@none'
+    if input_dir:
+        if not os.path.isdir(input_dir):
+            status_note(''.join(('! error, input dir <', input_dir, '> does not exist')))
+            sys.exit()
+    # load rules:
+    # rule set for r, compose as: category name TAB entry feature name TAB regex
+    global rule_set_r
+    rule_set_r = ['\t'.join(('comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
+                  '\t'.join(('comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
+                  '\t'.join(('comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
+                  '\t'.join(('comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
+                  '\t'.join(('depends', 'installs', r'install.packages\((.*)\)')),
+                  '\t'.join(('depends', '', r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('depends', '', r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'dataset', r'data\..*\((.*)\)')),
+                  '\t'.join(('output', 'file', r'write\..*\((.*)\)')),
+                  '\t'.join(('output', 'result', r'(ggplot|plot|print)\((.*)\)')),
+                  '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
+    #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
+    # rule set for rmd #
+    rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
+                              '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
+    # other parameters
+    ##global packlist_geosci
+    ##packlist_geosci = 'extract/list_geosci.txt'
+    ##global packlist_crantop100
+    ##packlist_crantop100 = 'extract/list_crantop100.txt'
+    nr = 0  # number of files processed
+    if skip_orcid:
+        status_note('orcid api search disabled...')
+    global md_paper_source
+    md_paper_source = ''
+    # md_bbox_list = {}
+    global MASTER_MD_DICT
+    MASTER_MD_DICT = {}  # todo: this one is being updated per function call
+    bagit_txt_file = None
+    global compare_extracted
+    compare_extracted = {}  # dict for evaluations to find best metafile for main output
+    #main_metadata = ''  # main output
+    global main_metadata_filename
+    main_metadata_filename = 'metadata_raw.json'
+    # process all files in input directory +recursive
+    for root, subdirs, files in os.walk(input_dir):
+        #status_note(''.join(('debug: encountering ', str(list(files)))))
+        for file in files:
+            if file.lower().endswith('.r'):
+                do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
+                nr += 1
+            elif file.lower() == 'bagit.txt':
+                status_note(''.join(('processing ', os.path.join(root, file))))
+                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file)))
+                nr += 1
+            elif file.lower().endswith('.rmd'):
+                do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
+                nr += 1
+            elif file.lower().endswith('.shp'):
+                do_shp(os.path.join(root, file), MASTER_MD_DICT)
+                nr += 1
             else:
-                # write to file
-                output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+                pass
+    status_note(''.join((str(nr), ' files processed ')))
+    if 'best' in compare_extracted:
+        # we have a candidate best suited for <metadata_raw.json> main output
+        # now merge data_dicts:
+        for key in compare_extracted['best']:
+            MASTER_MD_DICT[key] = compare_extracted['best'][key]
+        if output_mode == '@s' or output_dir is None:
+            # write to screen
+            output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
+        else:
+            # write to file
+            output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
