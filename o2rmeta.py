@@ -39,8 +39,8 @@ def status_note(msg, **kwargs):
 
 # Main
 if __name__ == "__main__":
-    if sys.version_info[0] < 3 and sys.version_info[1] < 6:  # target py36
-        status_note('requires python 3.6')
+    if sys.version_info[0] < 3 and sys.version_info[1] < 4:  # target py36
+        status_note('requires python 3.4')
         sys.exit(0)
     else:
         # arg parse setup:
@@ -61,6 +61,14 @@ if __name__ == "__main__":
         extractor.add_argument('-m', '--metafiles', help='output all metafiles', action='store_true', default=False,
                             required=False)
         # - - - - - - - - - - - - - - - - - -
+        broker = subparsers.add_parser("broker")
+        broker.add_argument("-i", "--inputdir", type=str, required=True)
+        broker.add_argument("-m", "--map", type=str, required=True)
+        group = broker.add_mutually_exclusive_group(required=True)
+        group.add_argument('-o', '--outputdir', help='output directory for brokering docs')
+        group.add_argument('-s', '--outputtostdout', help='output the result of the brokering to stdout',
+                           action='store_true', default=False)
+        # - - - - - - - - - - - - - - - - - -
         validator = subparsers.add_parser("validate")
         validator.add_argument("-s", "--schema", type=str, required=True)
         validator.add_argument("-c", "--candidate", type=str, required=True)
@@ -74,7 +82,7 @@ if __name__ == "__main__":
         except OSError:
             pass
         status_note(''.join(('v', str(my_version), ' - ', str(my_mod))), debug=argsd['debug'])
-        status_note(''.join(('running under python ', str(sys.version_info[0]), '.' , str(sys.version_info[1]), '.', str(
+        status_note(''.join(('running under python ', str(sys.version_info[0]), '.', str(sys.version_info[1]), '.', str(
             sys.version_info[2]))), debug=argsd['debug'])
         status_note(''.join(('received arguments: ', str(argsd))), debug=argsd['debug'])
         try:
@@ -83,7 +91,7 @@ if __name__ == "__main__":
                 metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['skiporcid'], e=argsd['ercid'], m=argsd['metafiles'], xml=argsd['modexml'])
             elif argsd['tool'] == "broker":
                 status_note('launching broker')
-                print('TBD')  # todo
+                metabroker.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], m=argsd['map'])
             elif argsd['tool'] == "validate":
                 status_note('launching validator')
                 metavalidate.start(s=argsd['schema'], c=argsd['candidate'])

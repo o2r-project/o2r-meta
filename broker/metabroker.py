@@ -34,7 +34,7 @@ def do_outputs(output_data, out_mode, out_name, file_ext):
     else:
         try:
             # output path is given in <out_mode>
-            output_filename = os.path.join(out_mode, '_'.join((out_name, file_ext)))
+            output_filename = os.path.join(out_mode, ''.join((out_name, file_ext)))
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(output_filename, 'w', encoding='utf-8') as outfile:
@@ -191,87 +191,69 @@ def map_xml(element, value, map_data, xml_root):
 
 
 def status_note(msg):
-    print(''.join(('[metabroker] ', msg)))
+    print(''.join(('[o2rmeta][broker] ', msg)))
 
 
 # Main
-if __name__ == "__main__":
-    if sys.version_info[0] < 3:
-        # py2
-        status_note('requires py3k or later')
-        sys.exit()
+def start(**kwargs):
+    input_dir = kwargs.get('i', None)
+    output_dir = kwargs.get('o', None)
+    output_to_console = kwargs.get('s', None)
+    seperator = '#' #<-- make this generic
+    my_map = kwargs.get('m', None)
+    # output mode
+    if output_to_console:
+        output_mode = '@s'
+    elif output_dir:
+        output_mode = output_dir
+        if not os.path.isdir(output_dir):
+            status_note(''.join(('directory at <', output_dir, '> will be created during extraction...')))
     else:
-        my_version = 1
-        my_mod = ''
-        try:
-            my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
-        except OSError:
-            pass
-        status_note(''.join(('v', str(my_version), ' - ', str(my_mod))))
-        parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-m', '--map', help='name of the mapping file', required=True)
-        parser.add_argument('-i', '--inputdir', help='input directory', required=True)
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
-        group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout', action='store_true', default=False)
-        args = parser.parse_args()
-        args_dict = vars(args)
-        input_dir = args_dict['inputdir']
-        output_dir = args_dict['outputdir']
-        output_to_console = args_dict['outputtostdout']
-        seperator = '#' #<-- make this generic
-        my_map = args_dict['map']
-        # output mode
-        if output_to_console:
-            output_mode = '@s'
-        elif output_dir:
-            output_mode = output_dir
-            if not os.path.isdir(output_dir):
-                status_note(''.join(('directory <', output_dir, '> will be created during extraction...')))
-        else:
-            # not possible currently because output arg group is on mutual exclusive
-            output_mode = '@none'
+        # not possible currently because output arg group is on mutual exclusive
+        output_mode = '@none'
 
-        # open map file and find out mode
-        try:
-            with open(os.path.join('mappings', my_map), encoding='utf-8') as data_file:
-                map_file = json.load(data_file)
-                settings_data = map_file['Settings']
-                map_data = map_file['Map']
-                my_mode = settings_data['mode']
-        except:
-            raise
-        # distinguish format for output
-        if my_mode == 'json':
-            for file in os.listdir(input_dir):
-                if os.path.basename(file).startswith('meta_'):
-                    json_output = {}
-                    with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
-                        test_data = json.load(data_file)
-                    for element in test_data:
-                        try:
-                            map_json(element, test_data[element], map_data, json_output)
-                        except:
-                            raise
-                    do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
-        elif my_mode == 'txt':
-            # to do: handle txt based maps like bagit
-            txt_output = ''
-            do_outputs(txt_output, output_mode, '.txt')
-        elif my_mode == 'xml':
-            root = ET.Element(settings_data['root'])
-            # to do: generify for complex xml maps
-            root.set('xmlns', settings_data['root@xmlns'])
-            root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
-            root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
-            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-                test_data = json.load(data_file)
-            for element in test_data:
-                try:
-                    map_xml(element, test_data[element], map_data, root)
-                except:
-                    raise
-            output = ET.tostring(root, encoding='utf8', method='xml')
-            do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
-        else:
-            print('[metabroker] ! error: cannot process map mode of <' + my_map + '>')
+    # open map file and find out mode
+    try:
+        with open(my_map, encoding='utf-8') as data_file:
+            map_file = json.load(data_file)
+            settings_data = map_file['Settings']
+            map_data = map_file['Map']
+            my_mode = settings_data['mode']
+    except:
+        raise
+    # distinguish format for output
+    if my_mode == 'json':
+        # try parse all possible metadata files:
+        for file in os.listdir(input_dir):
+            if os.path.basename(file).startswith('metadata_'):
+                json_output = {}
+                with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
+                    test_data = json.load(data_file)
+                for element in test_data:
+                    try:
+                        map_json(element, test_data[element], map_data, json_output)
+                    except:
+                        raise
+                ##do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
+                do_outputs(json_output, output_mode, settings_data['outputfile'], '.json')
+    elif my_mode == 'txt':
+        # to do: handle txt based maps like bagit
+        txt_output = ''
+        do_outputs(txt_output, output_mode, '.txt')
+    elif my_mode == 'xml':
+        root = ET.Element(settings_data['root'])
+        # to do: generify for complex xml maps
+        root.set('xmlns', settings_data['root@xmlns'])
+        root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
+        root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
+        with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+            test_data = json.load(data_file)
+        for element in test_data:
+            try:
+                map_xml(element, test_data[element], map_data, root)
+            except:
+                raise
+        output = ET.tostring(root, encoding='utf8', method='xml')
+        do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
+    else:
+        status_note('! error: cannot process map mode of <' + my_map + '>')

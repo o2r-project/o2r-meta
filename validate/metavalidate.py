@@ -75,7 +75,7 @@ def xml_validate(c, s, bln_c_http, bln_s_http):
 
 
 def status_note(msg):
-    print(''.join(('[validate] ', msg)))
+    print(''.join(('[o2rmeta][validate] ', msg)))
 
 
 # main

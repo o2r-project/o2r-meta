@@ -342,10 +342,6 @@ def start(**kwargs):
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                               '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
     # other parameters
-    ##global packlist_geosci
-    ##packlist_geosci = 'extract/list_geosci.txt'
-    ##global packlist_crantop100
-    ##packlist_crantop100 = 'extract/list_crantop100.txt'
     nr = 0  # number of files processed
     if skip_orcid:
         status_note('orcid api search disabled...')
@@ -353,7 +349,7 @@ def start(**kwargs):
     md_paper_source = ''
     # md_bbox_list = {}
     global MASTER_MD_DICT
-    MASTER_MD_DICT = {}  # todo: this one is being updated per function call
+    MASTER_MD_DICT = {}  # this one is being updated per function call
     bagit_txt_file = None
     global compare_extracted
     compare_extracted = {}  # dict for evaluations to find best metafile for main output

@@ -19,3 +19,4 @@ install:
   - pip install -r requirements.txt
 script:
   - python o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
+  - python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c schema/json/example1-valid.json

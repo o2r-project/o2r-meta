@@ -61,11 +61,11 @@ Each tool then has a number of required arguments:
 
 #(1) Extractor tool:
 
-	python o2rmeta extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
+	python o2rmeta.py extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
 	
 Example call:
 	
-	python o2rmeta extract -i extract/tests -o extract/tests -xo
+	python o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
 	
 Explanation of the switches:
 
@@ -79,15 +79,29 @@ Explanation of the switches:
 
 
 #(2) broker
-TDB
 
-#(3) Validator tool:
-
-	python o2rmeta validate -s <SCHEMA> -c <CANDIDATE>
+    python o2rmeta.py broker -i <INPUT_DIR/FILE> -m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
 Example call:
 	
-	python o2rmeta validate -s schema/json/o2r-meta-schema.json -c schema/json/example1-valid.json
+    python o2rmeta.py -debug broker -i broker/tests -m broker/mappings/o2r-map.json -o broker/tests/all
+
+Explanation of the switches:
+
++ `-i` <INPUT_DIR> : required starting path for recursive search for parsable files. 
++ `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. #TBD: mapping json schema.
++ `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
++ `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
+
+
+
+#(3) Validator tool:
+
+	python o2rmeta.py validate -s <SCHEMA> -c <CANDIDATE>
+	
+Example call:
+	
+	python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c schema/json/example1-valid.json
 
 Explanation of the switches:
 
