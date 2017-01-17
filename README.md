@@ -51,8 +51,8 @@ Explanation of the switches:
 + `-i` <INPUT_DIR> : required starting path for recursive search for parsable files
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
 + `-o` <OUTPUT_DIR> : required output path, where data should be saved. This switch is mutually exclusive with `-s`. At least one of them must be given.
-+ `-xo` : option to disable orcid public API calls	
-+ `-m` : option to disable orcid public API calls	
++ `-xo` : option to disable orcid public API calls
++ `-m` : option to additionally enable output of all processed files
 + `-xml` : option to change output format from json (default) to xml
 + `-ercid` <ERC_ID>: option to provide an ERC identifier
 
