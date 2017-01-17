@@ -75,28 +75,18 @@ def xml_validate(c, s, bln_c_http, bln_s_http):
 
 
 def status_note(msg):
-    print(''.join(('[metavalidate] ', msg)))
+    print(''.join(('[validate] ', msg)))
 
 
 # main
-if __name__ == "__main__":
-    if sys.version_info[0] < 3:
-        # py2
-        status_note('requires py3k or later')
-        sys.exit()
+def start(**kwargs):
+    schema_path = kwargs.get('s', None)
+    candidate_path = kwargs.get('c', None)
+    status_note('checking ' + os.path.basename(candidate_path) + ' against ' + os.path.basename(schema_path))
+    if candidate_path.endswith('.json'):
+        json_validate(candidate_path, schema_path, candidate_path.startswith('http'), schema_path.startswith('http'))
+    elif candidate_path.endswith('.xml'):
+        xml_validate(candidate_path, schema_path, candidate_path.startswith('http'), schema_path.startswith('http'))
     else:
-        parser = argparse.ArgumentParser(description='description')
-        parser.add_argument('-s', '--schema', help='path to schema', type=str, required=True)
-        parser.add_argument('-c', '--candidate', help='path to candidate', type=str, required=True)
-        args = parser.parse_args()
-        argsdict = vars(args)
-        my_schema = argsdict['schema']
-        my_candidate = argsdict['candidate']
-        status_note('checking ' + os.path.basename(my_candidate) + ' against ' + os.path.basename(my_schema))
-        if my_candidate.endswith('.json'):
-            json_validate(my_candidate, my_schema, my_candidate.startswith('http'), my_schema.startswith('http'))
-        elif my_candidate.endswith('.xml'):
-            xml_validate(my_candidate, my_schema, my_candidate.startswith('http'), my_schema.startswith('http'))
-        else:
-            status_note('!warning, could not process this type of file')
-            sys.exit()
+        status_note('! warning, could not process this type of file')
+        sys.exit()

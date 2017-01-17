@@ -62,11 +62,12 @@ if __name__ == "__main__":
                             required=False)
         # - - - - - - - - - - - - - - - - - -
         validator = subparsers.add_parser("validate")
-        validator.add_argument("-i", "--input", type=str, required=True)
+        validator.add_argument("-s", "--schema", type=str, required=True)
+        validator.add_argument("-c", "--candidate", type=str, required=True)
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 1  # update me!
+        my_version = 2  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
@@ -85,7 +86,7 @@ if __name__ == "__main__":
                 print('TBD')  # todo
             elif argsd['tool'] == "validate":
                 status_note('launching validator')
-                print('TBD')  # todo
+                metavalidate.start(s=argsd['schema'], c=argsd['candidate'])
             elif argsd['tool'] == "harvest":
                 status_note('launching harvester')
                 print('TBD')  # todo
