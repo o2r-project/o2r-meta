@@ -234,7 +234,6 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
     try:
-
         output_data = None
         output_fileext = None
         if out_format == 'json':
@@ -267,25 +266,81 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         status_note(''.join(('! error while ceating output', exc.args[0])))
 
 
-def do_shp(filepath, data):
+def geo_bbox_union(coordinate_list):
     try:
-        global md_bbox_list
-        status_note('processing '+filepath)
-        c = fiona.open(filepath, 'r')
-        if 'spacial' not in data:
-            data['spacial'] = []
-        added_key = {}
-        added_key['source_file'] = filepath
-        added_key['geojson'] = {}
-        added_key['geojson']['bbox'] = c.bounds
-        added_key['geojson']['type'] = 'Feature'
-        added_key['geojson']['geometry'] = {}
-        added_key['geojson']['geometry']['type'] = 'Polygon'
-        added_key['geojson']['geometry']['coordinates'] = [[[c.bounds[0], c.bounds[1]],  [c.bounds[2],  c.bounds[3]]]]
-        data['spacial'].append(added_key)
+        if coordinate_list is None:
+            return [(0, 0), (0, 0), (0, 0), (0, 0)]
+        min_x = 181.0  # start with something much higher than expected min
+        min_y = 181.0
+        max_x = -181.0  # start with something much lower than expected max
+        max_y = -181.0
+        ##max =[181.0, 181.0, -181.0, -181.0]  # proper max has -90/90 & -180/180
+        # todo: deal with international date line wrapping / GDAL
+        for n in coordinate_list:
+            if n[0] < min_x:
+                min_x = n[0]
+            if n[0] > max_x:
+                max_x = n[0]
+            if n[1] < min_y:
+                min_y = n[1]
+            if n[1] > max_y:
+                max_y = n[1]
+        return [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
     except:
         raise
 
+
+def parse_geo(filepath, data, fformat):
+    try:
+        new_file_key = {}
+        if 'spatial' not in data:
+            data['spatial'] = {}
+        if 'files' not in data['spatial']:
+            key_files = {}
+            key_files['files'] = []
+            data['spatial'] = key_files
+        # work on formats:
+        status_note('processing ' + filepath)
+        coords = None
+        if fformat == 'shp' or fformat == 'geojson':
+            coords = fiona.open(filepath, 'r')
+        elif fformat == 'geotiff':
+            return None
+            #pass
+        else:
+            pass
+        new_file_key['source_file'] = filepath
+        new_file_key['geojson'] = {}
+        if coords is not None:
+            new_file_key['geojson']['bbox'] = coords.bounds
+        new_file_key['geojson']['bbox'] = ''
+        new_file_key['geojson']['type'] = 'Feature'
+        new_file_key['geojson']['geometry'] = {}
+        if coords is not None:
+            new_file_key['geojson']['geometry']['coordinates'] = [
+                [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
+        new_file_key['geojson']['geometry']['type'] = 'Polygon'
+        data['spatial']['files'].append(new_file_key)
+        # calculate union of all available coordinates
+        # calculate this only once, at last
+        current_coord_list = []
+        for key in data['spatial']['files']:
+            if 'geojson' in key:
+                if 'geometry' in key['geojson']:
+                    if 'coordinates' in key['geojson']['geometry']:
+                        if len(key['geojson']['geometry']['coordinates']) > 0:
+                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][0]))
+                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][1]))
+        key_union = {}
+        key_union['geojson'] = {}
+        #key_union['geojson']['bbox'] = [0,0,0,0] # bbox of geo_bbox_union(current_coord_list) in geojson format
+        key_union['geojson']['type'] = 'Feature'
+        key_union['geojson']['geometry'] = {}
+        key_union['geojson']['geometry']['type'] = 'Polygon'
+        key_union['geojson']['geometry']['coordinates'] = geo_bbox_union(current_coord_list)
+        data['spatial'].update({'union': key_union})
+    except:
+        raise
 
 
 def status_note(msg):
@@ -295,7 +350,7 @@ def status_note(msg):
 def start(**kwargs):
     input_dir = kwargs.get('i', None)
     global md_erc_id
-    md_erc_id = '' ##kwargs.get('e', None)
+    md_erc_id = kwargs.get('e', None)
     global skip_orcid
     skip_orcid = kwargs.get('xo', None)
     global metafiles_all
@@ -347,13 +402,11 @@ def start(**kwargs):
         status_note('orcid api search disabled...')
     global md_paper_source
     md_paper_source = ''
-    # md_bbox_list = {}
     global MASTER_MD_DICT
     MASTER_MD_DICT = {}  # this one is being updated per function call
     bagit_txt_file = None
     global compare_extracted
     compare_extracted = {}  # dict for evaluations to find best metafile for main output
-    #main_metadata = ''  # main output
     global main_metadata_filename
     main_metadata_filename = 'metadata_raw.json'
     # process all files in input directory +recursive
@@ -364,14 +417,22 @@ def start(**kwargs):
                 do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
                 nr += 1
             elif file.lower() == 'bagit.txt':
-                status_note(''.join(('processing ', os.path.join(root, file))))
-                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file)))
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))))
+                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file).replace('\\', '/')))
                 nr += 1
             elif file.lower().endswith('.rmd'):
-                do_ex(os.path.join(root, file), output_format, output_mode, True, rule_set_rmd_multiline)
+                do_ex(os.path.join(root, file).replace('\\', '/'), output_format, output_mode, True, rule_set_rmd_multiline)
                 nr += 1
             elif file.lower().endswith('.shp'):
-                do_shp(os.path.join(root, file), MASTER_MD_DICT)
+                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'shp')
+                nr += 1
+            elif file.lower().endswith('.geojson'):
+                # todo: check .json for geojson-ness
+                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'geojson')
+                nr += 1
+            elif file.lower().endswith('.tif'):
+                # todo: check .json for geojson-ness
+                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'geotiff')
                 nr += 1
             else:
                 pass

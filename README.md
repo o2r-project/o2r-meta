@@ -77,6 +77,27 @@ Explanation of the switches:
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 
+### Supported formats for the metadata extraction process:
+
+_Feel free to open an issue for suggestions_
+
+Current version:
+
+**file type** | **description** | **extracted part** | **status**
+------ | ------ | ------ | ------ |
+.r | R Script | all | implemented
+.rmd | R-Markdown | all | implemented
+(r session) | live extraction | memory objects | planned
+bagit.txt | BagIt | metadata | implemented
+.tex | LaTeX | header | planned
+.yml | YAML | metadata | planned
+.py | python script | all | planned
+.shp | Esri shapefile | geometry | implemented
+.geojson | GeoJSON | geometry | implemented
+.json | GeoJSON | geometry | planned
+.tif(f) | geo TIFF | geometry | planned
+... | ... | ... | ...
+
 
 #(2) broker
 

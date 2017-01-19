@@ -51,10 +51,10 @@ if __name__ == "__main__":
         extractor = subparsers.add_parser("extract")
         extractor.add_argument("-i", "--inputdir", type=str, required=True)
         group = extractor.add_mutually_exclusive_group(required=True)
-        group.add_argument('-o', '--outputdir', help='output directory for extraction docs')
+        group.add_argument('-o', '--outputdir', type=str, help='output directory for extraction docs')
         group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout',
                            action='store_true', default=False)
-        extractor.add_argument('-e', '--ercid', help='erc identifier', required=False)
+        extractor.add_argument('-e', '--ercid', type=str, help='erc identifier', required=False)
         extractor.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
         extractor.add_argument('-xo', '--skiporcid', help='skip orcid requests', action='store_true', default=False,
                             required=False)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         broker.add_argument("-i", "--inputdir", type=str, required=True)
         broker.add_argument("-m", "--map", type=str, required=True)
         group = broker.add_mutually_exclusive_group(required=True)
-        group.add_argument('-o', '--outputdir', help='output directory for brokering docs')
+        group.add_argument('-o', '--outputdir', type=str, help='output directory for brokering docs')
         group.add_argument('-s', '--outputtostdout', help='output the result of the brokering to stdout',
                            action='store_true', default=False)
         # - - - - - - - - - - - - - - - - - -
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 2  # update me!
+        my_version = 3  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
