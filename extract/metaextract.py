@@ -313,7 +313,6 @@ def parse_geo(filepath, data, fformat):
         new_file_key['geojson'] = {}
         if coords is not None:
             new_file_key['geojson']['bbox'] = coords.bounds
-        new_file_key['geojson']['bbox'] = ''
         new_file_key['geojson']['type'] = 'Feature'
         new_file_key['geojson']['geometry'] = {}
         if coords is not None:
@@ -332,12 +331,15 @@ def parse_geo(filepath, data, fformat):
                             current_coord_list.append((key['geojson']['geometry']['coordinates'][0][0]))
                             current_coord_list.append((key['geojson']['geometry']['coordinates'][0][1]))
         key_union = {}
+        coords = geo_bbox_union(current_coord_list)
         key_union['geojson'] = {}
-        #key_union['geojson']['bbox'] = [0,0,0,0] # bbox of geo_bbox_union(current_coord_list) in geojson format
+        if coords is not None:
+            key_union['geojson']['bbox'] = [coords[0][0], coords[0][1], coords[1][0], coords[1][1]]
         key_union['geojson']['type'] = 'Feature'
         key_union['geojson']['geometry'] = {}
         key_union['geojson']['geometry']['type'] = 'Polygon'
-        key_union['geojson']['geometry']['coordinates'] = geo_bbox_union(current_coord_list)
+        if coords is not None:
+            key_union['geojson']['geometry']['coordinates'] = coords
         data['spatial'].update({'union': key_union})
     except:
         raise
