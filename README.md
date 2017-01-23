@@ -47,6 +47,18 @@ Alternatively you can use a precompiled python wheel of the gdal module that fit
 
     pip install -r requirements.txt
 
+
+### Using Docker
+
+Another way of installation is provided by the Dockerfile. Build it like this:
+
+    docker build -t meta .
+
+And start the extractor (e.g.) like this:
+
+	docker run meta o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
+
+
 	
 ## Usage
 
