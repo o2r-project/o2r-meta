@@ -40,7 +40,7 @@ def status_note(msg, **kwargs):
 # Main
 if __name__ == "__main__":
     if sys.version_info[0] < 3 and sys.version_info[1] < 4:  # target py36
-        status_note('requires python 3.4')
+        status_note('requires python 3.4+')
         sys.exit(0)
     else:
         # arg parse setup:
@@ -75,15 +75,14 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 3  # update me!
+        my_version = 4  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
         except OSError:
             pass
         status_note(''.join(('v', str(my_version), ' - ', str(my_mod))), debug=argsd['debug'])
-        status_note(''.join(('running under python ', str(sys.version_info[0]), '.', str(sys.version_info[1]), '.', str(
-            sys.version_info[2]))), debug=argsd['debug'])
+
         status_note(''.join(('received arguments: ', str(argsd))), debug=argsd['debug'])
         try:
             if argsd['tool'] == "extract":

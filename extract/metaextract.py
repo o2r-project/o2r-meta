@@ -18,6 +18,7 @@
 import argparse
 import datetime
 import json
+import mimetypes
 import os
 import re
 import sys
@@ -30,7 +31,9 @@ import yaml
 from guess_language import guess_language
 
 
-def find_orcid(txt_input, bln_sandbox):
+def api_get_orcid(txt_input, bln_sandbox):
+    if skip_orcid:
+        return None
     try:
         status_note(''.join(('requesting orcid for <', txt_input, '>')))
         api = orcid.SearchAPI(sandbox=bln_sandbox)
@@ -38,11 +41,10 @@ def find_orcid(txt_input, bln_sandbox):
         return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
     except Exception as exc:
         status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
-        return '0000-0000-0000-0000'
-        #return None
+        return None
 
 
-def parse_exobj(parameter):
+def parse_session_r(parameter):
     # to do: get these from live extraction results (o2rexobj.txt)
     # want to know from this function:
     # packages, versions of packages
@@ -66,16 +68,16 @@ def parse_yaml(input_text):
     try:
         yaml_data_dict = yaml.safe_load(input_text)
         # get authors and possible ids // orcid
-        if yaml_data_dict is not None and not skip_orcid:
+        if yaml_data_dict is not None:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
-                    id_found = find_orcid(yaml_data_dict['author'], True)
+                    id_found = api_get_orcid(yaml_data_dict['author'], True)
                     yaml_data_dict['orcid'] = id_found
                 elif type(yaml_data_dict['author']) is list:
                     for anyone in yaml_data_dict['author']:
                         if 'name' in anyone:
                             # todo: stop using sandbox for orcid retrieval
-                            id_found = find_orcid(anyone['name'], True)
+                            id_found = api_get_orcid(anyone['name'], True)
                             # status_note('<! debug: '+anyone['name']+' '+id_found+'>')
                             anyone['orcid'] = id_found
         return yaml_data_dict
@@ -95,15 +97,11 @@ def parse_r(input_text):
                 m = re.match(this_rule[2], line)
                 if m:
                     if len(m.groups()) > 0:
-                        # r comment
-                        if this_rule[0] == 'comment':
-                            segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
                         # r dependency
-                        elif this_rule[0] == 'depends':
-                            # get these from live extraction results (o2rexobj.txt)
-                            dep_os = parse_exobj('os')
+                        if this_rule[0] == 'depends':
+                            dep_os = parse_session_r('os')
                             dep_packetsys = 'https://cloud.r-project.org/'
-                            dep_ver = parse_exobj('version')
+                            dep_ver = parse_session_r('version')
                             segment = {'operatingSystem': dep_os,
                                        'packageSystem': dep_packetsys,
                                        'version': dep_ver,
@@ -168,17 +166,33 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         status_note(''.join(('processing ', path_file)))
         md_object_type = ''
         md_interaction_method = ''  # find entry point in ../container/Dockerfile
-        md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
         md_file = os.path.basename(path_file)
-        data_dict = {'file': md_file,
-                     'filepath': path_file,
+        md_mime_type = mimetypes.guess_type(path_file)
+        if md_mime_type[0] is None:
+            if md_file.lower().endswith('.r'):
+                md_mime_type = 'text/plain'
+            if md_file.lower().endswith('.rmd'):
+                md_mime_type = 'text/markdown'
+        md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
+
+        md_filepath = path_file  # default
+        if md_erc_id is not None:
+            pattern = ''.join(('(',md_erc_id, '.*)'))
+            s = re.search(pattern, path_file)
+            if s:
+                md_filepath = s.group(1)
+        else:
+            md_filepath = path_file
+        md_temporal = {'year': datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime).year}
+        data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
                      'ercIdentifier': md_erc_id,
                      'generatedBy': os.path.basename(__file__),
                      'recordDateCreated': md_record_date,
                      'paperSource': md_paper_source,
                      'objectType': md_object_type,
+                     'temporal': md_temporal,
                      'interactionMethod': md_interaction_method}
-        with open(os.path.relpath(path_file), encoding='utf-8') as input_file:
+        with open(path_file, encoding='utf-8') as input_file:
             content = input_file.read()
             # apply multiline re for rmd, yaml, etc.
             if multiline:
@@ -260,19 +274,19 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file))))
+            status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file).replace('\\', '/'))))
     except Exception as exc:
-        #raise
-        status_note(''.join(('! error while ceating output', exc.args[0])))
+        raise
+        #status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
 def geo_bbox_union(coordinate_list):
     try:
         if coordinate_list is None:
             return [(0, 0), (0, 0), (0, 0), (0, 0)]
-        min_x = 181.0  # start with something much higher than expected min
+        min_x = 181.0
         min_y = 181.0
-        max_x = -181.0  # start with something much lower than expected max
+        max_x = -181.0
         max_y = -181.0
         ##max =[181.0, 181.0, -181.0, -181.0]  # proper max has -90/90 & -180/180
         # todo: deal with international date line wrapping / GDAL
@@ -350,6 +364,7 @@ def status_note(msg):
 
 
 def start(**kwargs):
+    global input_dir
     input_dir = kwargs.get('i', None)
     global md_erc_id
     md_erc_id = kwargs.get('e', None)
@@ -357,7 +372,6 @@ def start(**kwargs):
     skip_orcid = kwargs.get('xo', None)
     global metafiles_all
     metafiles_all = kwargs.get('m', None)
-    # to do: create args for path_to_liveex_logfile and papersource
     output_xml = kwargs.get('xml', None)
     output_dir = kwargs.get('o', None)
     output_to_console = kwargs.get('s', None)
@@ -387,13 +401,18 @@ def start(**kwargs):
                   '\t'.join(('comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
                   '\t'.join(('comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
                   '\t'.join(('comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
-                  '\t'.join(('depends', 'installs', r'install.packages\((.*)\)')),
-                  '\t'.join(('depends', '', r'library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('depends', '', r'require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'dataset', r'data\..*\((.*)\)')),
-                  '\t'.join(('output', 'file', r'write\..*\((.*)\)')),
-                  '\t'.join(('output', 'result', r'(ggplot|plot|print)\((.*)\)')),
-                  '\t'.join(('output', 'setseed', r'set\.seed\((.*)\)'))]
+                  '\t'.join(('depends', '.*installs', r'install.packages\((.*)\)')),
+                  '\t'.join(('depends', '', r'.*library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('depends', '', r'.*require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*data\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*load\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*read\.*\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*read\.csv\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*readGDAL\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*readLines\((.*)\)')),
+                  '\t'.join(('output', 'file', r'.*write\..*\((.*)\)')),
+                  '\t'.join(('output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
+                  '\t'.join(('output', 'setseed', r'.*set\.seed\((.*)\)'))]
     #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
     # rule set for rmd #
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
@@ -411,34 +430,40 @@ def start(**kwargs):
     compare_extracted = {}  # dict for evaluations to find best metafile for main output
     global main_metadata_filename
     main_metadata_filename = 'metadata_raw.json'
+    global file_list_input_candidates
+    file_list_input_candidates = []  # all files encountered, possible input of an R script
+
     # process all files in input directory +recursive
     for root, subdirs, files in os.walk(input_dir):
         #status_note(''.join(('debug: encountering ', str(list(files)))))
         for file in files:
+            full_file_path = os.path.join(root, file).replace('\\', '/')
+            if os.path.isfile(full_file_path) and  full_file_path not in file_list_input_candidates:
+                file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
             if file.lower().endswith('.r'):
-                do_ex(os.path.join(root, file), output_format, output_mode, False, rule_set_r)
+                do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
                 nr += 1
             elif file.lower() == 'bagit.txt':
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))))
-                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(os.path.join(root, file).replace('\\', '/')))
+                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(full_file_path))
                 nr += 1
             elif file.lower().endswith('.rmd'):
-                do_ex(os.path.join(root, file).replace('\\', '/'), output_format, output_mode, True, rule_set_rmd_multiline)
+                do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 nr += 1
             elif file.lower().endswith('.shp'):
-                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'shp')
+                parse_geo(full_file_path, MASTER_MD_DICT, 'shp')
                 nr += 1
             elif file.lower().endswith('.geojson'):
                 # todo: check .json for geojson-ness
-                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'geojson')
+                parse_geo(full_file_path, MASTER_MD_DICT, 'geojson')
                 nr += 1
             elif file.lower().endswith('.tif'):
                 # todo: check .json for geojson-ness
-                parse_geo(os.path.join(root, file).replace('\\', '/'), MASTER_MD_DICT, 'geotiff')
+                parse_geo(full_file_path, MASTER_MD_DICT, 'geotiff')
                 nr += 1
             else:
                 pass
-    status_note(''.join((str(nr), ' files processed ')))
+    status_note(''.join((str(nr), ' files processed')))
     if 'best' in compare_extracted:
         # we have a candidate best suited for <metadata_raw.json> main output
         # now merge data_dicts:
