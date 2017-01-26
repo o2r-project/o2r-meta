@@ -1,7 +1,7 @@
 ---
 title: 'o2r metadata schema documentation'
 author: o2r-project
-version: 0.023
+version: 0.024
 license: CC-BY 4.0 International
 ---
 
@@ -19,36 +19,40 @@ Current schema draft for interaction metadata, i.e. UI widgets:
 ## 1. Purpose
 
 This is a work-in-progress documentation of the metadata schema used for _executable research compendia_, focusing to depict package dependencies and other requirements for reproducible computational environments as well as compliance with existing modern metadata standards, e.g. DataCite 4.0 schema.
-In its current state these metadate elements, properties and definitions strongly rely on the [CodeMeta](https://github.com/codemeta/codemeta) software metadata concepts, extending them for the interaction with software in the context of Reproducible Research. Rationales of CodeMeta equivalents are taken from or based on the corresponding descriptions.
+In its current state these metadate elements, properties and definitions build upon on the [CodeMeta](https://github.com/codemeta/codemeta) software metadata concepts, extending them for the interaction with software in the context of Reproducible Research. Rationales of CodeMeta equivalents are taken from or based on the corresponding descriptions.
 The required information for a complete set of o2r metadata according to this schema are gathered by automated extraction and collection from the creator of the asset.
 
 ## 2. Metadata elements
 
 ### Main Schema
 
-- ```author``` (mandatory, 1-n)
- - ```authorAffiliation``` (mandatory, 1-n)
- - ```authorId``` (optional, 0-n)
+- ```author``` (mandatory, 1-n, array)
+ - ```authorAffiliation``` (mandatory, 1-n, array)
+ - ```authorId``` (optional, 0-n, array)
  - ```authorName``` (mandatory, 1)
 - ```dateCreated``` (optional, 0-1)
-- ```depends``` (mandatory, 1-n)
- - ```operatingSystem``` (optional, 0-n)
- - ```packageId``` (mandatory, 1)
+- ```depends``` (mandatory, 1-n, array)
+ - ```operatingSystem``` (optional, 0-n, array)
+ - ```identifier``` (mandatory, 1)
  - ```packageSystem``` (mandatory, 1)
  - ```version``` (mandatory, 1)
 - ```description``` (mandatory, 1)
 - ```ercIdentifier``` (mandatory, 1)
 - ```generatedBy``` (mandatory, 1)
-- ```interactionMethod``` (optional, 0-n)
-- ```keywords``` (mandatory, 1-n)
+- ```interactionMethod``` (optional, 0-n, array)
+- ```keywords``` (mandatory, 1-n, array)
 - ```objectType``` (optional, 0-1)
-- ```paperLanguage``` (optional, 0-n)
+- ```paperLanguage``` (optional, 0-n, array)
 - ```recordDateCreated``` (optional, 0-1)
+- ```spatial``` (mandatory, 1, array)
+ - ```union``` (optional, 0-1, array)
 - ```softwarePaperCitation``` (optional, 0-1)
 - ```title``` (mandatory, 1)
+- ```temporal``` (mandatory, 1-n, array)
+ - ```union``` (optional, 0-1, array)
 - ```version``` (mandatory, 1)
 
-### UI Schema
+### UI Schema Draft
 The following meta information are used to control widgets for interaction with ERCs on our platform.
 
 - ```ercIdentifier``` (mandatory, 1)
@@ -96,7 +100,7 @@ The following meta information are used to control widgets for interaction with 
 - ⌞ depends/operatingSystem
 > The operating system for the software to run under.
 
-- ⌞ depends/packageId
+- ⌞ depends/identifier
 > An identification string for the dependency entity that is unique in the corresponding package system.
  
 - ⌞ depends/packageSystem
@@ -129,8 +133,20 @@ The following meta information are used to control widgets for interaction with 
 - recordDateCreated
 > The date that this metadata record describing the asset was created.
 
+- spatial
+> Information about the geometric bounding box of the underlying data/software.
+
+- ⌞ spatial/union
+> Geojson object of the aggregated bounding boxes of the underlying data/software.
+
 - softwarePaperCitation
 > A text string that can be used to authoritatively cite a research paper, conference proceedings or other scholarly work that describes the design, development, usage, significance or other aspect of the software.
+
+- temporal
+> Information about the time period of the underlying data/software.
+
+- ⌞ temporal/union
+> Aggregated information about the time period of the underlying data/software.
 
 - title
 > The distinguishing name associated with the asset.

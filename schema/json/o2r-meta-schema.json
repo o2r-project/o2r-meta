@@ -27,7 +27,7 @@
 					"operatingSystem": {
 						"type": "array"
 					},
-					"packageId": {
+					"identifier": {
 						"type": "string"
 					},
 					"packageSystem": {
@@ -38,7 +38,29 @@
 					}
 				}
 			},
-			"required": ["packageId", "packageSystem", "version"]
+			"required": ["identifier", "packageSystem", "version"]
+		},
+		"spatial": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"union": {
+						"type": "array"
+					}
+				}
+			},
+			"required": ["union"]
+		},
+		"temporal": {
+			"type": "array",
+			"items": {
+				"properties": {
+					"union": {
+						"type": "array"
+					}
+				}
+			},
+			"required": ["union"]
 		}
 	},
 	"type": "object",
@@ -67,6 +89,9 @@
 		"recordDateCreated": {
 			"type": "string"
 		},
+		"spatial": {
+			"$ref": "#/definitions/spatial"
+		},
 		"softwarePaperCitation": {
 			"type": "string"
 		},
@@ -79,25 +104,24 @@
 		"title": {
 			"type": "string"
 		},
+		"temporal": {
+			"$ref": "#/definitions/temporal"
+		},
 		"keywords": {
-			"type": "string"
+			"type": "array"
 		},
 		"paperLanguage": {
-			"type": "string"
+			"type": "array"
 		}
 	},
 	"required": [
 		"author",
-		"dateCreated",
-		"dependency",
+		"depends",
 		"description",
 		"generatedBy",
-		"recordDateCreated",
-		"softwarePaperCitation",
-		"version",
 		"ercIdentifier",
 		"title",
 		"keywords",
-		"paperLanguage"
+		"version"
 	]
 }

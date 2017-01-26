@@ -1,19 +1,19 @@
 {
-	"ercIdentifier": "Pd2k9b2xaH",
+	"ercIdentifier": "Pd2k9b3xaH",
 	"author": [{
 		"authorAffiliation": ["Wesleyan University"],
-		"authorId": ["orcid.org/0000-0002-1825-0097"],
+		"authorId": [{"orcid": "0000-0002-1825-0097"}],
 		"authorName": "Josiah Carberry"
 	}],
 	"dateCreated": "2016-10-01",
-	"dependency": [{
+	"depends": [{
 		"operatingSystem": ["Windows", "OS X", "Linux"],
-		"packageId": "LoremizationIssue",
+		"identifier": "2375689472186352",
 		"packageSystem": "https://cloud.r-project.org/",
 		"version": "1"
 	},{
 		"operatingSystem": ["raspbian"],
-		"packageId": "yetAnotherPackage",
+		"identifier": "yetAnotherPackage",
 		"packageSystem": "https://cloud.r-project.org/",
 		"version": "3.14"
 	}],
@@ -25,6 +25,6 @@
 	"softwarePaperCitation": "Deconstructing Write-Back Caches, http://dx.doi.org/10.5555/777766665555",
 	"version": "v1.2",
 	"title": "A measurement framework for write-back caches",
-	"keywords": "wbc, frameworks",
-	"paperLanguage": "en"
+	"keywords": ["wbc", "frameworks", "stuff"],
+	"paperLanguage": ["en", "de"]
 }
