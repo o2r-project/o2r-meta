@@ -18,9 +18,10 @@
 import argparse
 import json
 import os
+import re
 import sys
 import datetime
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElT
 from xml.dom import minidom
 
 
@@ -59,7 +60,12 @@ def map_json(element, value, map_data, output_dict):
                 output_dict[map_data[element]['translatesTo']] = value
         if map_data[element]['type'] == 'array':
             # e. g. author array (is list in py)
-            output_dict[map_data[element]['translatesTo']] = []
+            # if input is str and output is array with same name, then just copy it as first in array
+            if type(value) is str:
+                #if re.match(r'[A-Za-z\s\.\-]*', value):
+                output_dict[map_data[element]['translatesTo']] = [value]
+            else:
+                output_dict[map_data[element]['translatesTo']] = []
     if type(value) is list or type(value) is dict:
         # list of keys, nestedness:
         c = 0
@@ -132,31 +138,31 @@ def map_xml(element, value, map_data, xml_root):
                 for field in fieldslist:
                     # pseudo xpath has no divisions:
                     if len(fieldslist) == 1:
-                        a = ET.SubElement(xml_root, field)
+                        a = ElT.SubElement(xml_root, field)
                         a.text = value
                         break
                     # element has been created in former loop circle because pseudo xpath has divisions:
-                    if a is not None: # do not change to "if a:". needs safe test for xml element class
+                    if a is not None:  # do not change to "if a:". needs safe test for xml element class
                         # insert content values from metadata in innermost element, i.e. last division in pseudo xpath
                         if field == fieldslist[-1]:
                             # in case the elements features is a list of lists:
                             for key in value:
                                 if type(key) is list or type(key) is dict:
                                     status_note('unfolding subkey list')
-                                    c = ET.SubElement(a, field)
+                                    c = ElT.SubElement(a, field)
                                     for subkey in key:
                                         if ''.join(subkey) in map_data:
-                                            d = ET.SubElement(c, map_data[subkey])
+                                            d = ElT.SubElement(c, map_data[subkey])
                                             d.text = key[subkey]
                                 elif type(key) is str:
                                     # simple lists added to element:
-                                    b = ET.SubElement(a, field)
+                                    b = ElT.SubElement(a, field)
                                     b.text = key
                                 else:
                                     continue
                     # all other cases (no element with this name created yet)
                     else:
-                        a = ET.SubElement(xml_root, field)
+                        a = ElT.SubElement(xml_root, field)
                 return xml_root
             # element is not in map data:
             else:
@@ -169,17 +175,17 @@ def map_xml(element, value, map_data, xml_root):
                 # nestification along pseudo xpath from map data
                 for field in fieldslist:
                     if len(fieldslist) == 1:
-                        a = ET.SubElement(xml_root, field)
+                        a = ElT.SubElement(xml_root, field)
                         a.text = value
                         break
-                    if a is not None: # do not change to "if a:". needs safe test for xml element class
-                        a = ET.SubElement(a, field)
+                    if a is not None:  # do not change to "if a:". needs safe test for xml element class
+                        a = ElT.SubElement(a, field)
                         #insert content in innermost node, i.e. last in mapping pseudo xpath
                         if field == fieldslist[-1]:
                             a.text = value
                     else:
                         #attach to given super element
-                        a = ET.SubElement(xml_root, field)
+                        a = ElT.SubElement(xml_root, field)
                 return xml_root
             else:
                 status_note(''.join(('skipping key <', element, '> (not in map)')))
@@ -196,10 +202,13 @@ def status_note(msg):
 
 # Main
 def start(**kwargs):
+    global input_dir
     input_dir = kwargs.get('i', None)
+    global output_dir
     output_dir = kwargs.get('o', None)
     output_to_console = kwargs.get('s', None)
     seperator = '#' #<-- make this generic
+    global my_map
     my_map = kwargs.get('m', None)
     # output mode
     if output_to_console:
@@ -241,7 +250,7 @@ def start(**kwargs):
         txt_output = ''
         do_outputs(txt_output, output_mode, '.txt')
     elif my_mode == 'xml':
-        root = ET.Element(settings_data['root'])
+        root = ElT.Element(settings_data['root'])
         # to do: generify for complex xml maps
         root.set('xmlns', settings_data['root@xmlns'])
         root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
@@ -253,7 +262,7 @@ def start(**kwargs):
                 map_xml(element, test_data[element], map_data, root)
             except:
                 raise
-        output = ET.tostring(root, encoding='utf8', method='xml')
+        output = ElT.tostring(root, encoding='utf8', method='xml')
         do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
     else:
         status_note('! error: cannot process map mode of <' + my_map + '>')

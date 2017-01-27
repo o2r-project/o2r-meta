@@ -15,9 +15,8 @@ For their role within o2r, please refer to [o2r-architecture](https://github.com
 
 ## License
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.
-The documentation of the schemas available at ```o2r-meta/schema/docs/``` is licensed under a [CC-BY 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
-Copyright (C) 2016, 2017 - o2r project.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.Copyright (C) 2016, 2017 - o2r project.
+The documentation of the schemas available at ```o2r-meta/schema/docs/``` that is also to be included in the ERC Spec, is licensed under a [CC0](https://creativecommons.org/publicdomain/zero/1.0/) license. To the extent possible under law, the people who associated CC0 with this work have waived all copyright and related or neighboring rights to this work. This work is published from: Germany. 
 
 
 ## Installation
@@ -89,9 +88,9 @@ Explanation of the switches:
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 
-### Supported formats for the metadata extraction process:
+### Supported files and formats for the metadata extraction process:
 
-_Feel free to open an issue for suggestions_
+_Feel free to open an issue for suggestions!_
 
 Current version:
 
@@ -111,7 +110,10 @@ bagit.txt | BagIt | metadata | implemented
 ... | ... | ... | ...
 
 
-#(2) broker
+#(2) Brokering/Mapping tool
+
+Translates between different standards for metadata sets. For example from extracted raw metadata to the o2r schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
+Translation instructions are stored in mapping files (JSON).
 
     python o2rmeta.py broker -i <INPUT_DIR/FILE> -m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
@@ -122,10 +124,11 @@ Example call:
 Explanation of the switches:
 
 + `-i` <INPUT_DIR> : required starting path for recursive search for parsable files. 
-+ `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. #TBD: mapping json schema.
-+ `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
++ `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings.
++ `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given.
 + `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
 
+Governing JSON-Schema for the mapping files: _TBD_
 
 
 #(3) Validator tool:
@@ -138,8 +141,11 @@ Example call:
 
 Explanation of the switches:
 
-+ `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml. 
-+ `-c` <CANDIDATE> : required path to candidate that shall be validated
++ `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml.
++ `-c` <CANDIDATE> : required path to candidate that shall be validated.
 
-#(4) harvest
-TBD
+#(4) Harvester tool:
+
+Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set such as the one in o2r.
+
+_TBD_

@@ -107,7 +107,7 @@ def parse_r(input_text):
                                        'version': dep_ver,
                                        'line': c,
                                        'category': classify_r_package(m.group(1)),
-                                       'packageId': m.group(1)}
+                                       'identifier': m.group(1)}
                         # r other
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
@@ -183,7 +183,10 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                 md_filepath = s.group(1)
         else:
             md_filepath = path_file
-        md_temporal = {'year': datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime).year}
+        md_temporal_begin = None
+        md_temporal_end = None
+        md_temporal = {'begin': md_temporal_begin, 'end': md_temporal_end}
+        #md_temporal = {'year': datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime).year}
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
                      'ercIdentifier': md_erc_id,
                      'generatedBy': os.path.basename(__file__),
@@ -469,6 +472,8 @@ def start(**kwargs):
         # now merge data_dicts:
         for key in compare_extracted['best']:
             MASTER_MD_DICT[key] = compare_extracted['best'][key]
+        if 'spatial' not in MASTER_MD_DICT:
+            MASTER_MD_DICT['spatial'] = None
         if output_mode == '@s' or output_dir is None:
             # write to screen
             output_extraction(MASTER_MD_DICT, output_format, output_mode, None)

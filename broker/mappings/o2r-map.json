@@ -47,8 +47,8 @@
 			"type": "array",
 			"parent": "none"
 		},
-		"packageId": {
-			"translatesTo": "packageId",
+		"identifier": {
+			"translatesTo": "identifier",
 			"type": "string",
 			"parent": "depends"
 		},
@@ -91,6 +91,16 @@
 			"translatesTo": "keywords",
 			"type": "list",
 			"parent": "keywords"
+		},
+		"spatial": {
+			"translatesTo": "spatial",
+			"type": "string",
+			"parent": "root"
+		},
+		"temporal": {
+			"translatesTo": "temporal",
+			"type": "string",
+			"parent": "root"
 		},
 		"title": {
 			"translatesTo": "title",
