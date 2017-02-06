@@ -412,6 +412,7 @@ def start(**kwargs):
                   '\t'.join(('input', 'data input', r'.*read\.*\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
                   '\t'.join(('input', 'data input', r'.*read\.csv\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
                   '\t'.join(('input', 'data input', r'.*readGDAL\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('input', 'data input', r'.*readOGR\(dsn\=\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
                   '\t'.join(('input', 'data input', r'.*readLines\((.*)\)')),
                   '\t'.join(('output', 'file', r'.*write\..*\((.*)\)')),
                   '\t'.join(('output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
@@ -441,7 +442,7 @@ def start(**kwargs):
         #status_note(''.join(('debug: encountering ', str(list(files)))))
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
-            if os.path.isfile(full_file_path) and  full_file_path not in file_list_input_candidates:
+            if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
                 file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
             if file.lower().endswith('.r'):
                 do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
@@ -474,6 +475,16 @@ def start(**kwargs):
             MASTER_MD_DICT[key] = compare_extracted['best'][key]
         if 'spatial' not in MASTER_MD_DICT:
             MASTER_MD_DICT['spatial'] = None
+        # add list of input files, if used in extracted code:
+        if file_list_input_candidates is not None:
+            MASTER_MD_DICT['inputfiles'] = []
+            if 'r_codeblock' in MASTER_MD_DICT:
+                if 'input' in MASTER_MD_DICT['r_codeblock']:
+                    for element in MASTER_MD_DICT['r_codeblock']['input']:
+                        for x in file_list_input_candidates:
+                            if element['text'] in x:
+                                MASTER_MD_DICT['inputfiles'].append(x)
+        # process output
         if output_mode == '@s' or output_dir is None:
             # write to screen
             output_extraction(MASTER_MD_DICT, output_format, output_mode, None)

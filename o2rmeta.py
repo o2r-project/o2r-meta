@@ -82,7 +82,6 @@ if __name__ == "__main__":
         except OSError:
             pass
         status_note(''.join(('v', str(my_version), ' - ', str(my_mod))), debug=argsd['debug'])
-
         status_note(''.join(('received arguments: ', str(argsd))), debug=argsd['debug'])
         try:
             if argsd['tool'] == "extract":
