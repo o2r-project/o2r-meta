@@ -1,6 +1,7 @@
 {
 	"Settings": {
 		"name": "DataCite 4.0",
+		"outputfile": "metadata_datacite",
 		"map_description": "maps to datacite",
 		"mode": "xml",
 		"root": "resource",

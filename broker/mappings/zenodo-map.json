@@ -1,6 +1,7 @@
 {
 	"Settings": {
 		"name": "zenodo",
+		"outputfile": "metadata_zenodo",
 		"map_description": "maps o2r schema compliant MD to Zenodo for deposition creation",
 		"mode": "json",
 		"root": "metadata"
@@ -16,6 +17,11 @@
 		"todo": "image_type",
 		"dateCreated": "publication_date",
 		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"parent": "root"
+		},
+		"abstract": {
 			"translatesTo": "description",
 			"type": "string",
 			"parent": "root"

@@ -1,6 +1,7 @@
 {
 	"Settings": {
 		"name": "codemeta",
+		"outputfile": "metadata_codemeta",
 		"map_description": "maps o2r to codemeta",
 		"mode": "json",
 		"root": "",

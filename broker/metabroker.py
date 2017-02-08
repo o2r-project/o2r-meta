@@ -119,7 +119,8 @@ def map_json(element, value, map_data, output_dict):
                         location = map_data[sub_dict_key]['parent']
                         temp[map_data[sub_dict_key]['translatesTo']] = value[c][sub_dict_key]
                 # to do: error handler if location empty or output misses the key
-                output_dict[location].append(temp)
+                if location in output_dict:
+                    output_dict[location].append(temp)
             else:
                 pass
             c += 1

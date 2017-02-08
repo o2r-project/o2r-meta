@@ -163,7 +163,6 @@ def classify_r_package(package):
 # extract
 def do_ex(path_file, out_format, out_mode, multiline, rule_set):
     try:
-        status_note(''.join(('processing ', path_file)))
         md_object_type = ''
         md_interaction_method = ''  # find entry point in ../container/Dockerfile
         md_file = os.path.basename(path_file)
@@ -317,7 +316,6 @@ def parse_geo(filepath, data, fformat):
             key_files['files'] = []
             data['spatial'] = key_files
         # work on formats:
-        status_note('processing ' + filepath)
         coords = None
         if fformat == 'shp' or fformat == 'geojson':
             coords = fiona.open(filepath, 'r')
@@ -362,8 +360,10 @@ def parse_geo(filepath, data, fformat):
         raise
 
 
-def status_note(msg):
-    print(''.join(('[o2rmeta][extract] ', str(msg))))
+def status_note(msg, **kwargs):
+    log_buffer = kwargs.get('b', None)
+    if not log_buffer:
+        print(''.join(('[o2rmeta][extract] ', str(msg))))
 
 
 def start(**kwargs):
@@ -436,33 +436,40 @@ def start(**kwargs):
     main_metadata_filename = 'metadata_raw.json'
     global file_list_input_candidates
     file_list_input_candidates = []  # all files encountered, possible input of an R script
-
+    log_buffer = False
     # process all files in input directory +recursive
     for root, subdirs, files in os.walk(input_dir):
-        #status_note(''.join(('debug: encountering ', str(list(files)))))
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
                 file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
+            if nr == 41:
+                status_note('processing further files ...')
+                log_buffer = True
             # deal with different input formats:
             if file.lower().endswith('.r'):
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
                 nr += 1
             elif file.lower() == 'bagit.txt':
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))))
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(full_file_path))
                 nr += 1
             elif file.lower().endswith('.rmd'):
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 nr += 1
             elif file.lower().endswith('.shp'):
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 parse_geo(full_file_path, MASTER_MD_DICT, 'shp')
                 nr += 1
             elif file.lower().endswith('.geojson'):
                 # todo: check .json for geojson-ness
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 parse_geo(full_file_path, MASTER_MD_DICT, 'geojson')
                 nr += 1
             elif file.lower().endswith('.tif'):
+                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 parse_geo(full_file_path, MASTER_MD_DICT, 'geotiff')
                 nr += 1
             else:
@@ -476,7 +483,7 @@ def start(**kwargs):
         if 'spatial' not in MASTER_MD_DICT:
             MASTER_MD_DICT['spatial'] = None
         # Make final adjustments on the master dict before output:
-        # \ add to list of input files, if used in extracted code of an r_block:
+        # \ Add to list of input files, if used in extracted code of an r_block:
         if file_list_input_candidates is not None:
             MASTER_MD_DICT['inputfiles'] = []
             if 'r_codeblock' in MASTER_MD_DICT:
@@ -496,6 +503,9 @@ def start(**kwargs):
                     MASTER_MD_DICT.pop('orcid')
                 new_author_listobject.append(author_element)
                 MASTER_MD_DICT['author'] = new_author_listobject
+        else:
+            # 'author' element ist missing, create empty dummy:
+            MASTER_MD_DICT['author'] = []
         # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen
