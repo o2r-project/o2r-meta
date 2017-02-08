@@ -444,6 +444,7 @@ def start(**kwargs):
             full_file_path = os.path.join(root, file).replace('\\', '/')
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
                 file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
+            # deal with different input formats:
             if file.lower().endswith('.r'):
                 do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
                 nr += 1
@@ -462,7 +463,6 @@ def start(**kwargs):
                 parse_geo(full_file_path, MASTER_MD_DICT, 'geojson')
                 nr += 1
             elif file.lower().endswith('.tif'):
-                # todo: check .json for geojson-ness
                 parse_geo(full_file_path, MASTER_MD_DICT, 'geotiff')
                 nr += 1
             else:
@@ -475,7 +475,8 @@ def start(**kwargs):
             MASTER_MD_DICT[key] = compare_extracted['best'][key]
         if 'spatial' not in MASTER_MD_DICT:
             MASTER_MD_DICT['spatial'] = None
-        # add list of input files, if used in extracted code:
+        # Make final adjustments on the master dict before output:
+        # \ add to list of input files, if used in extracted code of an r_block:
         if file_list_input_candidates is not None:
             MASTER_MD_DICT['inputfiles'] = []
             if 'r_codeblock' in MASTER_MD_DICT:
@@ -484,7 +485,18 @@ def start(**kwargs):
                         for x in file_list_input_candidates:
                             if element['text'] in x:
                                 MASTER_MD_DICT['inputfiles'].append(x)
-        # process output
+        # \ Fix and complete author element, if existing:
+        if 'author' in MASTER_MD_DICT:
+            if type(MASTER_MD_DICT['author']) is str:
+                # this means there is only one author from yaml header in best candidate
+                new_author_listobject = []
+                author_element = {'name': MASTER_MD_DICT['author']}
+                if 'orcid' in MASTER_MD_DICT:
+                    author_element.update({'orcid': MASTER_MD_DICT['orcid']})
+                    MASTER_MD_DICT.pop('orcid')
+                new_author_listobject.append(author_element)
+                MASTER_MD_DICT['author'] = new_author_listobject
+        # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen
             output_extraction(MASTER_MD_DICT, output_format, output_mode, None)

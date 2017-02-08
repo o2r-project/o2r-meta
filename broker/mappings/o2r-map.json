@@ -47,6 +47,12 @@
 			"type": "array",
 			"parent": "none"
 		},
+		
+		"inputfiles": {
+			"translatesTo": "inputfiles",
+			"type": "string",
+			"parent": "root"
+		},
 		"identifier": {
 			"translatesTo": "identifier",
 			"type": "string",
