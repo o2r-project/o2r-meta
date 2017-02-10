@@ -44,17 +44,17 @@ def api_get_orcid(txt_input, bln_sandbox):
         return None
 
 
-def parse_session_r(parameter):
-    # to do: get these from live extraction results (o2rexobj.txt)
-    # want to know from this function:
-    # packages, versions of packages
-    # ERCIdentifier
-    # uses list(...list(),list(),...) for packages
-    result = ''
-    return result
+#def parse_session_r(parameter):
+#    # to do: get these from live extraction results (o2rexobj.txt)
+#    # want to know from this function:
+#    # packages, versions of packages
+#    # ERCIdentifier
+#    # uses list(...list(),list(),...) for packages
+#    result = ''
+#    return result
 
 
-def parse_txt_bagitfile(file_path):
+def parse_bagitfile(file_path):
     txt_dict = {'bagittxt_file': file_path}
     with open(file_path) as f:
         lines = f.readlines()
@@ -62,6 +62,96 @@ def parse_txt_bagitfile(file_path):
             s = line.rstrip('\n').split(': ')
             txt_dict[s[0]] = s[1]
     return txt_dict
+
+
+def parse_r(input_text):
+    try:
+        c = 0
+        meta_r_dict = {}
+        for line in input_text.splitlines():
+            c += 1
+            for rule in rule_set_r:
+                this_rule = rule.split('\t')
+                m = re.match(this_rule[2], line)
+                if m:
+                    if len(m.groups()) > 0:
+                        # r dependency
+                        if this_rule[0] == 'depends':
+                            #dep_os = parse_session_r('os')
+                            dep_packetsys = 'https://cloud.r-project.org/'
+                            dep_ver = parse_session_r('version')
+                            segment = {'operatingSystem': None,
+                                       'packageSystem': dep_packetsys,
+                                       'version': dep_ver,
+                                       'line': c,
+                                       'category': calculate_r_package_class(m.group(1)),
+                                       'identifier': m.group(1)}
+                        # r other
+                        else:
+                            segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
+                        meta_r_dict.setdefault(this_rule[0], []).append(segment)
+        return meta_r_dict
+    except Exception as exc:
+        raise
+        #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
+
+
+def parse_spatial(filepath, data, fformat):
+    try:
+        new_file_key = {}
+        if 'spatial' not in data:
+            data['spatial'] = {}
+        if 'files' not in data['spatial']:
+            key_files = {}
+            key_files['files'] = []
+            data['spatial'] = key_files
+        # work on formats:
+        coords = None
+        if fformat == 'shp' or fformat == 'geojson':
+            coords = fiona.open(filepath, 'r')
+        elif fformat == 'geotiff':
+            return None
+            #pass
+        else:
+            pass
+        new_file_key['source_file'] = filepath
+        new_file_key['geojson'] = {}
+        if coords is not None:
+            new_file_key['geojson']['bbox'] = coords.bounds
+        new_file_key['geojson']['type'] = 'Feature'
+        new_file_key['geojson']['geometry'] = {}
+        if coords is not None:
+            new_file_key['geojson']['geometry']['coordinates'] = [
+                [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
+        new_file_key['geojson']['geometry']['type'] = 'Polygon'
+        data['spatial']['files'].append(new_file_key)
+        # calculate union of all available coordinates
+        # calculate this only once, at last
+        current_coord_list = []
+        for key in data['spatial']['files']:
+            if 'geojson' in key:
+                if 'geometry' in key['geojson']:
+                    if 'coordinates' in key['geojson']['geometry']:
+                        if len(key['geojson']['geometry']['coordinates']) > 0:
+                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][0]))
+                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][1]))
+        key_union = {}
+        coords = calculate_geo_bbox_union(current_coord_list)
+        key_union['geojson'] = {}
+        if coords is not None:
+            key_union['geojson']['bbox'] = [coords[0][0], coords[0][1], coords[1][0], coords[1][1]]
+        key_union['geojson']['type'] = 'Feature'
+        key_union['geojson']['geometry'] = {}
+        key_union['geojson']['geometry']['type'] = 'Polygon'
+        if coords is not None:
+            key_union['geojson']['geometry']['coordinates'] = coords
+        data['spatial'].update({'union': key_union})
+    except:
+        raise
+
+
+def parse_temporal(filepath, data):
+    pass
 
 
 def parse_yaml(input_text):
@@ -86,39 +176,7 @@ def parse_yaml(input_text):
         status_note(''.join(('! error while parsing yaml input:', str(exc.problem_mark), str(exc.problem))))
 
 
-def parse_r(input_text):
-    try:
-        c = 0
-        meta_r_dict = {}
-        for line in input_text.splitlines():
-            c += 1
-            for rule in rule_set_r:
-                this_rule = rule.split('\t')
-                m = re.match(this_rule[2], line)
-                if m:
-                    if len(m.groups()) > 0:
-                        # r dependency
-                        if this_rule[0] == 'depends':
-                            dep_os = parse_session_r('os')
-                            dep_packetsys = 'https://cloud.r-project.org/'
-                            dep_ver = parse_session_r('version')
-                            segment = {'operatingSystem': dep_os,
-                                       'packageSystem': dep_packetsys,
-                                       'version': dep_ver,
-                                       'line': c,
-                                       'category': classify_r_package(m.group(1)),
-                                       'identifier': m.group(1)}
-                        # r other
-                        else:
-                            segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
-                        meta_r_dict.setdefault(this_rule[0], []).append(segment)
-        return meta_r_dict
-    except Exception as exc:
-        raise
-        #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
-
-
-def classify_r_package(package):
+def calculate_r_package_class(package):
     try:
         list_crantop100 = ['BH', 'DBI', 'Formula', 'Hmisc', 'MASS', 'Matrix',
                            'MatrixModels', 'NMF', 'R6', 'RColorBrewer', 'RCurl', 'RJSONIO',
@@ -157,7 +215,8 @@ def classify_r_package(package):
             label = 'none,'
         return label[:-1]
     except:
-        raise
+        #raise
+        status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
 
 # extract
@@ -282,7 +341,7 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         #status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
-def geo_bbox_union(coordinate_list):
+def calculate_geo_bbox_union(coordinate_list):
     try:
         if coordinate_list is None:
             return [(0, 0), (0, 0), (0, 0), (0, 0)]
@@ -302,60 +361,6 @@ def geo_bbox_union(coordinate_list):
             if n[1] > max_y:
                 max_y = n[1]
         return [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
-    except:
-        raise
-
-
-def parse_geo(filepath, data, fformat):
-    try:
-        new_file_key = {}
-        if 'spatial' not in data:
-            data['spatial'] = {}
-        if 'files' not in data['spatial']:
-            key_files = {}
-            key_files['files'] = []
-            data['spatial'] = key_files
-        # work on formats:
-        coords = None
-        if fformat == 'shp' or fformat == 'geojson':
-            coords = fiona.open(filepath, 'r')
-        elif fformat == 'geotiff':
-            return None
-            #pass
-        else:
-            pass
-        new_file_key['source_file'] = filepath
-        new_file_key['geojson'] = {}
-        if coords is not None:
-            new_file_key['geojson']['bbox'] = coords.bounds
-        new_file_key['geojson']['type'] = 'Feature'
-        new_file_key['geojson']['geometry'] = {}
-        if coords is not None:
-            new_file_key['geojson']['geometry']['coordinates'] = [
-                [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
-        new_file_key['geojson']['geometry']['type'] = 'Polygon'
-        data['spatial']['files'].append(new_file_key)
-        # calculate union of all available coordinates
-        # calculate this only once, at last
-        current_coord_list = []
-        for key in data['spatial']['files']:
-            if 'geojson' in key:
-                if 'geometry' in key['geojson']:
-                    if 'coordinates' in key['geojson']['geometry']:
-                        if len(key['geojson']['geometry']['coordinates']) > 0:
-                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][0]))
-                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][1]))
-        key_union = {}
-        coords = geo_bbox_union(current_coord_list)
-        key_union['geojson'] = {}
-        if coords is not None:
-            key_union['geojson']['bbox'] = [coords[0][0], coords[0][1], coords[1][0], coords[1][1]]
-        key_union['geojson']['type'] = 'Feature'
-        key_union['geojson']['geometry'] = {}
-        key_union['geojson']['geometry']['type'] = 'Polygon'
-        if coords is not None:
-            key_union['geojson']['geometry']['coordinates'] = coords
-        data['spatial'].update({'union': key_union})
     except:
         raise
 
@@ -422,7 +427,6 @@ def start(**kwargs):
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                               '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
     # other parameters
-    nr = 0  # number of files processed
     if skip_orcid:
         status_note('orcid api search disabled...')
     global md_paper_source
@@ -437,6 +441,7 @@ def start(**kwargs):
     global file_list_input_candidates
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
+    nr = 0  # number of files processed
     # process all files in input directory +recursive
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -446,6 +451,9 @@ def start(**kwargs):
             if nr == 41:
                 status_note('processing further files ...')
                 log_buffer = True
+            # skip large files
+            if os.stat(full_file_path.path).st_size / 1024 ** 2 > 900:
+                continue
             # deal with different input formats:
             if file.lower().endswith('.r'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
@@ -453,7 +461,7 @@ def start(**kwargs):
                 nr += 1
             elif file.lower() == 'bagit.txt':
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                MASTER_MD_DICT[bagit_txt_file] = (parse_txt_bagitfile(full_file_path))
+                MASTER_MD_DICT[bagit_txt_file] = (parse_bagitfile(full_file_path))
                 nr += 1
             elif file.lower().endswith('.rmd'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)

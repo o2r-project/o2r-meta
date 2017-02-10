@@ -75,7 +75,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 7  # update me!
+        my_version = 8  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
