@@ -469,16 +469,16 @@ def start(**kwargs):
                 nr += 1
             elif file.lower().endswith('.shp'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_geo(full_file_path, MASTER_MD_DICT, 'shp')
+                parse_spatial(full_file_path, MASTER_MD_DICT, 'shp')
                 nr += 1
             elif file.lower().endswith('.geojson'):
                 # todo: check .json for geojson-ness
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_geo(full_file_path, MASTER_MD_DICT, 'geojson')
+                parse_spatial(full_file_path, MASTER_MD_DICT, 'geojson')
                 nr += 1
             elif file.lower().endswith('.tif'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_geo(full_file_path, MASTER_MD_DICT, 'geotiff')
+                parse_spatial(full_file_path, MASTER_MD_DICT, 'geotiff')
                 nr += 1
             else:
                 pass
