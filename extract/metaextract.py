@@ -78,11 +78,11 @@ def parse_r(input_text):
                         # r dependency
                         if this_rule[0] == 'depends':
                             #dep_os = parse_session_r('os')
+                            #dep_ver = parse_session_r('version')
                             dep_packetsys = 'https://cloud.r-project.org/'
-                            dep_ver = parse_session_r('version')
                             segment = {'operatingSystem': None,
                                        'packageSystem': dep_packetsys,
-                                       'version': dep_ver,
+                                       'version': None,
                                        'line': c,
                                        'category': calculate_r_package_class(m.group(1)),
                                        'identifier': m.group(1)}
@@ -452,7 +452,7 @@ def start(**kwargs):
                 status_note('processing further files ...')
                 log_buffer = True
             # skip large files
-            if os.stat(full_file_path.path).st_size / 1024 ** 2 > 900:
+            if os.stat(full_file_path).st_size / 1024 ** 2 > 900:
                 continue
             # deal with different input formats:
             if file.lower().endswith('.r'):
