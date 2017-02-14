@@ -1,0 +1,31 @@
+{
+    "author": [],
+    "depends": [],
+    "description": null,
+    "ercIdentifier": null,
+    "file": {
+        "filename": null,
+        "filepath": null,
+        "mimetype": null
+    },
+    "generatedBy": "o2r-meta metaextract.py",
+    "interactionMethod": null,
+    "keywords": [],
+    "paperLanguage": [],
+    "paperSource": null,
+    "r_comment": [],
+    "r_input": [],
+    "r_output": [],
+    "recordDateCreated": null,
+    "softwarePaperCitation": null,
+    "spatial": {
+        "files": [],
+        "union": []
+    },
+    "temporal": {
+        "begin": null,
+        "end": null
+    },
+    "title": null,
+    "version": null
+}

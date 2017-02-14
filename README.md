@@ -4,11 +4,11 @@
 
 This is a collection of metadata related micro services for the o2r-platform:
 
-1. schema & documentation of the o2r metadata
-2. extract - collect meta information from files or session
-3. broker - translate metadata from o2r to third party schemas
-4. validate - check if metadata set is valid to the schema
-5. harvest - collect metadata from external sources via OAI-PMH
+0. schema & documentation of the o2r metadata
+1. extract - collect meta information from files or session
+2. broker - translate metadata from o2r to third party schemas
+3. validate - check if metadata set is valid to the schema
+4. harvest - collect metadata from external sources via OAI-PMH
  
 
 For their role within o2r, please refer to [o2r-architecture](https://github.com/o2r-project/architecture).
@@ -59,8 +59,15 @@ And start the extractor (e.g.) like this:
 
 
 	
-## Usage
 
+## Documentation
+
++ [schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json) 
++ [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
++ [Md of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
+
+
+## Usage
 When calling o2r meta, you can chose from the following commands, each representing one tool of the o2r meta suite: _extract_, _validate_, _broker_ and _harvest_.
 
     python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>

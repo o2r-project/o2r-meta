@@ -73,9 +73,11 @@ if __name__ == "__main__":
         validator.add_argument("-s", "--schema", type=str, required=True)
         validator.add_argument("-c", "--candidate", type=str, required=True)
         # - - - - - - - - - - - - - - - - - -
+        # harvester
+        # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 8  # update me!
+        my_version = 10  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)

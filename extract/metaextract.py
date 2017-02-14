@@ -64,10 +64,10 @@ def parse_bagitfile(file_path):
     return txt_dict
 
 
-def parse_r(input_text):
+def parse_r(input_text, parser_dict):
     try:
         c = 0
-        meta_r_dict = {}
+        ###meta_r_dict = {}
         for line in input_text.splitlines():
             c += 1
             for rule in rule_set_r:
@@ -77,20 +77,17 @@ def parse_r(input_text):
                     if len(m.groups()) > 0:
                         # r dependency
                         if this_rule[0] == 'depends':
-                            #dep_os = parse_session_r('os')
-                            #dep_ver = parse_session_r('version')
-                            dep_packetsys = 'https://cloud.r-project.org/'
-                            segment = {'operatingSystem': None,
-                                       'packageSystem': dep_packetsys,
+                            segment = {'operatingSystem': [],
+                                       'packageSystem': 'https://cloud.r-project.org/',
                                        'version': None,
                                        'line': c,
                                        'category': calculate_r_package_class(m.group(1)),
                                        'identifier': m.group(1)}
-                        # r other
+                            parser_dict.setdefault('depends', []).append(segment)
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
-                        meta_r_dict.setdefault(this_rule[0], []).append(segment)
-        return meta_r_dict
+                            parser_dict.setdefault(this_rule[0], []).append(segment)
+        return parser_dict
     except Exception as exc:
         raise
         #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
@@ -247,10 +244,11 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         #md_temporal = {'year': datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime).year}
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
                      'ercIdentifier': md_erc_id,
-                     'generatedBy': os.path.basename(__file__),
+                     #'generatedBy': os.path.basename(__file__),
                      'recordDateCreated': md_record_date,
                      'paperSource': md_paper_source,
                      'objectType': md_object_type,
+                     'depends': [],
                      'temporal': md_temporal,
                      'interactionMethod': md_interaction_method}
         with open(path_file, encoding='utf-8') as input_file:
@@ -258,10 +256,14 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
             # apply multiline re for rmd, yaml, etc.
             if multiline:
                 # try guess lang
-                data_dict['paperLanguage'] = ''
+                # reset key:
+                data_dict['paperLanguage'] = []
                 t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
                 if t:
-                    data_dict.update(paperLanguage=guess_language(t.group(1)))
+                    if guess_language(t.group(1)) is not None:
+                        data_dict['paperLanguage'].append(guess_language(t.group(1)))
+                    else:
+                        data_dict['paperLanguage'] = []
                 # process rules
                 for rule in rule_set:
                     this_rule = rule.split('\t')
@@ -270,11 +272,13 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                         if this_rule[0].startswith('yaml'):
                             data_dict.update(parse_yaml(s.group(1)))
                         if this_rule[0].startswith('rblock'):
-                            data_dict['r_codeblock'] = ''
-                            data_dict.update(r_codeblock=parse_r(s.group(1)))
+                            #data_dict['r_codeblock'] = ''
+                            ##data_dict.update(r_codeblock=parse_r(s.group(1), data_dict))
+                            data_dict = parse_r(s.group(1), data_dict)
             else:
                 # parse entire file as one code block
-                data_dict.update(r_codeblock=parse_r(content))
+                #data_dict.update(r_codeblock=parse_r(content, data_dict))
+                data_dict = parse_r(content, data_dict)
         # save information on this extracted file for comparison with others, so to find best MD
         # ! keep hierarchy:
         # condition: file extension:
@@ -405,23 +409,23 @@ def start(**kwargs):
     # load rules:
     # rule set for r, compose as: category name TAB entry feature name TAB regex
     global rule_set_r
-    rule_set_r = ['\t'.join(('comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
-                  '\t'.join(('comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
-                  '\t'.join(('comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
-                  '\t'.join(('comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
+    rule_set_r = ['\t'.join(('r_comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
+                  '\t'.join(('r_comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
+                  '\t'.join(('r_comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
+                  '\t'.join(('r_comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
                   '\t'.join(('depends', '.*installs', r'install.packages\((.*)\)')),
                   '\t'.join(('depends', '', r'.*library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
                   '\t'.join(('depends', '', r'.*require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*data\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*load\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*read\.*\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*read\.csv\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*readGDAL\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*readOGR\(dsn\=\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('input', 'data input', r'.*readLines\((.*)\)')),
-                  '\t'.join(('output', 'file', r'.*write\..*\((.*)\)')),
-                  '\t'.join(('output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
-                  '\t'.join(('output', 'setseed', r'.*set\.seed\((.*)\)'))]
+                  '\t'.join(('r_input', 'data input', r'.*data\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*load\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*read\.*\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*read\.csv\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*readGDAL\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*readOGR\(dsn\=\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
+                  '\t'.join(('r_input', 'data input', r'.*readLines\((.*)\)')),
+                  '\t'.join(('r_output', 'file', r'.*write\..*\((.*)\)')),
+                  '\t'.join(('r_output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
+                  '\t'.join(('r_output', 'setseed', r'.*set\.seed\((.*)\)'))]
     #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
     # rule set for rmd #
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
@@ -431,18 +435,43 @@ def start(**kwargs):
         status_note('orcid api search disabled...')
     global md_paper_source
     md_paper_source = ''
-    global MASTER_MD_DICT
-    MASTER_MD_DICT = {}  # this one is being updated per function call
+    # init master dict
+    global MASTER_MD_DICT # this one is being updated per function call
+    MASTER_MD_DICT = {'author': [],
+                'file': {'filename': None, 'filepath': None, 'mimetype': None},
+                'ercIdentifier': None,
+                'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
+                'recordDateCreated': None,
+                'paperSource': None,
+                'paperLanguage': [],
+                'depends': [],
+                'r_input': [],
+                'r_comment': [],
+                'r_output': [],
+                'description': None,
+                'keywords': [],
+                'softwarePaperCitation': None,
+                'spatial': {'files': [], 'union': []},
+                'temporal': {'begin': None, 'end': None},
+                'title': None,
+                'interactionMethod': None,
+                'version': None}
     bagit_txt_file = None
     global compare_extracted
     compare_extracted = {}  # dict for evaluations to find best metafile for main output
     global main_metadata_filename
     main_metadata_filename = 'metadata_raw.json'
     global file_list_input_candidates
+    # create dummy file to indicate latest data structure
+    try:
+        with open(os.path.join("schema", "json", "dummy.json"), 'w', encoding='utf-8') as dummyfile:
+            dummyfile.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
+    except:
+        raise
+    # process all files in input directory +recursive
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
-    # process all files in input directory +recursive
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
