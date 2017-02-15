@@ -1,0 +1,15 @@
+{
+	"creators": [{
+		"name": "Doe, John",
+		"affiliation": "Zenodo"
+	}, {
+		"name": "Smith, Jane",
+		"affiliation": "Zenodo",
+		"orcid": "0000-0002-1694-233X"
+	}, {
+		"name": "Kowalski, Jack",
+		"affiliation": "Zenodo",
+		"gnd": "170118215"
+	}],
+	"title": "Yet another title."
+}

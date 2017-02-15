@@ -1,0 +1,19 @@
+{
+	"Settings": {
+		"checks": "zenodo",
+		"mode": "json"
+	},
+	"Checklist": [
+		"upload_type",
+		"title",
+		"creators",
+		"description",
+		"publication_date",
+		"access_right"
+	],
+	"Conditions": [{
+		"publication": "publication_type"
+	}, {
+		"image": "image_type"
+	}]
+}

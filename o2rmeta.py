@@ -61,9 +61,14 @@ if __name__ == "__main__":
         extractor.add_argument('-m', '--metafiles', help='output all metafiles', action='store_true', default=False,
                             required=False)
         # - - - - - - - - - - - - - - - - - -
+        # the broker has two modes:
+        # 1.) mapping mode creates fitting metadata for a given map
+        # 2.) checking mode returns mitting metadata information for a target service
         broker = subparsers.add_parser("broker")
+        maingroup = broker.add_mutually_exclusive_group(required=True)
+        maingroup.add_argument("-c", "--check", type=str, required=False)
+        maingroup.add_argument("-m", "--map", type=str, required=False)
         broker.add_argument("-i", "--inputdir", type=str, required=True)
-        broker.add_argument("-m", "--map", type=str, required=True)
         group = broker.add_mutually_exclusive_group(required=True)
         group.add_argument('-o', '--outputdir', type=str, help='output directory for brokering docs')
         group.add_argument('-s', '--outputtostdout', help='output the result of the brokering to stdout',
@@ -77,7 +82,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 10  # update me!
+        my_version = 11  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
@@ -91,7 +96,7 @@ if __name__ == "__main__":
                 metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['skiporcid'], e=argsd['ercid'], m=argsd['metafiles'], xml=argsd['modexml'])
             elif argsd['tool'] == "broker":
                 status_note('launching broker')
-                metabroker.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], m=argsd['map'])
+                metabroker.start(c=argsd['check'], m=argsd['map'], i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'])
             elif argsd['tool'] == "validate":
                 status_note('launching validator')
                 metavalidate.start(s=argsd['schema'], c=argsd['candidate'])

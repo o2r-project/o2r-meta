@@ -25,6 +25,37 @@ import xml.etree.ElementTree as ElT
 from xml.dom import minidom
 
 
+def check(checklist_pathfile, input_json):
+    # checks which required fields are already fulfilled by a given set of metadata
+
+    # prepare input filepath
+    try:
+        if os.path.isfile(input_json):
+            ##print("is file")
+            with open(input_json, encoding='utf-8') as data_file:
+                input_data = json.load(data_file)
+
+        # open checklist file and find out mode
+            with open(checklist_pathfile, encoding='utf-8') as data_file:
+                check_file = json.load(data_file)
+                settings_data = check_file['Settings']
+                checklist_data = check_file['Checklist']
+                print(str(input_data))
+                #my_mode = settings_data['mode']
+                #check_data_conditions = check_file['Conditions']
+                for x in checklist_data:
+                    if x in input_data:
+                        print("found: <" + x + ">")
+                    else:
+                        print("required: <" + x + ">")
+    except:
+        raise
+
+    ##print(checklist_pathfile)
+    ##print(input_json)
+    # todo compare and return list of missing and status
+
+
 def do_outputs(output_data, out_mode, out_name, file_ext):
     if out_mode == '@s':
         # give out to screen
@@ -209,6 +240,8 @@ def start(**kwargs):
     output_dir = kwargs.get('o', None)
     output_to_console = kwargs.get('s', None)
     seperator = '#' #<-- make this generic
+    global my_check
+    my_check = kwargs.get('c', None)
     global my_map
     my_map = kwargs.get('m', None)
     # output mode
@@ -221,49 +254,51 @@ def start(**kwargs):
     else:
         # not possible currently because output arg group is on mutual exclusive
         output_mode = '@none'
-
-    # open map file and find out mode
-    try:
-        with open(my_map, encoding='utf-8') as data_file:
-            map_file = json.load(data_file)
-            settings_data = map_file['Settings']
-            map_data = map_file['Map']
-            my_mode = settings_data['mode']
-    except:
-        raise
-    # distinguish format for output
-    if my_mode == 'json':
-        # try parse all possible metadata files:
-        for file in os.listdir(input_dir):
-            if os.path.basename(file).startswith('metadata_'):
-                json_output = {}
-                with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
-                    test_data = json.load(data_file)
-                for element in test_data:
-                    try:
-                        map_json(element, test_data[element], map_data, json_output)
-                    except:
-                        raise
-                ##do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
-                do_outputs(json_output, output_mode, settings_data['outputfile'], '.json')
-    elif my_mode == 'txt':
-        # to do: handle txt based maps like bagit
-        txt_output = ''
-        do_outputs(txt_output, output_mode, '.txt')
-    elif my_mode == 'xml':
-        root = ElT.Element(settings_data['root'])
-        # to do: generify for complex xml maps
-        root.set('xmlns', settings_data['root@xmlns'])
-        root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
-        root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
-        with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-            test_data = json.load(data_file)
-        for element in test_data:
-            try:
-                map_xml(element, test_data[element], map_data, root)
-            except:
-                raise
-        output = ElT.tostring(root, encoding='utf8', method='xml')
-        do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
-    else:
-        status_note('! error: cannot process map mode of <' + my_map + '>')
+    if my_check is not None:
+        check(my_check, input_dir)
+    if my_map is not None:
+        # open map file and find out mode
+        try:
+            with open(my_map, encoding='utf-8') as data_file:
+                map_file = json.load(data_file)
+                settings_data = map_file['Settings']
+                map_data = map_file['Map']
+                my_mode = settings_data['mode']
+        except:
+            raise
+        # distinguish format for output
+        if my_mode == 'json':
+            # try parse all possible metadata files:
+            for file in os.listdir(input_dir):
+                if os.path.basename(file).startswith('metadata_'):
+                    json_output = {}
+                    with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
+                        test_data = json.load(data_file)
+                    for element in test_data:
+                        try:
+                            map_json(element, test_data[element], map_data, json_output)
+                        except:
+                            raise
+                    ##do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
+                    do_outputs(json_output, output_mode, settings_data['outputfile'], '.json')
+        elif my_mode == 'txt':
+            # to do: handle txt based maps like bagit
+            txt_output = ''
+            do_outputs(txt_output, output_mode, '.txt')
+        elif my_mode == 'xml':
+            root = ElT.Element(settings_data['root'])
+            # to do: generify for complex xml maps
+            root.set('xmlns', settings_data['root@xmlns'])
+            root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
+            root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
+            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
+                test_data = json.load(data_file)
+            for element in test_data:
+                try:
+                    map_xml(element, test_data[element], map_data, root)
+                except:
+                    raise
+            output = ElT.tostring(root, encoding='utf8', method='xml')
+            do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
+        else:
+            status_note('! error: cannot process map mode of <' + my_map + '>')

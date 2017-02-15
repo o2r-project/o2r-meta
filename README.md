@@ -119,21 +119,39 @@ bagit.txt | BagIt | metadata | implemented
 
 #(2) Brokering/Mapping tool
 
-Translates between different standards for metadata sets. For example from extracted raw metadata to the o2r schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
-Translation instructions are stored in mapping files (JSON).
+The broker has two modes: In _mapping mode_, it creates fitting metadata for a given map by following a translation scheme included in that mapping file.
+In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
 
-    python o2rmeta.py broker -i <INPUT_DIR/FILE> -m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
+Within o2r, the broker is used to translates between different standards for metadata sets. For example from extracted raw metadata to the o2r schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
+Translation instructions as well as checklists are stored in json formatted files.
+
+    python o2rmeta.py broker -i <INPUT_DIR/FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
-Example call:
+Example calls:
 	
-    python o2rmeta.py -debug broker -i broker/tests -m broker/mappings/o2r-map.json -o broker/tests/all
+    python o2rmeta.py -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
+
+    python o2rmeta.py -debug broker -m broker/mappings/o2r-map.json -i broker/tests -o broker/tests/all
 
 Explanation of the switches:
 
-+ `-i` <INPUT_DIR> : required starting path for recursive search for parsable files. 
-+ `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings.
+
++ `-c` <CHECKLIST_FILE> : required path to a json checklist file that holds checking instructions for the metadata. This switch is mutually exclusive with `-m`. At least one of them must be given.
++ `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. This switch is mutually exclusive with `-c`. At least one of them must be given.
++ `-i` <INPUT_DIR> : path to input json when using `-c`-mode _or_ required starting path for recursive search for parsable files when using `-m`-mode. 
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given.
 + `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
+
+Supported checks/maps
+
+
+**service** | **checklist file** | **mapping file** | **status**
+------ | ------ | ------ | ------ |
+zenodo| zenodo-check.json | zenodo-map.json | WIP
+datacite| datacite-check.json | datacite-map.json | WIP
+... | ... | ... | ...
+
+
 
 Governing JSON-Schema for the mapping files: _TBD_
 
