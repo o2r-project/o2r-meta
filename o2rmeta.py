@@ -63,7 +63,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         # the broker has two modes:
         # 1.) mapping mode creates fitting metadata for a given map
-        # 2.) checking mode returns mitting metadata information for a target service
+        # 2.) checking mode returns missing metadata information for a target service
         broker = subparsers.add_parser("broker")
         maingroup = broker.add_mutually_exclusive_group(required=True)
         maingroup.add_argument("-c", "--check", type=str, required=False)
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 11  # update me!
+        my_version = 12  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)

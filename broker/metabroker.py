@@ -27,34 +27,31 @@ from xml.dom import minidom
 
 def check(checklist_pathfile, input_json):
     # checks which required fields are already fulfilled by a given set of metadata
-
+    status_note(''.join(('processing ', input_json)))
     # prepare input filepath
     try:
         if os.path.isfile(input_json):
             ##print("is file")
             with open(input_json, encoding='utf-8') as data_file:
                 input_data = json.load(data_file)
-
         # open checklist file and find out mode
-            with open(checklist_pathfile, encoding='utf-8') as data_file:
-                check_file = json.load(data_file)
-                settings_data = check_file['Settings']
-                checklist_data = check_file['Checklist']
-                print(str(input_data))
-                #my_mode = settings_data['mode']
-                #check_data_conditions = check_file['Conditions']
-                for x in checklist_data:
-                    if x in input_data:
-                        print("found: <" + x + ">")
-                    else:
-                        print("required: <" + x + ">")
+        output_dict = {'required': []}
+        with open(checklist_pathfile, encoding='utf-8') as data_file:
+            check_file = json.load(data_file)
+            settings_data = check_file['Settings']  # json or xml
+            #settings_mode = settings_data['mode']
+            settings_outfilename = settings_data['outputfile']
+            checklist_data = check_file['Checklist']
+            #my_mode = settings_data['mode']
+            # todo:
+            #check_data_conditions = check_file['Conditions']
+            for x in checklist_data:
+                if x not in input_data:
+                    output_dict['required'].append(x)
+            do_outputs(output_dict, output_dir, settings_outfilename, ".json")
+
     except:
         raise
-
-    ##print(checklist_pathfile)
-    ##print(input_json)
-    # todo compare and return list of missing and status
-
 
 def do_outputs(output_data, out_mode, out_name, file_ext):
     if out_mode == '@s':

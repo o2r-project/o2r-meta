@@ -1,0 +1,13 @@
+{
+	"Settings": {
+		"name": "datacite",
+		"mode": "json",
+		"outputfile": "missing_datacite"
+	},
+	"Checklist": [
+		"title",
+		"creators",
+		"description"
+	],
+	"Conditions": []
+}
