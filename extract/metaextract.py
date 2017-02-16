@@ -156,6 +156,7 @@ def parse_yaml(input_text):
         yaml_data_dict = yaml.safe_load(input_text)
         # get authors and possible ids // orcid
         if yaml_data_dict is not None:
+            # model author:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
                     id_found = api_get_orcid(yaml_data_dict['author'], True)
@@ -167,6 +168,11 @@ def parse_yaml(input_text):
                             id_found = api_get_orcid(anyone['name'], True)
                             # status_note('<! debug: '+anyone['name']+' '+id_found+'>')
                             anyone['orcid'] = id_found
+            # model keywords:
+            if 'keywords' in yaml_data_dict:
+                # reduce to plain keyword list if given
+                if 'plain' in yaml_data_dict['keywords']:
+                    yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
         return yaml_data_dict
     except yaml.YAMLError as exc:
         #raise
