@@ -148,7 +148,15 @@ def parse_spatial(filepath, data, fformat):
 
 
 def parse_temporal(filepath, data):
-    pass
+    try:
+        if 'temporal' in data:
+            if 'begin' in data['temporal']:
+                # todo: get infos from -file_dates, -data_fields, -document_header (call yaml parser once more?)
+                a = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime))
+                data['temporal'].update({'begin': a})
+                data['temporal'].update({'end': a})
+    except:
+        raise
 
 
 def parse_yaml(input_text):
@@ -235,7 +243,6 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
             if md_file.lower().endswith('.rmd'):
                 md_mime_type = 'text/markdown'
         md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
-
         md_filepath = path_file  # default
         if md_erc_id is not None:
             pattern = ''.join(('(',md_erc_id, '.*)'))
@@ -244,10 +251,6 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                 md_filepath = s.group(1)
         else:
             md_filepath = path_file
-        md_temporal_begin = None
-        md_temporal_end = None
-        md_temporal = {'begin': md_temporal_begin, 'end': md_temporal_end}
-        #md_temporal = {'year': datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime).year}
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
                      'ercIdentifier': md_erc_id,
                      #'generatedBy': os.path.basename(__file__),
@@ -255,7 +258,7 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                      'paperSource': md_paper_source,
                      'objectType': md_object_type,
                      'depends': [],
-                     'temporal': md_temporal,
+                     #'temporal': {'begin': None, 'end': None},
                      'interactionMethod': md_interaction_method}
         with open(path_file, encoding='utf-8') as input_file:
             content = input_file.read()
@@ -444,24 +447,26 @@ def start(**kwargs):
     # init master dict
     global MASTER_MD_DICT # this one is being updated per function call
     MASTER_MD_DICT = {'author': [],
-                'file': {'filename': None, 'filepath': None, 'mimetype': None},
-                'ercIdentifier': None,
-                'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
-                'recordDateCreated': None,
-                'paperSource': None,
-                'paperLanguage': [],
-                'depends': [],
-                'r_input': [],
-                'r_comment': [],
-                'r_output': [],
-                'description': None,
-                'keywords': [],
-                'softwarePaperCitation': None,
-                'spatial': {'files': [], 'union': []},
-                'temporal': {'begin': None, 'end': None},
-                'title': None,
-                'interactionMethod': None,
-                'version': None}
+        'depends': [],
+        'description': None,
+        'ercIdentifier': None,
+        'file': {'filename': None, 'filepath': None, 'mimetype': None},
+        'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
+        'interactionMethod': None,
+        'keywords': [],
+        'license': None,
+        'paperLanguage': [],
+        'paperSource': None,
+        'publicationDate': None,
+        'r_comment': [],
+        'r_input': [],
+        'r_output': [],
+        'recordDateCreated': None,
+        'softwarePaperCitation': None,
+        'spatial': {'files': [], 'union': []},
+        'temporal': {'begin': None, 'end': None},
+        'title': None,
+        'version': None}
     bagit_txt_file = None
     global compare_extracted
     compare_extracted = {}  # dict for evaluations to find best metafile for main output
@@ -501,6 +506,7 @@ def start(**kwargs):
             elif file.lower().endswith('.rmd'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
+                parse_temporal(full_file_path, MASTER_MD_DICT)
                 nr += 1
             elif file.lower().endswith('.shp'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
