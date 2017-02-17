@@ -29,6 +29,7 @@ import fiona
 import orcid
 import yaml
 from guess_language import guess_language
+from dateutil import parser as dateparser
 
 
 def api_get_orcid(txt_input, bln_sandbox):
@@ -67,7 +68,6 @@ def parse_bagitfile(file_path):
 def parse_r(input_text, parser_dict):
     try:
         c = 0
-        ###meta_r_dict = {}
         for line in input_text.splitlines():
             c += 1
             for rule in rule_set_r:
@@ -78,11 +78,11 @@ def parse_r(input_text, parser_dict):
                         # r dependency
                         if this_rule[0] == 'depends':
                             segment = {'operatingSystem': [],
-                                       'packageSystem': 'https://cloud.r-project.org/',
-                                       'version': None,
-                                       'line': c,
-                                       'category': calculate_r_package_class(m.group(1)),
-                                       'identifier': m.group(1)}
+                                'packageSystem': 'https://cloud.r-project.org/',
+                                'version': None,
+                                'line': c,
+                                'category': calculate_r_package_class(m.group(1)),
+                                'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
@@ -108,7 +108,6 @@ def parse_spatial(filepath, data, fformat):
             coords = fiona.open(filepath, 'r')
         elif fformat == 'geotiff':
             return None
-            #pass
         else:
             pass
         new_file_key['source_file'] = filepath
@@ -147,14 +146,39 @@ def parse_spatial(filepath, data, fformat):
         raise
 
 
-def parse_temporal(filepath, data):
+def parse_temporal(filepath, data, timestamp):
+    global date_new
+    date_new = None
     try:
-        if 'temporal' in data:
-            if 'begin' in data['temporal']:
+        if timestamp is not None:
+            try:
+                # try parse from string, but input is potentially r code
+                date_new = dateparser.parse(timestamp).isoformat()
+            except:
+                raise
+                pass
+        else:
+            if filepath is not None:
+                date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
+        if 'temporal' in data and date_new is not None:
+            if 'begin' in data['temporal'] and 'end' in data['temporal']:
                 # todo: get infos from -file_dates, -data_fields, -document_header (call yaml parser once more?)
-                a = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime))
-                data['temporal'].update({'begin': a})
-                data['temporal'].update({'end': a})
+                date_earliest = data['temporal']['begin']
+                if date_earliest is not None:
+                    if date_new < date_earliest:
+                        # new candidate is earlier than earliest
+                        data['temporal'].update({'begin': date_new})
+                else:
+                    # nothing yet, so take this one
+                    data['temporal'].update({'begin': date_new})
+                date_latest = data['temporal']['end']
+                if date_latest is not None:
+                    if date_new > date_latest:
+                        # new candidate is later than latest
+                        data['temporal'].update({'end': date_new})
+                else:
+                    # nothing yet, so take this one
+                    data['temporal'].update({'end': date_new})
     except:
         raise
 
@@ -174,13 +198,15 @@ def parse_yaml(input_text):
                         if 'name' in anyone:
                             # todo: stop using sandbox for orcid retrieval
                             id_found = api_get_orcid(anyone['name'], True)
-                            # status_note('<! debug: '+anyone['name']+' '+id_found+'>')
                             anyone['orcid'] = id_found
             # model keywords:
             if 'keywords' in yaml_data_dict:
                 # reduce to plain keyword list if given
                 if 'plain' in yaml_data_dict['keywords']:
                     yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
+            # model date:
+            if 'date' in yaml_data_dict:
+                parse_temporal(None, MASTER_MD_DICT, yaml_data_dict['date'])
         return yaml_data_dict
     except yaml.YAMLError as exc:
         #raise
@@ -233,8 +259,6 @@ def calculate_r_package_class(package):
 # extract
 def do_ex(path_file, out_format, out_mode, multiline, rule_set):
     try:
-        md_object_type = ''
-        md_interaction_method = ''  # find entry point in ../container/Dockerfile
         md_file = os.path.basename(path_file)
         md_mime_type = mimetypes.guess_type(path_file)
         if md_mime_type[0] is None:
@@ -245,21 +269,17 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
         md_filepath = path_file  # default
         if md_erc_id is not None:
-            pattern = ''.join(('(',md_erc_id, '.*)'))
+            pattern = ''.join(('(', md_erc_id, '.*)'))
             s = re.search(pattern, path_file)
             if s:
                 md_filepath = s.group(1)
         else:
             md_filepath = path_file
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
-                     'ercIdentifier': md_erc_id,
-                     #'generatedBy': os.path.basename(__file__),
-                     'recordDateCreated': md_record_date,
-                     'paperSource': md_paper_source,
-                     'objectType': md_object_type,
-                     'depends': [],
-                     #'temporal': {'begin': None, 'end': None},
-                     'interactionMethod': md_interaction_method}
+            'ercIdentifier': md_erc_id,
+            'recordDateCreated': md_record_date,
+            'paperSource': md_paper_source,
+            'depends': []}
         with open(path_file, encoding='utf-8') as input_file:
             content = input_file.read()
             # apply multiline re for rmd, yaml, etc.
@@ -506,7 +526,7 @@ def start(**kwargs):
             elif file.lower().endswith('.rmd'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
                 do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
-                parse_temporal(full_file_path, MASTER_MD_DICT)
+                parse_temporal(full_file_path, MASTER_MD_DICT, None)
                 nr += 1
             elif file.lower().endswith('.shp'):
                 status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
