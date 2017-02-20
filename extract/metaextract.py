@@ -498,7 +498,8 @@ def start(**kwargs):
         with open(os.path.join("schema", "json", "dummy.json"), 'w', encoding='utf-8') as dummyfile:
             dummyfile.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
     except:
-        raise
+        pass
+        #raise
     # process all files in input directory +recursive
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
