@@ -1,11 +1,14 @@
 ---
 title: 'o2r metadata schema documentation'
 author: o2r-project
-version: 0.024
+version: deprecated
 license: CC-BY 4.0 International
 ---
 
 # o2r metadata schema documentation
+
+**Please refer to the ERC-Specification documents, instead.**
+
 
 ## 0. Schema location
 Current schema draft for descriptive metadata of the asset, e.g. software:

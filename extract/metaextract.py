@@ -45,16 +45,6 @@ def api_get_orcid(txt_input, bln_sandbox):
         return None
 
 
-#def parse_session_r(parameter):
-#    # to do: get these from live extraction results (o2rexobj.txt)
-#    # want to know from this function:
-#    # packages, versions of packages
-#    # ERCIdentifier
-#    # uses list(...list(),list(),...) for packages
-#    result = ''
-#    return result
-
-
 def parse_bagitfile(file_path):
     txt_dict = {'bagittxt_file': file_path}
     with open(file_path) as f:
@@ -77,10 +67,8 @@ def parse_r(input_text, parser_dict):
                     if len(m.groups()) > 0:
                         # r dependency
                         if this_rule[0] == 'depends':
-                            segment = {'operatingSystem': [],
-                                'packageSystem': 'https://cloud.r-project.org/',
+                            segment = {'packageSystem': 'https://cloud.r-project.org/',
                                 'version': None,
-                                'line': c,
                                 'category': calculate_r_package_class(m.group(1)),
                                 'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
@@ -95,6 +83,20 @@ def parse_r(input_text, parser_dict):
 
 def parse_spatial(filepath, data, fformat):
     try:
+        # work on formats:
+        coords = None
+        if fformat == '.shp' or fformat == '.geojson':
+            coords = fiona.open(filepath, 'r')
+        # geojpeg
+        elif fformat == '.jp2':
+            return None
+        # geotif
+        elif fformat == '.tif' or fformat == '.tiff':
+            return None
+        else:
+            # all other file extensions: exit
+            return None
+        # prepare json object:
         new_file_key = {}
         if 'spatial' not in data:
             data['spatial'] = {}
@@ -102,14 +104,6 @@ def parse_spatial(filepath, data, fformat):
             key_files = {}
             key_files['files'] = []
             data['spatial'] = key_files
-        # work on formats:
-        coords = None
-        if fformat == 'shp' or fformat == 'geojson':
-            coords = fiona.open(filepath, 'r')
-        elif fformat == 'geotiff':
-            return None
-        else:
-            pass
         new_file_key['source_file'] = filepath
         new_file_key['geojson'] = {}
         if coords is not None:
@@ -162,7 +156,6 @@ def parse_temporal(filepath, data, timestamp):
                 date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
         if 'temporal' in data and date_new is not None:
             if 'begin' in data['temporal'] and 'end' in data['temporal']:
-                # todo: get infos from -file_dates, -data_fields, -document_header (call yaml parser once more?)
                 date_earliest = data['temporal']['begin']
                 if date_earliest is not None:
                     if date_new < date_earliest:
@@ -277,8 +270,6 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                 md_mime_type = 'text/plain'
             if md_file.lower().endswith('.rmd'):
                 md_mime_type = 'text/markdown'
-        md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
-        md_filepath = path_file  # default
         if md_erc_id is not None:
             pattern = ''.join(('(', md_erc_id, '.*)'))
             s = re.search(pattern, path_file)
@@ -286,16 +277,15 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                 md_filepath = s.group(1)
         else:
             md_filepath = path_file
+        md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
-            'ercIdentifier': md_erc_id,
-            'recordDateCreated': md_record_date,
-            'depends': []}
+                    'ercIdentifier': md_erc_id,
+                    'recordDateCreated': md_record_date,
+                    'depends': []}
         with open(path_file, encoding='utf-8') as input_file:
             content = input_file.read()
-            # apply multiline re for rmd, yaml, etc.
             if multiline:
-                # try guess lang
-                # reset key:
+                # reset key; try guess lang:
                 data_dict['paperLanguage'] = []
                 t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
                 if t:
@@ -461,6 +451,7 @@ def start(**kwargs):
     # rule set for r, compose as: category name TAB entry feature name TAB regex
     global rule_set_r
     rule_set_r = ['\t'.join(('r_comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
+                  #'\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')),
                   '\t'.join(('r_comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
                   '\t'.join(('r_comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
                   '\t'.join(('r_comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
@@ -477,16 +468,12 @@ def start(**kwargs):
                   '\t'.join(('r_output', 'file', r'.*write\..*\((.*)\)')),
                   '\t'.join(('r_output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
                   '\t'.join(('r_output', 'setseed', r'.*set\.seed\((.*)\)'))]
-    #rule_set_r.append('\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')))
     # rule set for rmd #
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                               '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
     # other parameters
     if skip_orcid:
         status_note('orcid api search disabled...')
-    ##global md_paper_source # todo: check
-    ##md_paper_source = ''
-    ## init master dict
     global MASTER_MD_DICT  # this one is being updated per function call
     MASTER_MD_DICT = {'author': [],
         'community': 'o2r',
@@ -527,46 +514,36 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
+    display_interval = 2500  # display progress every X
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
                 file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
-            if nr == 41:
-                status_note('processing further files ...')
-                log_buffer = True
-            # skip large files
+            if nr < 50:
+                log_buffer = False
+            else:
+                if not nr % display_interval:
+                    log_buffer = False
+                    status_note(''.join((str(nr), ' files processed')), b=log_buffer)
+                else:
+                    log_buffer = True
+            # skip large files, config max file size here
             if os.stat(full_file_path).st_size / 1024 ** 2 > 900:
                 continue
             # deal with different input formats:
-            if file.lower().endswith('.r'):
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
+            file_extension = os.path.splitext(full_file_path)[1].lower()
+            status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
+            nr += 1
+            parse_spatial(full_file_path, MASTER_MD_DICT, file_extension)
+            if file_extension == '.txt':
+                if file.lower() == 'bagit.txt':
+                    MASTER_MD_DICT[bagit_txt_file] = (parse_bagitfile(full_file_path))
+            elif file_extension == '.r':
                 do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
-                nr += 1
-            elif file.lower() == 'bagit.txt':
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                MASTER_MD_DICT[bagit_txt_file] = (parse_bagitfile(full_file_path))
-                nr += 1
-            elif file.lower().endswith('.rmd'):
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
+            elif file_extension == '.rmd':
                 do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(full_file_path, MASTER_MD_DICT, None)
-                nr += 1
-            elif file.lower().endswith('.shp'):
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_spatial(full_file_path, MASTER_MD_DICT, 'shp')
-                nr += 1
-            elif file.lower().endswith('.geojson'):
-                # todo: check .json for geojson-ness
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_spatial(full_file_path, MASTER_MD_DICT, 'geojson')
-                nr += 1
-            elif file.lower().endswith('.tif'):
-                status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
-                parse_spatial(full_file_path, MASTER_MD_DICT, 'geotiff')
-                nr += 1
-            else:
-                pass
     status_note(''.join((str(nr), ' files processed')))
     if 'best' in compare_extracted:
         # we have a candidate best suited for <metadata_raw.json> main output

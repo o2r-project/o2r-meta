@@ -16,13 +16,14 @@ For their role within o2r, please refer to [o2r-architecture](https://github.com
 ## License
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.Copyright (C) 2016, 2017 - o2r project.
-The documentation of the schemas available at ```o2r-meta/schema/docs/``` that is also to be included in the ERC Spec, is licensed under a [CC0](https://creativecommons.org/publicdomain/zero/1.0/) license. To the extent possible under law, the people who associated CC0 with this work have waived all copyright and related or neighboring rights to this work. This work is published from: Germany. 
 
 
 ## Installation
-_Note:_ o2r meta is designed for python 3.6 but supports python 3.4+.
+o2r meta is designed for python 3.6 and supports python 3.4+.
 
-(1) Acquire Python version 3.4+.
+**Installation steps**
+
+(1) Acquire python version 3.4+.
 
 (2) Parts of o2r meta require the _gdal_ module that is known for causing trouble when installed via _PIP_. Therefore it is recommended to prepare the installation like this:
 
@@ -57,22 +58,22 @@ And start the extractor (e.g.) like this:
 
 	docker run meta o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
 
-
 	
 
 ## Documentation
 
-+ [schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json) 
-+ [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
-+ [Md of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
-
++ Current documentation as part of the [ERC-SPEC](http://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
++ Current [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
++ [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
++ ~~[schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)~~ 
 
 ## Usage
 When calling o2r meta, you can chose from the following commands, each representing one tool of the o2r meta suite: _extract_, _validate_, _broker_ and _harvest_.
 
     python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>
 
-Explanation of the main switches:
+Options:
+
 + `debug` : option to enable verbose debug info where applicable	
 
 Each tool then has a number of required arguments:
