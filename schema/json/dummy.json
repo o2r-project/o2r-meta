@@ -1,5 +1,6 @@
 {
     "author": [],
+    "community": "o2r",
     "depends": [],
     "description": null,
     "ercIdentifier": null,
@@ -9,7 +10,9 @@
         "mimetype": null
     },
     "generatedBy": "o2r-meta metaextract.py",
-    "interactionMethod": null,
+    "interaction": {
+        "interactive": false
+    },
     "keywords": [],
     "license": null,
     "paperLanguage": [],

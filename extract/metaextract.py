@@ -193,13 +193,20 @@ def parse_yaml(input_text):
                 if type(yaml_data_dict['author']) is str:
                     id_found = api_get_orcid(yaml_data_dict['author'], True)
                     yaml_data_dict['orcid'] = id_found
+                    if 'affiliation' not in yaml_data_dict:
+                        # we have author but miss affiliation, so add empty list
+                        yaml_data_dict['affiliation'] = []
+                    else:
+                        # we have affiliation but not an empty list, so make empty list
+                        if yaml_data_dict['affiliation'] is None:
+                            yaml_data_dict['affiliation'] = []
                 elif type(yaml_data_dict['author']) is list:
                     for anyone in yaml_data_dict['author']:
                         if 'name' in anyone:
                             # todo: stop using sandbox for orcid retrieval
                             id_found = api_get_orcid(anyone['name'], True)
                             anyone['orcid'] = id_found
-            # model keywords:
+                # model keywords:
             if 'keywords' in yaml_data_dict:
                 # reduce to plain keyword list if given
                 if 'plain' in yaml_data_dict['keywords']:
@@ -207,6 +214,10 @@ def parse_yaml(input_text):
             # model date:
             if 'date' in yaml_data_dict:
                 parse_temporal(None, MASTER_MD_DICT, yaml_data_dict['date'])
+            # model interaction / shiny:
+            if 'runtime' in yaml_data_dict:
+                if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
+                    MASTER_MD_DICT['interaction']['interactive'] = True
         return yaml_data_dict
     except yaml.YAMLError as exc:
         #raise
@@ -278,7 +289,6 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
             'ercIdentifier': md_erc_id,
             'recordDateCreated': md_record_date,
-            'paperSource': md_paper_source,
             'depends': []}
         with open(path_file, encoding='utf-8') as input_file:
             content = input_file.read()
@@ -374,6 +384,18 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         #status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
+def guess_paper_source():
+    try:
+        # todo: get paperSource from rmd file that has same name as its html rendering
+        if 'file' in MASTER_MD_DICT:
+            return MASTER_MD_DICT['file']['filename']
+        else:
+            return None
+    except:
+        raise
+        #return None
+
+
 def calculate_geo_bbox_union(coordinate_list):
     try:
         if coordinate_list is None:
@@ -462,17 +484,18 @@ def start(**kwargs):
     # other parameters
     if skip_orcid:
         status_note('orcid api search disabled...')
-    global md_paper_source
-    md_paper_source = ''
-    # init master dict
-    global MASTER_MD_DICT # this one is being updated per function call
+    ##global md_paper_source # todo: check
+    ##md_paper_source = ''
+    ## init master dict
+    global MASTER_MD_DICT  # this one is being updated per function call
     MASTER_MD_DICT = {'author': [],
+        'community': 'o2r',
         'depends': [],
         'description': None,
         'ercIdentifier': None,
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
-        'interactionMethod': None,
+        'interaction': {'interactive': False},
         'keywords': [],
         'license': None,
         'paperLanguage': [],
@@ -556,12 +579,11 @@ def start(**kwargs):
         # \ Add to list of input files, if used in extracted code of an r_block:
         if file_list_input_candidates is not None:
             MASTER_MD_DICT['inputfiles'] = []
-            if 'r_codeblock' in MASTER_MD_DICT:
-                if 'input' in MASTER_MD_DICT['r_codeblock']:
-                    for element in MASTER_MD_DICT['r_codeblock']['input']:
-                        for x in file_list_input_candidates:
-                            if element['text'] in x:
-                                MASTER_MD_DICT['inputfiles'].append(x)
+            if 'r_input' in MASTER_MD_DICT:
+                for element in MASTER_MD_DICT['r_input']:
+                    for x in file_list_input_candidates:
+                        if element['text'] in x:
+                            MASTER_MD_DICT['inputfiles'].append(x)
         # \ Fix and complete author element, if existing:
         if 'author' in MASTER_MD_DICT:
             if type(MASTER_MD_DICT['author']) is str:
@@ -571,11 +593,17 @@ def start(**kwargs):
                 if 'orcid' in MASTER_MD_DICT:
                     author_element.update({'orcid': MASTER_MD_DICT['orcid']})
                     MASTER_MD_DICT.pop('orcid')
+                if 'affiliation' in MASTER_MD_DICT:
+                    author_element.update({'affiliation': MASTER_MD_DICT['affiliation']})
+                    MASTER_MD_DICT.pop('affiliation')
                 new_author_listobject.append(author_element)
                 MASTER_MD_DICT['author'] = new_author_listobject
         else:
             # 'author' element ist missing, create empty dummy:
             MASTER_MD_DICT['author'] = []
+        # \ Fix and complete paperSource element, if existing:
+        if 'paperSource' in MASTER_MD_DICT:
+            MASTER_MD_DICT['paperSource'] = guess_paper_source()
         # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen
