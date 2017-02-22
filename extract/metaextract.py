@@ -41,7 +41,9 @@ def api_get_orcid(txt_input, bln_sandbox):
         r = api.search_public(txt_input)
         return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
     except Exception as exc:
-        status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
+        # todo: upgrade orcid python package once it supports 2.0 API
+        status_note('! orcid api call failed')
+        #status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
         return None
 
 
