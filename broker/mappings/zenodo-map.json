@@ -7,32 +7,76 @@
 		"root": "metadata"
 	},
 	"Map": {
-		"author":  {
+		"author": {
 			"translatesTo": "creators",
 			"type": "array",
-			"parent": "none"
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"name": {
+			"translatesTo": "name",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"affiliation": {
+			"translatesTo": "affiliation",
+			"type": "array",
+			"hasParent": "author",
+			"needsParent": "creators"
 		},
 		"todo": "upload_type",
 		"todo": "publication_type",
 		"todo": "image_type",
-		"dateCreated": "publication_date",
+		"recordDateCreated":  {
+			"translatesTo": "dateCreated",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publicationDate": {
+			"translatesTo": "publication_date",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publication_type":  {
+			"translatesTo": "publication_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
 		"description":  {
 			"translatesTo": "description",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"abstract": {
 			"translatesTo": "description",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"title":  {
 			"translatesTo": "title",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"todo": "access_right",
-		"todo": "license",
+		"license":  {
+			"translatesTo": "license",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
 		"todo": "embargo_date",
 		"todo": "access_conditions",
 		"todo": "doi",
@@ -40,13 +84,25 @@
 		"keywords":  {
 			"translatesTo": "keywords",
 			"type": "array",
-			"parent": "none"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"todo": "notes",
 		"todo": "related_identifiers",
 		"todo": "contributors",
 		"todo": "references",
-		"todo": "communities",
+		"communities":  {
+			"translatesTo": "communities",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"hasParent": "communities",
+			"needsParent": "communities"
+		},
 		"todo": "grants",
 		"todo": "journal_title",
 		"todo": "journal_volume",

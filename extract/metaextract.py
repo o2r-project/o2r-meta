@@ -478,7 +478,7 @@ def start(**kwargs):
         status_note('orcid api search disabled...')
     global MASTER_MD_DICT  # this one is being updated per function call
     MASTER_MD_DICT = {'author': [],
-        'community': 'o2r',
+        'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
         'ercIdentifier': None,

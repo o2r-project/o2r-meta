@@ -1,6 +1,10 @@
 {
     "author": [],
-    "community": "o2r",
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
     "depends": [],
     "description": null,
     "ercIdentifier": null,

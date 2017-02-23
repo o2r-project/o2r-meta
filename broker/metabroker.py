@@ -53,6 +53,7 @@ def check(checklist_pathfile, input_json):
     except:
         raise
 
+
 def do_outputs(output_data, out_mode, out_name, file_ext):
     if out_mode == '@s':
         # give out to screen
@@ -80,7 +81,7 @@ def map_json(element, value, map_data, output_dict):
     # parse complete map, find out how keys translate to target schema
     if element in map_data:
         # prepare types:
-        if map_data[element]['parent'] != 'root':
+        if map_data[element]['hasParent'] != 'root':
             pass
         else:
             # most simple 1:1
@@ -95,11 +96,25 @@ def map_json(element, value, map_data, output_dict):
             else:
                 output_dict[map_data[element]['translatesTo']] = []
     if type(value) is list or type(value) is dict:
+        if type(value) is list:
+        # plain list, as for keywords
+            if element in map_data:
+                print(str(value))
+                allString = False
+                for x in value:
+                    # if all is plain string in that list, take whole list
+                    if type(x) is str:
+                        allString = True
+                    else:
+                        allString = False
+                if allString == True:
+                    output_dict[map_data[element]['translatesTo']] = value
         # list of keys, nestedness:
         c = 0
         for key in value:
             # ---<key:string>----------------------------------------------
             if type(key) is str:
+
                 if key in map_data:
                     d = 0
                     # ---<subkey:string>----------------------------------------------
@@ -115,7 +130,7 @@ def map_json(element, value, map_data, output_dict):
                                 temp = {}
                                 for subsub_list_key in sub_list_key:
                                     if subsub_list_key in map_data:
-                                        location = map_data[subsub_list_key]['parent']
+                                        location = map_data[subsub_list_key]['needsParent']
                                         temp[map_data[subsub_list_key]['translatesTo']] = value[key][d][subsub_list_key]
                                     else:
                                         continue
@@ -135,20 +150,23 @@ def map_json(element, value, map_data, output_dict):
                 for y in key:
                     if y in map_data:
                         # to do: fix 'parent' to 'translatesTo'
-                        if output_dict[map_data[y]['parent']]:
-                            output_dict[map_data[y]['parent']].append(value[c][y])
+                        if output_dict[map_data[y]['hasParent']]:
+                            output_dict[map_data[y]['needsParent']].append(value[c][y])
             # ---<key:dict>----------------------------------------------
             elif type(key) is dict:
                 # as for 'authors'
                 location = ''
                 temp = {}
-                for sub_dict_key in key:
-                    if sub_dict_key in map_data:
-                        location = map_data[sub_dict_key]['parent']
-                        temp[map_data[sub_dict_key]['translatesTo']] = value[c][sub_dict_key]
-                # to do: error handler if location empty or output misses the key
-                if location in output_dict:
-                    output_dict[location].append(temp)
+                if type(key) is dict:
+                    for sub_dict_key in key:
+                        if sub_dict_key in map_data:
+                            # check if this is the right key (possible same name of keys of different parents)
+                            if map_data[sub_dict_key]['hasParent'] == element:
+                                location = map_data[sub_dict_key]['needsParent']
+                                temp[map_data[sub_dict_key]['translatesTo']] = value[c][sub_dict_key]
+                    # to do: error handler if location empty or output misses the key
+                    if location in output_dict:
+                        output_dict[location].append(temp)
             else:
                 pass
             c += 1

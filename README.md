@@ -15,7 +15,7 @@ For their role within o2r, please refer to [o2r-architecture](https://github.com
 
 ## License
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE.Copyright (C) 2016, 2017 - o2r project.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016, 2017 - o2r project.
 
 
 ## Installation
@@ -132,7 +132,7 @@ Example calls:
 	
     python o2rmeta.py -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
 
-    python o2rmeta.py -debug broker -m broker/mappings/o2r-map.json -i broker/tests -o broker/tests/all
+    python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests -o broker/tests/all
 
 Explanation of the switches:
 
@@ -148,8 +148,8 @@ Supported checks/maps
 
 **service** | **checklist file** | **mapping file** | **status**
 ------ | ------ | ------ | ------ |
-zenodo| zenodo-check.json | zenodo-map.json | WIP
-datacite| datacite-check.json | datacite-map.json | WIP
+zenodo| zenodo-check.json | zenodo-map.json | _WIP_
+datacite| datacite-check.json | datacite-map.json | _TBD_
 ... | ... | ... | ...
 
 
