@@ -22,6 +22,7 @@ import mimetypes
 import os
 import re
 import sys
+import uuid
 from xml.dom import minidom
 
 import dicttoxml
@@ -103,8 +104,7 @@ def parse_spatial(filepath, data, fformat):
         if 'spatial' not in data:
             data['spatial'] = {}
         if 'files' not in data['spatial']:
-            key_files = {}
-            key_files['files'] = []
+            key_files = {'files': []}
             data['spatial'] = key_files
         new_file_key['source_file'] = filepath
         new_file_key['geojson'] = {}
@@ -412,6 +412,26 @@ def calculate_geo_bbox_union(coordinate_list):
         raise
 
 
+def ercyml_write(out_path):
+    try:
+        if out_path is not None:
+            out_path = os.path.join(out_path, 'testerc.yml')
+            new_id = str(uuid.uuid4())
+            spec_version = 1  # get from ?
+            data = {'id': new_id,
+                    'spec_version': spec_version,
+                    'structure': {},
+                    'execution': {},
+                    'licenses': {},
+                    'extensions': {}
+                    }
+            with open(out_path, 'w', encoding='utf-8') as outfile:
+                yaml.dump(data, outfile, default_flow_style=False)
+        status_note('<testerc.yml> written.')
+    except:
+        raise
+
+
 def status_note(msg, **kwargs):
     log_buffer = kwargs.get('b', None)
     if not log_buffer:
@@ -484,7 +504,18 @@ def start(**kwargs):
         'ercIdentifier': None,
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
-        'interaction': {'interactive': False},
+        'interaction': {'interactive': False,
+            'ui_binding': {'purpose': None,
+                'widget': None,
+                'code': {'filename': None,
+                    'function': None,
+                    'shinyInputFunction': None,
+                    'shinyRenderFunction': None,
+                    'functionParameter': None
+                    },
+               'variable': None
+               }
+        },
         'keywords': [],
         'license': None,
         'paperLanguage': [],
@@ -494,6 +525,8 @@ def start(**kwargs):
         'r_input': [],
         'r_output': [],
         'recordDateCreated': None,
+        'researchQuestions': [],
+        'researchHypotheses': [],
         'softwarePaperCitation': None,
         'spatial': {'files': [], 'union': []},
         'temporal': {'begin': None, 'end': None},
@@ -572,11 +605,15 @@ def start(**kwargs):
                 if 'orcid' in MASTER_MD_DICT:
                     author_element.update({'orcid': MASTER_MD_DICT['orcid']})
                     MASTER_MD_DICT.pop('orcid')
-                if 'affiliation' in MASTER_MD_DICT:
-                    author_element.update({'affiliation': MASTER_MD_DICT['affiliation']})
-                    MASTER_MD_DICT.pop('affiliation')
                 new_author_listobject.append(author_element)
                 MASTER_MD_DICT['author'] = new_author_listobject
+            if type(MASTER_MD_DICT['author']) is list:
+                # fix affiliations
+                for author_key in MASTER_MD_DICT['author']:
+                    new_affiliation_listobject = []
+                    if 'affiliation' in author_key:
+                        new_affiliation_listobject.append(author_key['affiliation'])
+                    author_key.update({'affiliation': new_affiliation_listobject})
         else:
             # 'author' element ist missing, create empty dummy:
             MASTER_MD_DICT['author'] = []
@@ -590,3 +627,5 @@ def start(**kwargs):
         else:
             # write to file
             output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+        # Write erc.yml according to ERC spec:
+        ercyml_write(output_dir)

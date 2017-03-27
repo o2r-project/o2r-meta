@@ -78,7 +78,8 @@ Options:
 
 Each tool then has a number of required arguments:
 
-#(1) Extractor tool:
+
+# (1) Extractor tool:
 
 	python o2rmeta.py extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
 	
@@ -118,7 +119,8 @@ bagit.txt | BagIt | metadata | implemented
 ... | ... | ... | ...
 
 
-#(2) Brokering/Mapping tool
+
+# (2) Brokering/Mapping tool
 
 The broker has two modes: In _mapping mode_, it creates fitting metadata for a given map by following a translation scheme included in that mapping file.
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
@@ -157,7 +159,8 @@ datacite| datacite-check.json | datacite-map.json | _TBD_
 Governing JSON-Schema for the mapping files: _TBD_
 
 
-#(3) Validator tool:
+
+# (3) Validator tool:
 
 	python o2rmeta.py validate -s <SCHEMA> -c <CANDIDATE>
 	
@@ -170,7 +173,8 @@ Explanation of the switches:
 + `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml.
 + `-c` <CANDIDATE> : required path to candidate that shall be validated.
 
-#(4) Harvester tool:
+
+# (4) Harvester tool:
 
 Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set such as the one in o2r.
 

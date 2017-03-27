@@ -15,7 +15,19 @@
     },
     "generatedBy": "o2r-meta metaextract.py",
     "interaction": {
-        "interactive": false
+        "interactive": false,
+        "ui_binding": {
+            "code": {
+                "filename": null,
+                "function": null,
+                "functionParameter": null,
+                "shinyInputFunction": null,
+                "shinyRenderFunction": null
+            },
+            "purpose": null,
+            "variable": null,
+            "widget": null
+        }
     },
     "keywords": [],
     "license": null,
@@ -26,6 +38,8 @@
     "r_input": [],
     "r_output": [],
     "recordDateCreated": null,
+    "researchHypotheses": [],
+    "researchQuestions": [],
     "softwarePaperCitation": null,
     "spatial": {
         "files": [],

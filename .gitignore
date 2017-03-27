@@ -4,6 +4,8 @@ broker/tests/all
 metadata_raw.json
 metadata_o2r.json
 metadata_zenodo.json
+testerc.yml
+erc.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
