@@ -6,6 +6,7 @@ metadata_o2r.json
 metadata_zenodo.json
 testerc.yml
 erc.yml
+erc_raw.yml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
