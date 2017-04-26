@@ -22,6 +22,7 @@ import mimetypes
 import os
 import re
 import sys
+import urllib.request
 import uuid
 from xml.dom import minidom
 
@@ -29,8 +30,8 @@ import dicttoxml
 import fiona
 import requests
 import yaml
-from guess_language import guess_language
 from dateutil import parser as dateparser
+from guess_language import guess_language
 
 
 def api_get_orcid(txt_input, bln_sandbox):
@@ -367,6 +368,21 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         #status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
+def save_erc_spec(spec_output_dir):
+    try:
+        spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
+        spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
+        status_note('downloading current erc spec')
+        headers = {'User-Agent': 'o2rmeta'}
+        req = urllib.request.Request(spec_url, None, headers)
+        http = urllib.request.urlopen(req).read()
+        with open(spec_file, 'wb') as f:
+            f.write(http)
+        status_note(''.join(('saved <', spec_file, '>')))
+    except:
+        status_note('! failed to include download and include spec')
+
+
 def guess_paper_source():
     try:
         # todo: get paperSource from rmd file that has same name as its html rendering
@@ -630,5 +646,6 @@ def start(**kwargs):
     else:
         # write to file
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+        save_erc_spec(output_dir)
     # Write erc.yml according to ERC spec:
     ercyml_write(output_dir)
