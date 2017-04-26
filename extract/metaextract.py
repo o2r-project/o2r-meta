@@ -27,7 +27,7 @@ from xml.dom import minidom
 
 import dicttoxml
 import fiona
-import orcid
+import requests
 import yaml
 from guess_language import guess_language
 from dateutil import parser as dateparser
@@ -38,13 +38,12 @@ def api_get_orcid(txt_input, bln_sandbox):
         return None
     try:
         status_note(''.join(('requesting orcid for <', txt_input, '>')))
-        api = orcid.SearchAPI(sandbox=bln_sandbox)
-        r = api.search_public(txt_input)
-        return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
+        if bln_sandbox:
+            headers = {"Content-Type": "application/json"}
+            r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers)
+            return str(r.json()['result'][0]['orcid-identifier']['path'])
     except Exception as exc:
-        # todo: upgrade orcid python package once it supports 2.0 API
         status_note('! orcid api call failed')
-        #status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
         return None
 
 
