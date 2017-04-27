@@ -22,29 +22,29 @@ import mimetypes
 import os
 import re
 import sys
+import urllib.request
 import uuid
 from xml.dom import minidom
 
 import dicttoxml
 import fiona
-import orcid
+import requests
 import yaml
-from guess_language import guess_language
 from dateutil import parser as dateparser
+from guess_language import guess_language
 
 
 def api_get_orcid(txt_input, bln_sandbox):
-    if skip_orcid:
+    if stay_offline:
         return None
     try:
         status_note(''.join(('requesting orcid for <', txt_input, '>')))
-        api = orcid.SearchAPI(sandbox=bln_sandbox)
-        r = api.search_public(txt_input)
-        return r['orcid-search-results']['orcid-search-result'][0]['orcid-profile']['orcid-identifier']['path']
+        if bln_sandbox:
+            headers = {"Content-Type": "application/json"}
+            r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers)
+            return str(r.json()['result'][0]['orcid-identifier']['path'])
     except Exception as exc:
-        # todo: upgrade orcid python package once it supports 2.0 API
         status_note('! orcid api call failed')
-        #status_note(''.join(('! warning, could not retrieve orcid for <', txt_input, '>,', exc.args[0])))
         return None
 
 
@@ -71,9 +71,9 @@ def parse_r(input_text, parser_dict):
                         # r dependency
                         if this_rule[0] == 'depends':
                             segment = {'packageSystem': 'https://cloud.r-project.org/',
-                                'version': None,
-                                'category': calculate_r_package_class(m.group(1)),
-                                'identifier': m.group(1)}
+                                       'version': None,
+                                       'category': calculate_r_package_class(m.group(1)),
+                                       'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
@@ -84,8 +84,9 @@ def parse_r(input_text, parser_dict):
         #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
 
 
-def parse_spatial(filepath, data, fformat):
+def parse_spatial(file_id, filepath, fformat):
     try:
+        CANDIDATES_MD_DICT[file_id] = {}
         # work on formats:
         coords = None
         if fformat == '.shp' or fformat == '.geojson':
@@ -101,11 +102,11 @@ def parse_spatial(filepath, data, fformat):
             return None
         # prepare json object:
         new_file_key = {}
-        if 'spatial' not in data:
-            data['spatial'] = {}
-        if 'files' not in data['spatial']:
+        if 'spatial' not in CANDIDATES_MD_DICT[file_id]:
+            CANDIDATES_MD_DICT[file_id]['spatial'] = {}
+        if 'files' not in CANDIDATES_MD_DICT[file_id]['spatial']:
             key_files = {'files': []}
-            data['spatial'] = key_files
+            CANDIDATES_MD_DICT[file_id]['spatial'] = key_files
         new_file_key['source_file'] = filepath
         new_file_key['geojson'] = {}
         if coords is not None:
@@ -116,11 +117,11 @@ def parse_spatial(filepath, data, fformat):
             new_file_key['geojson']['geometry']['coordinates'] = [
                 [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
         new_file_key['geojson']['geometry']['type'] = 'Polygon'
-        data['spatial']['files'].append(new_file_key)
+        CANDIDATES_MD_DICT[file_id]['spatial']['files'].append(new_file_key)
         # calculate union of all available coordinates
         # calculate this only once, at last
         current_coord_list = []
-        for key in data['spatial']['files']:
+        for key in CANDIDATES_MD_DICT[file_id]['spatial']['files']:
             if 'geojson' in key:
                 if 'geometry' in key['geojson']:
                     if 'coordinates' in key['geojson']['geometry']:
@@ -137,12 +138,13 @@ def parse_spatial(filepath, data, fformat):
         key_union['geojson']['geometry']['type'] = 'Polygon'
         if coords is not None:
             key_union['geojson']['geometry']['coordinates'] = coords
-        data['spatial'].update({'union': key_union})
+        CANDIDATES_MD_DICT[file_id]['spatial'].update({'union': key_union})
     except:
         raise
 
 
-def parse_temporal(filepath, data, timestamp):
+def parse_temporal(file_id, filepath, data, timestamp):
+    CANDIDATES_MD_DICT[file_id] = {}
     global date_new
     date_new = None
     try:
@@ -207,8 +209,8 @@ def parse_yaml(input_text):
                 if 'plain' in yaml_data_dict['keywords']:
                     yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
             # model date:
-            if 'date' in yaml_data_dict:
-                parse_temporal(None, MASTER_MD_DICT, yaml_data_dict['date'])
+            #if 'date' in yaml_data_dict:
+            #    parse_temporal(None, MASTER_MD_DICT, yaml_data_dict['date'])
             # model interaction / shiny:
             if 'runtime' in yaml_data_dict:
                 if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
@@ -217,6 +219,49 @@ def parse_yaml(input_text):
     except yaml.YAMLError as exc:
         #raise
         status_note(''.join(('! error while parsing yaml input:', str(exc.problem_mark), str(exc.problem))))
+
+
+def best_candidate(all_candidates_dict):
+    # "all_candidates_dict" contains one dict for each file that was extracted from
+    # each features found in each of these dicts is compared here to result in a single dict with max completeness
+    try:
+        result = {}
+        inputfiles = []
+        for key in all_candidates_dict:
+            if all_candidates_dict[key] != {}:
+                for subkey in all_candidates_dict[key]:
+                    # determine completeness
+                    if subkey not in result:
+                        new_key = {subkey: all_candidates_dict[key][subkey]}
+                        result.update(new_key)
+                        # include function input file paths
+                        if subkey == 'r_input':
+                            for inputkey in all_candidates_dict[key][subkey]:
+                                if 'text' in inputkey:
+                                    for filename in file_list_input_candidates:
+                                        if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                            inputfiles.append(filename)
+                                            break
+                    else:
+                        # this feature is already present, extracted from another file:
+                        # take better version
+                        if len(str(result[subkey])) < len(str(all_candidates_dict[key][subkey])):
+                            # present key is less complex than new key, hence take new one
+                            result.pop(subkey)
+                            new_key = {subkey: all_candidates_dict[key][subkey]}
+                            result.update(new_key)
+                            # include function input file paths
+                            if subkey == 'r_input':
+                                for inputkey in all_candidates_dict[key][subkey]:
+                                    if 'text' in inputkey:
+                                        for filename in file_list_input_candidates:
+                                            if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                                inputfiles.append(filename)
+                                                break
+        result.update({'inputfiles': inputfiles})
+        return result
+    except:
+        raise
 
 
 def calculate_r_package_class(package):
@@ -263,7 +308,7 @@ def calculate_r_package_class(package):
 
 
 # extract
-def do_ex(path_file, out_format, out_mode, multiline, rule_set):
+def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, rule_set):
     try:
         md_file = os.path.basename(path_file)
         md_mime_type = mimetypes.guess_type(path_file)
@@ -284,56 +329,37 @@ def do_ex(path_file, out_format, out_mode, multiline, rule_set):
                     'ercIdentifier': md_erc_id,
                     'recordDateCreated': md_record_date,
                     'depends': []}
-        with open(path_file, encoding='utf-8') as input_file:
-            content = input_file.read()
-            if multiline:
-                # reset key; try guess lang:
-                data_dict['paperLanguage'] = []
-                t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
-                if t:
-                    if guess_language(t.group(1)) is not None:
-                        data_dict['paperLanguage'].append(guess_language(t.group(1)))
-                    else:
-                        data_dict['paperLanguage'] = []
-                # process rules
-                for rule in rule_set:
-                    this_rule = rule.split('\t')
-                    s = re.search(this_rule[1], content, flags=re.DOTALL)
-                    if s:
-                        if this_rule[0].startswith('yaml'):
-                            data_dict.update(parse_yaml(s.group(1)))
-                        if this_rule[0].startswith('rblock'):
-                            #data_dict['r_codeblock'] = ''
-                            ##data_dict.update(r_codeblock=parse_r(s.group(1), data_dict))
-                            data_dict = parse_r(s.group(1), data_dict)
-            else:
-                # parse entire file as one code block
-                #data_dict.update(r_codeblock=parse_r(content, data_dict))
-                data_dict = parse_r(content, data_dict)
-        # save information on this extracted file for comparison with others, so to find best MD
-        # ! keep hierarchy:
-        # condition: file extension:
-        current_ext = os.path.splitext(path_file)[1].lower()
-        if 'ext' not in compare_extracted:
-            compare_extracted['ext'] = current_ext
-            compare_extracted['best'] = data_dict
-        else:
-            if compare_extracted['ext'] == '.r' and current_ext == '.rmd':
-                compare_extracted['ext'] = current_ext
-                compare_extracted['best'] = data_dict
-            elif compare_extracted['ext'] == '.rmd' and current_ext == '.r':
-                pass
-            elif compare_extracted['ext'] == '.rmd' and current_ext == '.rmd':
-                # already had rmd, and now again rmd, let size decide
-                # condition: total size of output:
-                current_size = sys.getsizeof(data_dict)
-                if 'size' not in compare_extracted:
-                    compare_extracted['size'] = current_size
-                    compare_extracted['best'] = data_dict
+        try:
+            with open(path_file, encoding='utf-8') as input_file:
+                content = input_file.read()
+                if multiline:
+                    # reset key; try guess lang:
+                    data_dict['paperLanguage'] = []
+                    t = re.search(r'([\w\d\s\.\,\:]{300,1200})', content, flags=re.DOTALL)
+                    if t:
+                        if guess_language(t.group(1)) is not None:
+                            data_dict['paperLanguage'].append(guess_language(t.group(1)))
+                        else:
+                            data_dict['paperLanguage'] = []
+                    # process rules
+                    for rule in rule_set:
+                        this_rule = rule.split('\t')
+                        s = re.search(this_rule[1], content, flags=re.DOTALL)
+                        if s:
+                            if this_rule[0].startswith('yaml'):
+                                data_dict.update(parse_yaml(s.group(1)))
+                            if this_rule[0].startswith('rblock'):
+                                #data_dict['r_codeblock'] = ''
+                                ##data_dict.update(r_codeblock=parse_r(s.group(1), data_dict))
+                                data_dict = parse_r(s.group(1), data_dict)
                 else:
-                    if compare_extracted['size'] < current_size:
-                        compare_extracted['size'] = current_size
-                        compare_extracted['best'] = data_dict
+                    # parse entire file as one code block
+                    #data_dict.update(r_codeblock=parse_r(content, data_dict))
+                    data_dict = parse_r(content, data_dict)
+        except UnicodeDecodeError:
+            status_note(''.join(('! failed to decode <', md_file, '>')))
+        # save to list of extracted md:
+        CANDIDATES_MD_DICT[file_id] = data_dict
         # save or output results
         if metafiles_all:
             output_extraction(data_dict, out_format, out_mode, path_file)
@@ -376,6 +402,24 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         #status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
+def save_erc_spec(spec_output_dir):
+    if stay_offline:
+        status_note('http disabled... skipping erc spec download')
+        return None
+    try:
+        spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
+        spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
+        status_note('downloading current erc spec')
+        headers = {'User-Agent': 'o2rmeta'}
+        req = urllib.request.Request(spec_url, None, headers)
+        http = urllib.request.urlopen(req).read()
+        with open(spec_file, 'wb') as f:
+            f.write(http)
+        status_note(''.join(('saved <', spec_file, '>')))
+    except:
+        status_note('! failed to include download and include spec')
+
+
 def guess_paper_source():
     try:
         # todo: get paperSource from rmd file that has same name as its html rendering
@@ -415,9 +459,9 @@ def calculate_geo_bbox_union(coordinate_list):
 def ercyml_write(out_path):
     try:
         if out_path is not None:
-            out_path = os.path.join(out_path, 'testerc.yml')
+            out_path = os.path.join(out_path, 'erc_raw.yml')
             new_id = str(uuid.uuid4())
-            spec_version = 1  # get from ?
+            spec_version = 1
             data = {'id': new_id,
                     'spec_version': spec_version,
                     'structure': {},
@@ -427,7 +471,7 @@ def ercyml_write(out_path):
                     }
             with open(out_path, 'w', encoding='utf-8') as outfile:
                 yaml.dump(data, outfile, default_flow_style=False)
-        status_note('<testerc.yml> written.')
+        status_note(out_path + ' written.')
     except:
         raise
 
@@ -443,8 +487,8 @@ def start(**kwargs):
     input_dir = kwargs.get('i', None)
     global md_erc_id
     md_erc_id = kwargs.get('e', None)
-    global skip_orcid
-    skip_orcid = kwargs.get('xo', None)
+    global stay_offline
+    stay_offline = kwargs.get('xo', None)
     global metafiles_all
     metafiles_all = kwargs.get('m', None)
     output_xml = kwargs.get('xml', None)
@@ -494,9 +538,12 @@ def start(**kwargs):
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                               '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
     # other parameters
-    if skip_orcid:
-        status_note('orcid api search disabled...')
+    if stay_offline:
+        status_note('http disabled... skipping orcid api search')
+    global CANDIDATES_MD_DICT
+    CANDIDATES_MD_DICT = {}
     global MASTER_MD_DICT  # this one is being updated per function call
+    # need this layout for dummy:
     MASTER_MD_DICT = {'author': [],
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
@@ -516,6 +563,7 @@ def start(**kwargs):
                'variable': None
                }
         },
+        'inputfiles': [],
         'keywords': [],
         'license': None,
         'paperLanguage': [],
@@ -549,13 +597,16 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
-    display_interval = 2500  # display progress every X
+    display_interval = 2500  # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
+            # give it a number
+            new_id = str(uuid.uuid4())
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
-                file_list_input_candidates.append(os.path.join(root, file).replace('\\', '/'))
+                file_list_input_candidates.append(full_file_path)
             if nr < 50:
+                # use buffering to prevent performance issues when parsing very large numbers of files
                 log_buffer = False
             else:
                 if not nr % display_interval:
@@ -563,69 +614,67 @@ def start(**kwargs):
                     status_note(''.join((str(nr), ' files processed')), b=log_buffer)
                 else:
                     log_buffer = True
-            # skip large files, config max file size here
+            # skip large files, config max file size in mb here
             if os.stat(full_file_path).st_size / 1024 ** 2 > 900:
                 continue
             # deal with different input formats:
             file_extension = os.path.splitext(full_file_path)[1].lower()
             status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
+            # new file / new source
             nr += 1
-            parse_spatial(full_file_path, MASTER_MD_DICT, file_extension)
+
+            # interact with different file formats:
             if file_extension == '.txt':
                 if file.lower() == 'bagit.txt':
-                    MASTER_MD_DICT[bagit_txt_file] = (parse_bagitfile(full_file_path))
+                    CANDIDATES_MD_DICT[new_id] = {}
+                    CANDIDATES_MD_DICT[new_id][bagit_txt_file] = (parse_bagitfile(full_file_path))
             elif file_extension == '.r':
-                do_ex(full_file_path, output_format, output_mode, False, rule_set_r)
+                extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
             elif file_extension == '.rmd':
-                do_ex(full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
-                parse_temporal(full_file_path, MASTER_MD_DICT, None)
+                extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
+                #parse_temporal(new_id, full_file_path, None)
+            else:
+                parse_spatial(new_id, full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
-    if 'best' in compare_extracted:
-        # we have a candidate best suited for <metadata_raw.json> main output
-        # now merge data_dicts:
-        for key in compare_extracted['best']:
-            MASTER_MD_DICT[key] = compare_extracted['best'][key]
-        if 'spatial' not in MASTER_MD_DICT:
-            MASTER_MD_DICT['spatial'] = None
-        # Make final adjustments on the master dict before output:
-        # \ Add to list of input files, if used in extracted code of an r_block:
-        if file_list_input_candidates is not None:
-            MASTER_MD_DICT['inputfiles'] = []
-            if 'r_input' in MASTER_MD_DICT:
-                for element in MASTER_MD_DICT['r_input']:
-                    for x in file_list_input_candidates:
-                        if element['text'] in x:
-                            MASTER_MD_DICT['inputfiles'].append(x)
-        # \ Fix and complete author element, if existing:
-        if 'author' in MASTER_MD_DICT:
-            if type(MASTER_MD_DICT['author']) is str:
-                # this means there is only one author from yaml header in best candidate
-                new_author_listobject = []
-                author_element = {'name': MASTER_MD_DICT['author']}
-                if 'orcid' in MASTER_MD_DICT:
-                    author_element.update({'orcid': MASTER_MD_DICT['orcid']})
-                    MASTER_MD_DICT.pop('orcid')
-                new_author_listobject.append(author_element)
-                MASTER_MD_DICT['author'] = new_author_listobject
-            if type(MASTER_MD_DICT['author']) is list:
-                # fix affiliations
-                for author_key in MASTER_MD_DICT['author']:
-                    new_affiliation_listobject = []
-                    if 'affiliation' in author_key:
-                        new_affiliation_listobject.append(author_key['affiliation'])
-                    author_key.update({'affiliation': new_affiliation_listobject})
-        else:
-            # 'author' element ist missing, create empty dummy:
-            MASTER_MD_DICT['author'] = []
-        # \ Fix and complete paperSource element, if existing:
-        if 'paperSource' in MASTER_MD_DICT:
-            MASTER_MD_DICT['paperSource'] = guess_paper_source()
-        # Process output
-        if output_mode == '@s' or output_dir is None:
-            # write to screen
-            output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
-        else:
-            # write to file
-            output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
-        # Write erc.yml according to ERC spec:
-        ercyml_write(output_dir)
+    # pool MD and find best most complete set:
+    best = best_candidate(CANDIDATES_MD_DICT)
+    # we have a candidate best suited for <metadata_raw.json> main output
+    # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
+    for key in best:
+        if key in MASTER_MD_DICT:
+            MASTER_MD_DICT[key] = best[key]
+    # Make final adjustments on the master dict before output:
+    # \ Fix and complete author element, if existing:
+    if 'author' in MASTER_MD_DICT:
+        if type(MASTER_MD_DICT['author']) is str:
+            # this means there is only one author from yaml header in best candidate
+            new_author_listobject = []
+            author_element = {'name': MASTER_MD_DICT['author']}
+            if 'orcid' in MASTER_MD_DICT:
+                author_element.update({'orcid': MASTER_MD_DICT['orcid']})
+                MASTER_MD_DICT.pop('orcid')
+            new_author_listobject.append(author_element)
+            MASTER_MD_DICT['author'] = new_author_listobject
+        if type(MASTER_MD_DICT['author']) is list:
+            # fix affiliations
+            for author_key in MASTER_MD_DICT['author']:
+                new_affiliation_listobject = []
+                if 'affiliation' in author_key:
+                    new_affiliation_listobject.append(author_key['affiliation'])
+                author_key.update({'affiliation': new_affiliation_listobject})
+    else:
+        # 'author' element ist missing, create empty dummy:
+        MASTER_MD_DICT['author'] = []
+    # \ Fix and complete paperSource element, if existing:
+    if 'paperSource' in MASTER_MD_DICT:
+        MASTER_MD_DICT['paperSource'] = guess_paper_source()
+    # Process output
+    if output_mode == '@s' or output_dir is None:
+        # write to screen
+        output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
+    else:
+        # write to file
+        output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+        save_erc_spec(output_dir)
+    # Write erc.yml according to ERC spec:
+    ercyml_write(output_dir)
