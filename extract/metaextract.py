@@ -234,11 +234,14 @@ def best_candidate(all_candidates_dict):
                     if subkey not in result:
                         new_key = {subkey: all_candidates_dict[key][subkey]}
                         result.update(new_key)
+                        # include function input file paths
                         if subkey == 'r_input':
                             for inputkey in all_candidates_dict[key][subkey]:
-                                if 'text' in inputkey and inputkey['text'] not in inputfiles:
-                                    # todo: reconstruct full path (might not be content of the r/rmd file that was extracted from
-                                    inputfiles.append(inputkey['text'])
+                                if 'text' in inputkey:
+                                    for filename in file_list_input_candidates:
+                                        if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                            inputfiles.append(filename)
+                                            break
                     else:
                         # this feature is already present, extracted from another file:
                         # take better version
@@ -247,10 +250,14 @@ def best_candidate(all_candidates_dict):
                             result.pop(subkey)
                             new_key = {subkey: all_candidates_dict[key][subkey]}
                             result.update(new_key)
+                            # include function input file paths
                             if subkey == 'r_input':
                                 for inputkey in all_candidates_dict[key][subkey]:
-                                    if 'text' in inputkey and inputkey['text'] not in inputfiles:
-                                        inputfiles.append(inputkey['text'])
+                                    if 'text' in inputkey:
+                                        for filename in file_list_input_candidates:
+                                            if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                                inputfiles.append(filename)
+                                                break
         result.update({'inputfiles': inputfiles})
         return result
     except:
@@ -587,7 +594,7 @@ def start(**kwargs):
         pass
         #raise
     # process all files in input directory +recursive
-    file_list_input_candidates = {}  # all files encountered, possible input of an R script
+    file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
     display_interval = 2500  # display progress every X processed files
@@ -596,9 +603,8 @@ def start(**kwargs):
             full_file_path = os.path.join(root, file).replace('\\', '/')
             # give it a number
             new_id = str(uuid.uuid4())
-            if new_id not in file_list_input_candidates:
-                new_file_key = {new_id: full_file_path}
-                file_list_input_candidates.update(new_file_key)
+            if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
+                file_list_input_candidates.append(full_file_path)
             if nr < 50:
                 # use buffering to prevent performance issues when parsing very large numbers of files
                 log_buffer = False
