@@ -144,7 +144,6 @@ def parse_spatial(file_id, filepath, fformat):
 
 
 def parse_temporal(file_id, filepath, data, timestamp):
-    CANDIDATES_MD_DICT[file_id] = {}
     global date_new
     date_new = None
     try:
@@ -158,24 +157,25 @@ def parse_temporal(file_id, filepath, data, timestamp):
         else:
             if filepath is not None:
                 date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
-        if 'temporal' in data and date_new is not None:
-            if 'begin' in data['temporal'] and 'end' in data['temporal']:
-                date_earliest = data['temporal']['begin']
-                if date_earliest is not None:
-                    if date_new < date_earliest:
-                        # new candidate is earlier than earliest
+        if data is not None:
+            if 'temporal' in data and date_new is not None:
+                if 'begin' in data['temporal'] and 'end' in data['temporal']:
+                    date_earliest = data['temporal']['begin']
+                    if date_earliest is not None:
+                        if date_new < date_earliest:
+                            # new candidate is earlier than earliest
+                            data['temporal'].update({'begin': date_new})
+                    else:
+                        # nothing yet, so take this one
                         data['temporal'].update({'begin': date_new})
-                else:
-                    # nothing yet, so take this one
-                    data['temporal'].update({'begin': date_new})
-                date_latest = data['temporal']['end']
-                if date_latest is not None:
-                    if date_new > date_latest:
-                        # new candidate is later than latest
+                    date_latest = data['temporal']['end']
+                    if date_latest is not None:
+                        if date_new > date_latest:
+                            # new candidate is later than latest
+                            data['temporal'].update({'end': date_new})
+                    else:
+                        # nothing yet, so take this one
                         data['temporal'].update({'end': date_new})
-                else:
-                    # nothing yet, so take this one
-                    data['temporal'].update({'end': date_new})
     except:
         raise
 
@@ -209,8 +209,11 @@ def parse_yaml(input_text):
                 if 'plain' in yaml_data_dict['keywords']:
                     yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
             # model date:
-            #if 'date' in yaml_data_dict:
-            #    parse_temporal(None, MASTER_MD_DICT, yaml_data_dict['date'])
+            if 'date' in yaml_data_dict:
+                try:
+                    parse_temporal(None, None, CANDIDATES_MD_DICT, yaml_data_dict['date'])
+                except Exception as exc:
+                    status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'], '> (', str(exc.args[0]),  ')')))
             # model interaction / shiny:
             if 'runtime' in yaml_data_dict:
                 if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
@@ -632,7 +635,7 @@ def start(**kwargs):
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
-                #parse_temporal(new_id, full_file_path, None)
+                parse_temporal(new_id, full_file_path, None, None)
             else:
                 parse_spatial(new_id, full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))

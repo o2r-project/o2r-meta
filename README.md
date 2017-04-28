@@ -148,11 +148,11 @@ Explanation of the switches:
 Supported checks/maps
 
 
-**service** | **checklist file** | **mapping file** | **status**
------- | ------ | ------ | ------ |
-zenodo| zenodo-check.json | zenodo-map.json | _WIP_
-datacite| datacite-check.json | datacite-map.json | _TBD_
-... | ... | ... | ...
+**service** | **checklist file** | **mapping file** | **status** | **comment**
+------ | ------ | ------ | ------ | ------ |
+zenodo| zenodo-check.json | zenodo-map.json | _WIP_ | _zenodo will register MD @ datacite.org_
+eudat b2share| eudat-b2share-check.json | eudat-b2share-map.json | _WIP_ | 
+... | ... | ... | ... | ...
 
 
 

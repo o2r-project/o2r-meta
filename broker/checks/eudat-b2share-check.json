@@ -1,0 +1,14 @@
+{
+	"Settings": {
+		"name": "eudat_b2share",
+		"mode": "json",
+		"outputfile": "missing_eudat_b2share"
+	},
+	"Checklist": [
+		"title",
+		"description",
+		"description_type",
+		"open_access"
+	],
+	"Conditions": []
+}
