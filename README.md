@@ -177,5 +177,16 @@ Explanation of the switches:
 # (4) Harvester tool:
 
 Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set such as the one in o2r.
+_Note, that this tool is currently only a demo._ 
 
-_TBD_
+
+	python o2rmeta.py harvest -e <ELEMENT> -q <QUERY>
+	
+Example call:
+	
+	python o2rmeta.py -debug harvest -e"doi" -q"10.14457/CU.THE.1989.1"
+
+Explanation of the switches:
+
++ `-e` <ELEMENT> : MD element type for search, e.g. _doi_ or _creator_
++ `-q` <QUERY> : MD content to start the search

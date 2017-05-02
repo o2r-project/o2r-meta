@@ -55,6 +55,20 @@
 			"isSubscriberOnly": false,
 			"schema": ""
 		},
+		"oadoi": {
+			"url": "\\url{https://api.oadoi.org/}",
+			"default_parameter": "",
+			"isActive": true,
+			"isSubscriberOnly": false,
+			"schema": ""
+		},
+		"Orcid": {
+			"url": "\\url{https://pub.sandbox.orcid.org/v2.0/search?q=}",
+			"default_parameter": "",
+			"isActive": true,
+			"isSubscriberOnly": false,
+			"schema": ""
+		},
 		"OpenAIRE": {
 			"url": "\\url{http://api.openaire.eu/oai_pmh}",
 			"default_parameter": "",

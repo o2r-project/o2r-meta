@@ -33,6 +33,7 @@
 		},
 		"open_access":  {
 			"translatesTo": "open_access",
+			"type": "boolean",
 			"hasParent": "root",
 			"needsParent": "root"
 		}

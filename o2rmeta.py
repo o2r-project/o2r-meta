@@ -74,15 +74,17 @@ if __name__ == "__main__":
         group.add_argument('-s', '--outputtostdout', help='output the result of the brokering to stdout',
                            action='store_true', default=False)
         # - - - - - - - - - - - - - - - - - -
+        harvester = subparsers.add_parser("harvest")
+        harvester.add_argument('-e', '--element', type=str,  help='element type, e.g. doi or creator',required=True)
+        harvester.add_argument('-q', '--query', type=str,  help='query string', required=True)
+        # - - - - - - - - - - - - - - - - - -
         validator = subparsers.add_parser("validate")
         validator.add_argument("-s", "--schema", type=str, required=True)
         validator.add_argument("-c", "--candidate", type=str, required=True)
         # - - - - - - - - - - - - - - - - - -
-        # harvester
-        # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 23  # update me!
+        my_version = 24  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
@@ -102,7 +104,7 @@ if __name__ == "__main__":
                 metavalidate.start(s=argsd['schema'], c=argsd['candidate'])
             elif argsd['tool'] == "harvest":
                 status_note('launching harvester')
-                print('TBD')  # todo
+                metaharvest.start(e=argsd['element'], q=argsd['query'])
             else:
                 pass
         except:
