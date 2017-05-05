@@ -37,15 +37,16 @@ from guess_language import guess_language
 def api_get_orcid(txt_input, bln_sandbox):
     if stay_offline:
         return None
-    try:
-        status_note(''.join(('requesting orcid for <', txt_input, '>')))
-        if bln_sandbox:
-            headers = {"Content-Type": "application/json"}
-            r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers)
-            return str(r.json()['result'][0]['orcid-identifier']['path'])
-    except Exception as exc:
-        status_note('! orcid api call failed')
-        return None
+    else:
+        try:
+            status_note(''.join(('requesting orcid for <', txt_input, '>')))
+            if bln_sandbox:
+                headers = {"Content-Type": "application/json"}
+                r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers)
+                return str(r.json()['result'][0]['orcid-identifier']['path'])
+        except Exception as exc:
+            status_note('! orcid api call failed')
+            return None
 
 
 def parse_bagitfile(file_path):
@@ -75,6 +76,9 @@ def parse_r(input_text, parser_dict):
                                        'category': calculate_r_package_class(m.group(1)),
                                        'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
+                        elif this_rule[0] == 'r_input':
+                            segment = {'feature': this_rule[1], 'line': c, 'text': os.path.basename(str(m.group(1)))}
+                            parser_dict.setdefault(this_rule[0], []).append(segment)
                         else:
                             segment = {'feature': this_rule[1], 'line': c, 'text': m.group(1)}
                             parser_dict.setdefault(this_rule[0], []).append(segment)
@@ -242,6 +246,7 @@ def best_candidate(all_candidates_dict):
                             for inputkey in all_candidates_dict[key][subkey]:
                                 if 'text' in inputkey:
                                     for filename in file_list_input_candidates:
+                                        # check if r inputfile is among encountered files
                                         if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
                                             inputfiles.append(filename)
                                             break
@@ -409,18 +414,19 @@ def save_erc_spec(spec_output_dir):
     if stay_offline:
         status_note('http disabled... skipping erc spec download')
         return None
-    try:
-        spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
-        spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
-        status_note('downloading current erc spec')
-        headers = {'User-Agent': 'o2rmeta'}
-        req = urllib.request.Request(spec_url, None, headers)
-        http = urllib.request.urlopen(req).read()
-        with open(spec_file, 'wb') as f:
-            f.write(http)
-        status_note(''.join(('saved <', spec_file, '>')))
-    except:
-        status_note('! failed to include download and include spec')
+    else:
+        try:
+            spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
+            spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
+            status_note('downloading current erc spec')
+            headers = {'User-Agent': 'o2rmeta'}
+            req = urllib.request.Request(spec_url, None, headers)
+            http = urllib.request.urlopen(req).read()
+            with open(spec_file, 'wb') as f:
+                f.write(http)
+            status_note(''.join(('saved <', spec_file, '>')))
+        except:
+            status_note('! failed to include download and include spec')
 
 
 def guess_paper_source():
@@ -527,13 +533,13 @@ def start(**kwargs):
                   '\t'.join(('depends', '.*installs', r'install.packages\((.*)\)')),
                   '\t'.join(('depends', '', r'.*library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
                   '\t'.join(('depends', '', r'.*require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*data\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*load\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*read\.*\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*read\.csv\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*readGDAL\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*readOGR\(dsn\=\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-                  '\t'.join(('r_input', 'data input', r'.*readLines\((.*)\)')),
+                  '\t'.join(('r_input', 'data input', r'.*data[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*load[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*read[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*read\.csv[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*readGDAL[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*readOGR\(dsn\=[\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
+                  '\t'.join(('r_input', 'data input', r'.*readLines[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
                   '\t'.join(('r_output', 'file', r'.*write\..*\((.*)\)')),
                   '\t'.join(('r_output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
                   '\t'.join(('r_output', 'setseed', r'.*set\.seed\((.*)\)'))]
