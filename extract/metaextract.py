@@ -185,6 +185,7 @@ def parse_temporal(file_id, filepath, data, timestamp):
 
 
 def parse_yaml(input_text):
+    # This is for R markdown files with yaml headers
     try:
         yaml_data_dict = yaml.safe_load(input_text)
         # get authors and possible ids // orcid
@@ -207,17 +208,34 @@ def parse_yaml(input_text):
                             # todo: stop using sandbox for orcid retrieval
                             id_found = api_get_orcid(anyone['name'], True)
                             anyone['orcid'] = id_found
-                # model keywords:
-            if 'keywords' in yaml_data_dict:
-                # reduce to plain keyword list if given
-                if 'plain' in yaml_data_dict['keywords']:
-                    yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
             # model date:
             if 'date' in yaml_data_dict:
                 try:
                     parse_temporal(None, None, CANDIDATES_MD_DICT, yaml_data_dict['date'])
                 except Exception as exc:
-                    status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'], '> (', str(exc.args[0]),  ')')))
+                    status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'],
+                                         '> (', str(exc.args[0]), ')')))
+            # model doi:
+            if 'doi' in yaml_data_dict:
+                # the author might have used the doi tag but added a doi url instead:
+                if yaml_data_dict['doi'].startswith('http'):
+                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['doi'].split('.org/')[1]
+                    MASTER_MD_DICT['identifier']['doiurl'] = yaml_data_dict['doi']
+                else:
+                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['doi']
+                    MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', yaml_data_dict['doi']))
+            if 'DOI' in yaml_data_dict:
+                if yaml_data_dict['DOI'].startswith('http'):
+                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['DOI'].split('.org/')[1]
+                    MASTER_MD_DICT['identifier']['doiurl'] = yaml_data_dict['DOI']
+                else:
+                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['DOI']
+                    MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', yaml_data_dict['DOI']))
+            # model keywords:
+            if 'keywords' in yaml_data_dict:
+                # reduce to plain keyword list if given
+                if 'plain' in yaml_data_dict['keywords']:
+                    yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
             # model interaction / shiny:
             if 'runtime' in yaml_data_dict:
                 if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
@@ -560,6 +578,7 @@ def start(**kwargs):
         'ercIdentifier': None,
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
+        'identifier': {'doi': None, 'doiurl': None, 'reserveddoi': None},
         'interaction': {'interactive': False,
             'ui_binding': {'purpose': None,
                 'widget': None,

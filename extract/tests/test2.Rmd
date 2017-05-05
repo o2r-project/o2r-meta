@@ -14,6 +14,7 @@ author:
   - name: "Carl Connauthora"
     affiliation: N.O.N.E
 title: 'This is the title: it contains a colon'
+DOI: https://doi.org/10.9999/test
 date: '2015-01-07'
 abstract: >
   Tempus eget nunc eu, lobortis condimentum nulla. Nam sagittis massa nec libero luctus facilisis. Suspendisse ac ornare ligula. Morbi non dignissim sem. Pellentesque eleifend neque nec dui interdum varius.
