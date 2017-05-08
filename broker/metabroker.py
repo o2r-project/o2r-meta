@@ -66,8 +66,9 @@ def do_outputs(output_data, out_mode, out_name):
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(output_filename, 'w', encoding='utf-8') as outfile:
-                if out_mode == '.json':
-                    output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
+                # todo: add handling if mode is txt, xml, ...
+                # for json:
+                output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
                 outfile.write(str(output_data))
             status_note(''.join(
                 (str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename))))
