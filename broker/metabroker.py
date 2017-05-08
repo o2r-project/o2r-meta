@@ -39,8 +39,6 @@ def check(checklist_pathfile, input_json):
         with open(checklist_pathfile, encoding='utf-8') as data_file:
             check_file = json.load(data_file)
             settings_data = check_file['Settings']  # json or xml
-            #settings_mode = settings_data['mode']
-            settings_outfilename = settings_data['outputfile']
             checklist_data = check_file['Checklist']
             #my_mode = settings_data['mode']
             # todo:
@@ -48,13 +46,13 @@ def check(checklist_pathfile, input_json):
             for x in checklist_data:
                 if x not in input_data:
                     output_dict['required'].append(x)
-            do_outputs(output_dict, output_dir, settings_outfilename, ".json")
+            do_outputs(output_dict, output_dir, settings_data['outputfile'])
 
     except:
         raise
 
 
-def do_outputs(output_data, out_mode, out_name, file_ext):
+def do_outputs(output_data, out_mode, out_name):
     if out_mode == '@s':
         # give out to screen
         print(output_data)
@@ -64,11 +62,11 @@ def do_outputs(output_data, out_mode, out_name, file_ext):
     else:
         try:
             # output path is given in <out_mode>
-            output_filename = os.path.join(out_mode, ''.join((out_name, file_ext)))
+            output_filename = os.path.join(out_mode, out_name)
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(output_filename, 'w', encoding='utf-8') as outfile:
-                if file_ext == '.json':
+                if out_mode == '.json':
                     output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
                 outfile.write(str(output_data))
             status_note(''.join(
@@ -294,8 +292,7 @@ def start(**kwargs):
                             map_json(element, test_data[element], map_data, json_output)
                         except:
                             raise
-                    ##do_outputs(json_output, output_mode, 'o2r_'+os.path.splitext(file)[0], '.json')
-                    do_outputs(json_output, output_mode, settings_data['outputfile'], '.json')
+                    do_outputs(json_output, output_mode, settings_data['outputfile'])
         elif my_mode == 'txt':
             # to do: handle txt based maps like bagit
             txt_output = ''

@@ -593,10 +593,12 @@ def start(**kwargs):
         },
         'inputfiles': [],
         'keywords': [],
-        'license': None,
+        'license': 'cc-by',  # default
+        'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
         'publicationDate': None,
+        'publication_type': 'other',  # default
         'r_comment': [],
         'r_input': [],
         'r_output': [],
@@ -607,6 +609,7 @@ def start(**kwargs):
         'spatial': {'files': [], 'union': []},
         'temporal': {'begin': None, 'end': None},
         'title': None,
+        'upload_type': 'publication',  # default
         'version': None}
     bagit_txt_file = None
     global compare_extracted

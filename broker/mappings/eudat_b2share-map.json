@@ -1,7 +1,7 @@
 {
 	"Settings": {
 		"name": "eudat_b2share",
-		"outputfile": "metadata_eudat_b2share",
+		"outputfile": "metadata_eudat_b2share.json",
 		"map_description": "maps o2r schema compliant MD to Eudat b2share for deposition creation",
 		"mode": "json",
 		"root": "metadata"

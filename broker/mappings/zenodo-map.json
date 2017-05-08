@@ -1,12 +1,18 @@
 {
 	"Settings": {
 		"name": "zenodo",
-		"outputfile": "metadata_zenodo",
+		"outputfile": "metadata_zenodo.json",
 		"map_description": "maps o2r schema compliant MD to Zenodo for deposition creation",
 		"mode": "json",
 		"root": "metadata"
 	},
 	"Map": {
+		"access_right":  {
+			"translatesTo": "access_right",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
 		"author": {
 			"translatesTo": "creators",
 			"type": "array",
@@ -31,8 +37,6 @@
 			"hasParent": "author",
 			"needsParent": "creators"
 		},
-		"todo": "upload_type",
-		"todo": "publication_type",
 		"todo": "image_type",
 		"recordDateCreated":  {
 			"translatesTo": "dateCreated",
@@ -70,7 +74,6 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"todo": "access_right",
 		"license":  {
 			"translatesTo": "license",
 			"type": "string",
@@ -122,6 +125,12 @@
 		"todo": "partof_pages",
 		"todo": "thesis_supervisors",
 		"todo": "thesis_university",
-		"todo": "subjects"
+		"todo": "subjects",
+		"upload_type": {
+			"translatesTo": "upload_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
 	}
 }

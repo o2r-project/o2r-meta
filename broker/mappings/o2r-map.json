@@ -1,7 +1,7 @@
 {
 	"Settings": {
 		"name": "o2r",
-		"outputfile": "metadata_o2r",
+		"outputfile": "metadata_o2r.json",
 		"map_description": "maps raw extracted metadata to o2r schema compliant metadata",
 		"mode": "json",
 		"root": ""
