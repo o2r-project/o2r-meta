@@ -1,5 +1,5 @@
 """
-    Copyright (c) 2016 - o2r project
+    Copyright (c) 2016, 2017 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -31,23 +31,21 @@ def check(checklist_pathfile, input_json):
     # prepare input filepath
     try:
         if os.path.isfile(input_json):
-            ##print("is file")
             with open(input_json, encoding='utf-8') as data_file:
                 input_data = json.load(data_file)
-        # open checklist file and find out mode
-        output_dict = {'required': []}
-        with open(checklist_pathfile, encoding='utf-8') as data_file:
-            check_file = json.load(data_file)
-            settings_data = check_file['Settings']  # json or xml
-            checklist_data = check_file['Checklist']
-            #my_mode = settings_data['mode']
-            # todo:
-            #check_data_conditions = check_file['Conditions']
-            for x in checklist_data:
-                if x not in input_data:
-                    output_dict['required'].append(x)
-            do_outputs(output_dict, output_dir, settings_data['outputfile'])
-
+            # open checklist file and find out mode
+            output_dict = {'required': []}
+            with open(checklist_pathfile, encoding='utf-8') as data_file:
+                check_file = json.load(data_file)
+                settings_data = check_file['Settings']  # json or xml
+                checklist_data = check_file['Checklist']
+                #my_mode = settings_data['mode']
+                # todo:
+                #check_data_conditions = check_file['Conditions']
+                for x in checklist_data:
+                    if x not in input_data:
+                        output_dict['required'].append(x)
+                do_outputs(output_dict, output_dir, settings_data['outputfile'])
     except:
         raise
 
@@ -66,12 +64,12 @@ def do_outputs(output_data, out_mode, out_name):
             if not os.path.exists(out_mode):
                 os.makedirs(out_mode)
             with open(output_filename, 'w', encoding='utf-8') as outfile:
-                # todo: add handling if mode is txt, xml, ...
                 # for json:
                 output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
                 outfile.write(str(output_data))
-            status_note(''.join(
-                (str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename))))
+                # for xml:
+                # TBD
+            status_note(''.join((str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename))))
         except Exception as exc:
             status_note(''.join(('! error while creating outputs: ', exc.args[0])))
 
@@ -113,7 +111,6 @@ def map_json(element, value, map_data, output_dict):
         for key in value:
             # ---<key:string>----------------------------------------------
             if type(key) is str:
-
                 if key in map_data:
                     d = 0
                     # ---<subkey:string>----------------------------------------------
@@ -153,7 +150,7 @@ def map_json(element, value, map_data, output_dict):
                             output_dict[map_data[y]['needsParent']].append(value[c][y])
             # ---<key:dict>----------------------------------------------
             elif type(key) is dict:
-                # as for 'authors'
+                # e.g. for 'authors'
                 location = ''
                 temp = {}
                 if type(key) is dict:
@@ -173,6 +170,7 @@ def map_json(element, value, map_data, output_dict):
 
 
 def map_xml(element, value, map_data, xml_root):
+    seperator = '#'
     a = None
     try:
         if type(value) is list or type(value) is dict:
@@ -248,12 +246,11 @@ def status_note(msg):
 
 # Main
 def start(**kwargs):
-    global input_dir
-    input_dir = kwargs.get('i', None)
+    global input_file
+    input_file = kwargs.get('i', None)
     global output_dir
     output_dir = kwargs.get('o', None)
     output_to_console = kwargs.get('s', None)
-    seperator = '#' #<-- make this generic
     global my_check
     my_check = kwargs.get('c', None)
     global my_map
@@ -269,7 +266,7 @@ def start(**kwargs):
         # not possible currently because output arg group is on mutual exclusive
         output_mode = '@none'
     if my_check is not None:
-        check(my_check, input_dir)
+        check(my_check, input_file)
     if my_map is not None:
         # open map file and find out mode
         try:
@@ -282,18 +279,18 @@ def start(**kwargs):
             raise
         # distinguish format for output
         if my_mode == 'json':
-            # try parse all possible metadata files:
-            for file in os.listdir(input_dir):
-                if os.path.basename(file).startswith('metadata_'):
-                    json_output = {}
-                    with open(os.path.join(input_dir, file), encoding='utf-8') as data_file:
-                        test_data = json.load(data_file)
-                    for element in test_data:
-                        try:
-                            map_json(element, test_data[element], map_data, json_output)
-                        except:
-                            raise
-                    do_outputs(json_output, output_mode, settings_data['outputfile'])
+            # parse target file # try parse all possible metadata files:
+            if not os.path.basename(input_file).startswith('metadata_'):
+                status_note('Warning: inputfile does not look like a metadata file object')
+            json_output = {}
+            with open(os.path.join(input_file), encoding='utf-8') as data_file:
+                test_data = json.load(data_file)
+            for element in test_data:
+                try:
+                    map_json(element, test_data[element], map_data, json_output)
+                except:
+                    raise
+            do_outputs(json_output, output_mode, settings_data['outputfile'])
         elif my_mode == 'txt':
             # to do: handle txt based maps like bagit
             txt_output = ''

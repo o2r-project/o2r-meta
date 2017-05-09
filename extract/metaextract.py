@@ -188,8 +188,14 @@ def parse_yaml(input_text):
     # This is for R markdown files with yaml headers
     try:
         yaml_data_dict = yaml.safe_load(input_text)
-        # get authors and possible ids // orcid
         if yaml_data_dict is not None:
+            # model description / abstract:
+            if 'description' in yaml_data_dict:
+                if yaml_data_dict['description'] is not None:
+                    MASTER_MD_DICT['description'] = yaml_data_dict['description']
+            else:
+                if 'abstract' in yaml_data_dict:
+                    MASTER_MD_DICT['description'] = yaml_data_dict['abstract']
             # model author:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
@@ -653,7 +659,6 @@ def start(**kwargs):
             status_note(''.join(('processing ', os.path.join(root, file).replace('\\', '/'))), b=log_buffer)
             # new file / new source
             nr += 1
-
             # interact with different file formats:
             if file_extension == '.txt':
                 if file.lower() == 'bagit.txt':

@@ -68,7 +68,7 @@ if __name__ == "__main__":
         maingroup = broker.add_mutually_exclusive_group(required=True)
         maingroup.add_argument("-c", "--check", type=str, required=False)
         maingroup.add_argument("-m", "--map", type=str, required=False)
-        broker.add_argument("-i", "--inputdir", type=str, required=True)
+        broker.add_argument("-i", "--inputfile", type=str, required=True)
         group = broker.add_mutually_exclusive_group(required=True)
         group.add_argument('-o', '--outputdir', type=str, help='output directory for brokering docs')
         group.add_argument('-s', '--outputtostdout', help='output the result of the brokering to stdout',
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 25  # update me!
+        my_version = 26  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                 metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], m=argsd['metafiles'], xml=argsd['modexml'])
             elif argsd['tool'] == "broker":
                 status_note('launching broker')
-                metabroker.start(c=argsd['check'], m=argsd['map'], i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'])
+                metabroker.start(c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])
             elif argsd['tool'] == "validate":
                 status_note('launching validator')
                 metavalidate.start(s=argsd['schema'], c=argsd['candidate'])

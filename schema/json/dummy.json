@@ -1,4 +1,5 @@
 {
+    "access_right": "open",
     "author": [],
     "communities": [
         {
@@ -36,10 +37,11 @@
         }
     },
     "keywords": [],
-    "license": null,
+    "license": "cc-by",
     "paperLanguage": [],
     "paperSource": null,
     "publicationDate": null,
+    "publication_type": "other",
     "r_comment": [],
     "r_input": [],
     "r_output": [],
@@ -56,5 +58,6 @@
         "end": null
     },
     "title": null,
+    "upload_type": "publication",
     "version": null
 }

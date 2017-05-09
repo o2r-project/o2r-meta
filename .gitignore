@@ -4,6 +4,8 @@ broker/tests/all
 metadata_raw.json
 metadata_o2r.json
 metadata_zenodo.json
+metadata_eudat.json
+metadata_mods.json
 testerc.yml
 erc.yml
 erc_raw.yml

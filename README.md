@@ -31,6 +31,7 @@ o2r meta is designed for python 3.6 and supports python 3.4+.
     sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
     sudo apt-get -qq update
     sudo apt-get install -y python3-dev
+    sudo apt-get install -y libgdal1h
     sudo apt-get install -y libgdal-dev
     sudo apt-get build-dep -y python-gdal
     sudo apt-get install -y python-gdal
@@ -128,20 +129,20 @@ In _checking mode_ it returns missing metadata information for a target service 
 Within o2r, the broker is used to translates between different standards for metadata sets. For example from extracted raw metadata to the o2r schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
 Translation instructions as well as checklists are stored in json formatted files.
 
-    python o2rmeta.py broker -i <INPUT_DIR/FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
+    python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
 Example calls:
 	
     python o2rmeta.py -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
 
-    python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests -o broker/tests/all
+    python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests/metadata_raw.json -o broker/tests/all
 
 Explanation of the switches:
 
 
 + `-c` <CHECKLIST_FILE> : required path to a json checklist file that holds checking instructions for the metadata. This switch is mutually exclusive with `-m`. At least one of them must be given.
 + `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. This switch is mutually exclusive with `-c`. At least one of them must be given.
-+ `-i` <INPUT_DIR> : path to input json when using `-c`-mode _or_ required starting path for recursive search for parsable files when using `-m`-mode. 
++ `-i` <INPUT_FILE> : path to input json file.
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given.
 + `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
 
