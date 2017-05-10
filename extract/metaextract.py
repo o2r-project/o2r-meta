@@ -34,19 +34,114 @@ from dateutil import parser as dateparser
 from guess_language import guess_language
 
 
-def api_get_orcid(txt_input, bln_sandbox):
+def get_ercspec_http(spec_output_dir):
     if stay_offline:
+        status_note('skipping erc spec download (http disabled)')
+        return None
+    else:
+        try:
+            spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
+            spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
+            status_note('downloading current erc spec')
+            headers = {'User-Agent': 'o2rmeta'}
+            req = urllib.request.Request(spec_url, None, headers)
+            http = urllib.request.urlopen(req).read()
+            with open(spec_file, 'wb') as f:
+                f.write(http)
+            status_note(''.join(('saved <', spec_file, '>')))
+        except:
+            status_note('! failed to include download and include spec')
+
+
+def get_doi_http(md_title, md_author):
+    if stay_offline:
+        status_note('skipping doi lookup (http disabled)')
+        return None
+    else:
+        try:
+            # via Crossref.org
+            status_note('requesting doi via crossref.org ...')
+            my_params = {'query.title': md_title, 'query.author': md_author}
+            r = requests.get('https://api.crossref.org/works', params=my_params, timeout=20)
+            #status_note('debug: <get_doi_http> GET ' + r.url)
+            status_note(' '.join((str(r.status_code), r.reason)))
+            if 'message' in r.json():
+                if 'items' in r.json()['message']:
+                    if type(r.json()['message']['items']) is list:
+                        # take first hit, best match
+                        if 'DOI' in r.json()['message']['items'][0]:
+                            return r.json()['message']['items'][0]['DOI']
+        except requests.exceptions.Timeout:
+            status_note('http doi request: timeout')
+        except requests.exceptions.TooManyRedirects:
+            status_note('http doi request: too many redirects')
+        except requests.exceptions.RequestException as e:
+            status_note('http doi request: ' + str(e))
+
+
+def get_orcid_http(txt_input, bln_sandbox):
+    if stay_offline:
+        status_note('skipping orcid lookup (http disabled)')
         return None
     else:
         try:
             status_note(''.join(('requesting orcid for <', txt_input, '>')))
+            headers = {"Content-Type": "application/json"}
             if bln_sandbox:
-                headers = {"Content-Type": "application/json"}
-                r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers)
-                return str(r.json()['result'][0]['orcid-identifier']['path'])
-        except Exception as exc:
-            status_note('! orcid api call failed')
-            return None
+                r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers, timeout=20)
+            else:
+                r = requests.get(''.join(('https://pub.orcid.org/v2.0/search?q=', txt_input)), headers=headers, timeout=20)
+            status_note(' '.join((str(r.status_code), r.reason)))
+            return str(r.json()['result'][0]['orcid-identifier']['path'])
+        except requests.exceptions.Timeout:
+            status_note('http orcid request: timeout')
+        except requests.exceptions.TooManyRedirects:
+            status_note('http orcid request: too many redirects')
+        except requests.exceptions.RequestException as e:
+            status_note('http orcid request: ' + str(e))
+
+
+def get_r_package_class(package):
+    try:
+        list_crantop100 = ['BH', 'DBI', 'Formula', 'Hmisc', 'MASS', 'Matrix',
+                           'MatrixModels', 'NMF', 'R6', 'RColorBrewer', 'RCurl', 'RJSONIO',
+                           'Rcpp', 'RcppArmadillo', 'RcppEigen', 'SparseM', 'TH.data', 'XML',
+                           'acepack', 'assertthat', 'bitops', 'caTools', 'car', 'chron',
+                           'colorspace', 'crayon', 'curl', 'data.table', 'devtools', 'dichromat',
+                           'digest', 'doParallel', 'dplyr', 'e1071', 'evaluate', 'foreach',
+                           'formatR', 'gdata', 'ggplot2', 'git2r', 'gridBase', 'gridExtra',
+                           'gtable', 'gtools', 'highr', 'htmltools', 'httr', 'igraph',
+                           'irlba', 'iterators', 'jsonlite', 'knitr', 'labeling', 'latticeExtra',
+                           'lazyeval', 'lme4', 'lmtest', 'lubridate', 'magrittr', 'maps',
+                           'markdown', 'memoise', 'mgcv', 'mime', 'minqa', 'multcomp',
+                           'munsell', 'mvtnorm', 'nlme', 'nloptr', 'nnet', 'openssl',
+                           'pbkrtest', 'pkgmaker', 'plotrix', 'plyr', 'praise', 'quantreg',
+                           'rJava', 'registry', 'reshape2', 'rgl', 'rmarkdown', 'rngtools',
+                           'rstudioapi', 'sandwich', 'scales', 'shiny', 'sp', 'stringi',
+                           'stringr', 'testthat', 'tidyr', 'whisker', 'withr', 'xlsx',
+                           'xlsxjars', 'xtable', 'yaml', 'zoo']
+        list_geoscience = ['bfast', 'biclust', 'CARBayes', 'custer', 'devtools', 'dplyr',
+                           'fpc', 'geonames', 'geoR', 'georob', 'geospt', 'ggmap',
+                           'ggplot2', 'glmmBUGS', 'gstat', 'igraph', 'INLA', 'knitr',
+                           'landsat', 'mapdata', 'maps', 'maptools', 'mapview', 'move',
+                           'OpenStreetMap', 'PBSmapping', 'plyr', 'RandomFields', 'raster', 'RColorBrewer',
+                           'reshape', 'rgdal', 'RgoogleMaps', 'rJava', 'rmarkdown', 'RPostgreSQL',
+                           'RStoolbox', 'scidb', 'SciDBR', 'scidbst', 'SDMtools', 'sgeostat',
+                           'Snowball', 'sos4R', 'sp', 'spacetime', 'sparr', 'spate',
+                           'spatial', 'spatialCovariance', 'SpatioTemporal', 'spatstat', 'spatsurv', 'stats',
+                           'stringr', 'strucchange', 'tm', 'tmap', 'trajectories', 'WordCloud',
+                           'zoo']
+        label = ''
+        if package in list_geoscience:
+            label += 'geo sciences,'
+        if package in list_crantop100:
+            label += 'CRAN Top100,'
+        if len(label) < 1:
+            label = 'none,'
+        return label[:-1]
+    except:
+        #raise
+        status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
 
 def parse_bagitfile(file_path):
@@ -73,7 +168,7 @@ def parse_r(input_text, parser_dict):
                         if this_rule[0] == 'depends':
                             segment = {'packageSystem': 'https://cloud.r-project.org/',
                                        'version': None,
-                                       'category': calculate_r_package_class(m.group(1)),
+                                       'category': get_r_package_class(m.group(1)),
                                        'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
                         elif this_rule[0] == 'r_input':
@@ -199,7 +294,7 @@ def parse_yaml(input_text):
             # model author:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
-                    id_found = api_get_orcid(yaml_data_dict['author'], True)
+                    id_found = get_orcid_http(yaml_data_dict['author'], True)
                     yaml_data_dict['orcid'] = id_found
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
@@ -212,7 +307,7 @@ def parse_yaml(input_text):
                     for anyone in yaml_data_dict['author']:
                         if 'name' in anyone:
                             # todo: stop using sandbox for orcid retrieval
-                            id_found = api_get_orcid(anyone['name'], True)
+                            id_found = get_orcid_http(anyone['name'], True)
                             anyone['orcid'] = id_found
             # model date:
             if 'date' in yaml_data_dict:
@@ -222,21 +317,20 @@ def parse_yaml(input_text):
                     status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'],
                                          '> (', str(exc.args[0]), ')')))
             # model doi:
+            this_doi = None
             if 'doi' in yaml_data_dict:
-                # the author might have used the doi tag but added a doi url instead:
-                if yaml_data_dict['doi'].startswith('http'):
-                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['doi'].split('.org/')[1]
-                    MASTER_MD_DICT['identifier']['doiurl'] = yaml_data_dict['doi']
-                else:
-                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['doi']
-                    MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', yaml_data_dict['doi']))
+                this_doi = yaml_data_dict['doi']
             if 'DOI' in yaml_data_dict:
-                if yaml_data_dict['DOI'].startswith('http'):
-                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['DOI'].split('.org/')[1]
-                    MASTER_MD_DICT['identifier']['doiurl'] = yaml_data_dict['DOI']
+                this_doi = yaml_data_dict['DOI']
+            # other doi source is http request, and will be done later if title + author name is available
+            if this_doi is not None:
+                # the author might have used the doi tag but added a doi url instead:
+                if this_doi.startswith('http'):
+                    MASTER_MD_DICT['identifier']['doi'] = this_doi.split('.org/')[1]
+                    MASTER_MD_DICT['identifier']['doiurl'] = this_doi
                 else:
-                    MASTER_MD_DICT['identifier']['doi'] = yaml_data_dict['DOI']
-                    MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', yaml_data_dict['DOI']))
+                    MASTER_MD_DICT['identifier']['doi'] = this_doi
+                    MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', this_doi))
             # model keywords:
             if 'keywords' in yaml_data_dict:
                 # reduce to plain keyword list if given
@@ -296,50 +390,9 @@ def best_candidate(all_candidates_dict):
         raise
 
 
-def calculate_r_package_class(package):
-    try:
-        list_crantop100 = ['BH', 'DBI', 'Formula', 'Hmisc', 'MASS', 'Matrix',
-                           'MatrixModels', 'NMF', 'R6', 'RColorBrewer', 'RCurl', 'RJSONIO',
-                           'Rcpp', 'RcppArmadillo', 'RcppEigen', 'SparseM', 'TH.data', 'XML',
-                           'acepack', 'assertthat', 'bitops', 'caTools', 'car', 'chron',
-                           'colorspace', 'crayon', 'curl', 'data.table', 'devtools', 'dichromat',
-                           'digest', 'doParallel', 'dplyr', 'e1071', 'evaluate', 'foreach',
-                           'formatR', 'gdata', 'ggplot2', 'git2r', 'gridBase', 'gridExtra',
-                           'gtable', 'gtools', 'highr', 'htmltools', 'httr', 'igraph',
-                           'irlba', 'iterators', 'jsonlite', 'knitr', 'labeling', 'latticeExtra',
-                           'lazyeval', 'lme4', 'lmtest', 'lubridate', 'magrittr', 'maps',
-                           'markdown', 'memoise', 'mgcv', 'mime', 'minqa', 'multcomp',
-                           'munsell', 'mvtnorm', 'nlme', 'nloptr', 'nnet', 'openssl',
-                           'pbkrtest', 'pkgmaker', 'plotrix', 'plyr', 'praise', 'quantreg',
-                           'rJava', 'registry', 'reshape2', 'rgl', 'rmarkdown', 'rngtools',
-                           'rstudioapi', 'sandwich', 'scales', 'shiny', 'sp', 'stringi',
-                           'stringr', 'testthat', 'tidyr', 'whisker', 'withr', 'xlsx',
-                           'xlsxjars', 'xtable', 'yaml', 'zoo']
-        list_geoscience = ['bfast', 'biclust', 'CARBayes', 'custer', 'devtools', 'dplyr',
-                           'fpc', 'geonames', 'geoR', 'georob', 'geospt', 'ggmap',
-                           'ggplot2', 'glmmBUGS', 'gstat', 'igraph', 'INLA', 'knitr',
-                           'landsat', 'mapdata', 'maps', 'maptools', 'mapview', 'move',
-                           'OpenStreetMap', 'PBSmapping', 'plyr', 'RandomFields', 'raster', 'RColorBrewer',
-                           'reshape', 'rgdal', 'RgoogleMaps', 'rJava', 'rmarkdown', 'RPostgreSQL',
-                           'RStoolbox', 'scidb', 'SciDBR', 'scidbst', 'SDMtools', 'sgeostat',
-                           'Snowball', 'sos4R', 'sp', 'spacetime', 'sparr', 'spate',
-                           'spatial', 'spatialCovariance', 'SpatioTemporal', 'spatstat', 'spatsurv', 'stats',
-                           'stringr', 'strucchange', 'tm', 'tmap', 'trajectories', 'WordCloud',
-                           'zoo']
-        label = ''
-        if package in list_geoscience:
-            label += 'geo sciences,'
-        if package in list_crantop100:
-            label += 'CRAN Top100,'
-        if len(label) < 1:
-            label = 'none,'
-        return label[:-1]
-    except:
-        #raise
-        status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
 
-# extract
+# base extract
 def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, rule_set):
     try:
         md_file = os.path.basename(path_file)
@@ -432,25 +485,6 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
     except Exception as exc:
         raise
         #status_note(''.join(('! error while creating output: ', exc.args[0])))
-
-
-def save_erc_spec(spec_output_dir):
-    if stay_offline:
-        status_note('http disabled... skipping erc spec download')
-        return None
-    else:
-        try:
-            spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
-            spec_file = os.path.join(spec_output_dir, 'erc_spec.zip')
-            status_note('downloading current erc spec')
-            headers = {'User-Agent': 'o2rmeta'}
-            req = urllib.request.Request(spec_url, None, headers)
-            http = urllib.request.urlopen(req).read()
-            with open(spec_file, 'wb') as f:
-                f.write(http)
-            status_note(''.join(('saved <', spec_file, '>')))
-        except:
-            status_note('! failed to include download and include spec')
 
 
 def guess_paper_source():
@@ -571,8 +605,6 @@ def start(**kwargs):
     rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
                               '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
     # other parameters
-    if stay_offline:
-        status_note('http disabled... skipping orcid api search')
     global CANDIDATES_MD_DICT
     CANDIDATES_MD_DICT = {}
     global MASTER_MD_DICT  # this one is being updated per function call
@@ -701,6 +733,14 @@ def start(**kwargs):
     else:
         # 'author' element ist missing, create empty dummy:
         MASTER_MD_DICT['author'] = []
+
+    # \ Try to still get doi, if None but title and author name available
+    if MASTER_MD_DICT['identifier']['doi'] is None:
+        if MASTER_MD_DICT['title'] is not None and MASTER_MD_DICT['author'][0]['name'] is not None:
+            MASTER_MD_DICT['identifier']['doi'] = get_doi_http(MASTER_MD_DICT['title'], MASTER_MD_DICT['author'][0])
+            # also add url if get doi was successful
+            if MASTER_MD_DICT['identifier']['doi'] is not None:
+                MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
@@ -711,6 +751,6 @@ def start(**kwargs):
     else:
         # write to file
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
-        save_erc_spec(output_dir)
+        get_ercspec_http(output_dir)
     # Write erc.yml according to ERC spec:
     ercyml_write(output_dir)
