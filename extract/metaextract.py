@@ -15,7 +15,6 @@
 
 """
 
-import argparse
 import datetime
 import json
 import mimetypes
@@ -87,12 +86,19 @@ def get_orcid_http(txt_input, bln_sandbox):
         try:
             status_note(''.join(('requesting orcid for <', txt_input, '>')))
             headers = {"Content-Type": "application/json"}
+            my_params = {"q": txt_input}
             if bln_sandbox:
-                r = requests.get(''.join(('https://pub.sandbox.orcid.org/v2.0/search?q=', txt_input)), headers=headers, timeout=20)
+                r = requests.get('https://pub.sandbox.orcid.org/v2.0/search', params=my_params, headers=headers, timeout=20)
             else:
-                r = requests.get(''.join(('https://pub.orcid.org/v2.0/search?q=', txt_input)), headers=headers, timeout=20)
+                r = requests.get('https://pub..orcid.org/v2.0/search', params=my_params, headers=headers, timeout=20)
             status_note(' '.join((str(r.status_code), r.reason)))
-            return str(r.json()['result'][0]['orcid-identifier']['path'])
+            if 'num-found' in r.json():
+                if r.json()['num-found'] > 0:
+                    if 'result' in r.json():
+                        if type(r.json()['result']) is list:
+                            if 'orcid-identifier' in r.json()['result'][0]:
+                                if 'path' in r.json()['result'][0]['orcid-identifier']:
+                                    return str(r.json()['result'][0]['orcid-identifier']['path'])
         except requests.exceptions.Timeout:
             status_note('http orcid request: timeout')
         except requests.exceptions.TooManyRedirects:
@@ -336,6 +342,11 @@ def parse_yaml(input_text):
                 # reduce to plain keyword list if given
                 if 'plain' in yaml_data_dict['keywords']:
                     yaml_data_dict['keywords'] = yaml_data_dict['keywords']['plain']
+            # model keywords:
+            if 'title' in yaml_data_dict:
+                # reduce to plain title list if given
+                if 'plain' in yaml_data_dict['title']:
+                    yaml_data_dict['title'] = yaml_data_dict['title']['plain']
             # model interaction / shiny:
             if 'runtime' in yaml_data_dict:
                 if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
