@@ -90,7 +90,7 @@ def get_orcid_http(txt_input, bln_sandbox):
             if bln_sandbox:
                 r = requests.get('https://pub.sandbox.orcid.org/v2.0/search', params=my_params, headers=headers, timeout=20)
             else:
-                r = requests.get('https://pub..orcid.org/v2.0/search', params=my_params, headers=headers, timeout=20)
+                r = requests.get('https://pub.orcid.org/v2.0/search', params=my_params, headers=headers, timeout=20)
             status_note(' '.join((str(r.status_code), r.reason)))
             if 'num-found' in r.json():
                 if r.json()['num-found'] > 0:
@@ -399,9 +399,6 @@ def best_candidate(all_candidates_dict):
         return result
     except:
         raise
-
-
-
 
 # base extract
 def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, rule_set):
@@ -744,7 +741,6 @@ def start(**kwargs):
     else:
         # 'author' element ist missing, create empty dummy:
         MASTER_MD_DICT['author'] = []
-
     # \ Try to still get doi, if None but title and author name available
     if MASTER_MD_DICT['identifier']['doi'] is None:
         if MASTER_MD_DICT['title'] is not None and MASTER_MD_DICT['author'][0]['name'] is not None:
@@ -752,6 +748,10 @@ def start(**kwargs):
             # also add url if get doi was successful
             if MASTER_MD_DICT['identifier']['doi'] is not None:
                 MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
+    # \ Fix and default publication date if none
+    if 'publicationDate' in MASTER_MD_DICT:
+        if MASTER_MD_DICT['publicationDate'] is None:
+            MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
