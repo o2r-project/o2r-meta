@@ -656,6 +656,7 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
+        'viewfile': None,
         'version': None}
     bagit_txt_file = None
     global compare_extracted
@@ -752,6 +753,16 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
+    # \ add viewfile if mainfile rmd exists
+    if 'viewfile' in MASTER_MD_DICT:
+        # find main file name without ext
+        if 'file' in MASTER_MD_DICT:
+            if 'filepath' in MASTER_MD_DICT['file']:
+                if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
+                    if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
+                        main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
+                        if os.path.isfile(''.join((main_file_name, '.html'))):
+                            MASTER_MD_DICT['viewfile'] = ''.join((main_file_name, '.html'))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
