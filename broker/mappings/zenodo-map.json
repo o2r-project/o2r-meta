@@ -25,24 +25,11 @@
 			"hasParent": "author",
 			"needsParent": "creators"
 		},
-		"orcid": {
-			"translatesTo": "orcid",
-			"type": "string",
-			"hasParent": "author",
-			"needsParent": "creators"
-		},
 		"affiliation": {
 			"translatesTo": "affiliation",
 			"type": "array",
 			"hasParent": "author",
 			"needsParent": "creators"
-		},
-		"todo": "image_type",
-		"recordDateCreated":  {
-			"translatesTo": "dateCreated",
-			"type": "string",
-			"hasParent": "root",
-			"needsParent": "root"
 		},
 		"publicationDate": {
 			"translatesTo": "publication_date",
@@ -80,20 +67,12 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"todo": "embargo_date",
-		"todo": "access_conditions",
-		"todo": "doi",
-		"todo": "prereserve_doi",
 		"keywords":  {
 			"translatesTo": "keywords",
 			"type": "array",
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"todo": "notes",
-		"todo": "related_identifiers",
-		"todo": "contributors",
-		"todo": "references",
 		"communities":  {
 			"translatesTo": "communities",
 			"type": "array",
@@ -106,6 +85,35 @@
 			"hasParent": "communities",
 			"needsParent": "communities"
 		},
+		"upload_type": {
+			"translatesTo": "upload_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
+	},
+	"Map_disabled": {
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"recordDateCreated":  {
+			"translatesTo": "dateCreated",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"todo": "image_type",
+		"todo": "embargo_date",
+		"todo": "access_conditions",
+		"todo": "doi",
+		"todo": "prereserve_doi",
+		"todo": "notes",
+		"todo": "related_identifiers",
+		"todo": "contributors",
+		"todo": "references",
 		"todo": "grants",
 		"todo": "journal_title",
 		"todo": "journal_volume",
@@ -125,12 +133,6 @@
 		"todo": "partof_pages",
 		"todo": "thesis_supervisors",
 		"todo": "thesis_university",
-		"todo": "subjects",
-		"upload_type": {
-			"translatesTo": "upload_type",
-			"type": "string",
-			"hasParent": "root",
-			"needsParent": "root"
-		}
+		"todo": "subjects"
 	}
 }
