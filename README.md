@@ -2,7 +2,7 @@
 
 # o2r meta
 
-This is a collection of metadata related micro services for the o2r-platform:
+This is a collection of tools for extract-map-validate workflows. 
 
 0. schema & documentation of the o2r metadata
 1. extract - collect meta information from files or session
@@ -42,7 +42,7 @@ and afterwards install _gdal_ this way:
 
     pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
 
-Alternatively you can use a precompiled python wheel of the gdal module that fits your desired platform.
+Alternatively you can use a [precompiled python wheel](http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal) (_note_: these are inofficially provided) of the gdal module that fits your desired platform.
 
 (3) Install the required modules:
 
@@ -93,7 +93,7 @@ Explanation of the switches:
 + `-i` <INPUT_DIR> : required starting path for recursive search for parsable files
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
 + `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
-+ `-xo` : option to disable orcid public API calls
++ `-xo` : option to disable http requests (the extractor will stay offline. This disables orcid retrieval, erc spec download, doi retrieval, ...)
 + `-m` : option to additionally enable individual output of all processed files.
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
@@ -106,17 +106,20 @@ Current version:
 
 **file type** | **description** | **extracted part** | **status**
 ------ | ------ | ------ | ------ |
+(r session) | live extraction | memory objects | under evaluation
+.cdl/.nc | NetCDF | geometry | under evaluation
+.csv/.tsv | seperated values | column headers | planned
+.geojson/.json | GeoJSON | geometry | WIP
+.gpkg | OGC GeoPackage | geometry | planned
+.jp2 | JPEG2000 | geometry | planned
+.py | python script | all | planned
 .r | R Script | all | implemented
 .rmd | R-Markdown | all | implemented
-(r session) | live extraction | memory objects | planned
-bagit.txt | BagIt | metadata | implemented
-.tex | LaTeX | header | planned
-.yml | YAML | metadata | planned
-.py | python script | all | planned
 .shp | Esri shapefile | geometry | implemented
-.geojson | GeoJSON | geometry | implemented
-.json | GeoJSON | geometry | planned
+.tex | LaTeX | header | planned
 .tif(f) | geo TIFF | geometry | planned
+.yml | YAML | metadata | planned
+bagit.txt | BagIt | metadata | implemented
 ... | ... | ... | ...
 
 
@@ -126,8 +129,8 @@ bagit.txt | BagIt | metadata | implemented
 The broker has two modes: In _mapping mode_, it creates fitting metadata for a given map by following a translation scheme included in that mapping file.
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
 
-Within o2r, the broker is used to translates between different standards for metadata sets. For example from extracted raw metadata to the o2r schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
-Translation instructions as well as checklists are stored in json formatted files.
+The broker can be used to translate between different standards for metadata sets. For example from extracted raw metadata to schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
+Translation instructions as well as checklists are stored in json formatted map files.
 
     python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
@@ -152,12 +155,13 @@ Supported checks/maps
 **service** | **checklist file** | **mapping file** | **status** | **comment**
 ------ | ------ | ------ | ------ | ------ |
 zenodo| zenodo-check.json | zenodo-map.json | _WIP_ | _zenodo will register MD @ datacite.org_
-eudat b2share| eudat-b2share-check.json | eudat-b2share-map.json | _WIP_ | 
+eudat b2share| eudat-b2share-check.json | eudat-b2share-map.json | _WIP_ | b2share supports custom MD schemas
 ... | ... | ... | ... | ...
 
 
-
-Governing JSON-Schema for the mapping files: _TBD_
+Additionally the following features will be made available in the future:
++ Documentation of the formal map-file "minimal language" (create your own map-files).
++ Governing JSON-Schema for the map files (validate map-files against the map-file-schema).
 
 
 
@@ -177,7 +181,7 @@ Explanation of the switches:
 
 # (4) Harvester tool:
 
-Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set such as the one in o2r.
+Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set.
 _Note, that this tool is currently only a demo._ 
 
 
