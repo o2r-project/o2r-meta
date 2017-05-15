@@ -659,7 +659,7 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfile': None,
+        'viewfile': [],
         'version': None}
     bagit_txt_file = None
     global compare_extracted
@@ -713,6 +713,8 @@ def start(**kwargs):
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
+            elif file_extension == '.html':
+                MASTER_MD_DICT['viewfile'].append(full_file_path)
             else:
                 parse_spatial(new_id, full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -757,13 +759,14 @@ def start(**kwargs):
     # \ add viewfile if mainfile rmd exists
     if 'viewfile' in MASTER_MD_DICT:
         # find main file name without ext
-        if 'file' in MASTER_MD_DICT:
-            if 'filepath' in MASTER_MD_DICT['file']:
-                if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
-                    if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
-                        main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
-                        if os.path.isfile(''.join((main_file_name, '.html'))):
-                            MASTER_MD_DICT['viewfile'] = ''.join((main_file_name, '.html'))
+        if MASTER_MD_DICT['viewfile'] is None:
+            if 'file' in MASTER_MD_DICT:
+                if 'filepath' in MASTER_MD_DICT['file']:
+                    if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
+                        if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
+                            main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
+                            if os.path.isfile(''.join((main_file_name, '.html'))):
+                                MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
