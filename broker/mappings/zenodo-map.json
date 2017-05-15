@@ -27,7 +27,7 @@
 		},
 		"affiliation": {
 			"translatesTo": "affiliation",
-			"type": "array",
+			"type": "string",
 			"hasParent": "author",
 			"needsParent": "creators"
 		},

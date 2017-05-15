@@ -304,11 +304,14 @@ def parse_yaml(input_text):
                     yaml_data_dict['orcid'] = id_found
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
-                        yaml_data_dict['affiliation'] = []
+                        yaml_data_dict['affiliation'] = ""
                     else:
                         # we have affiliation but not an empty list, so make empty list
                         if yaml_data_dict['affiliation'] is None:
-                            yaml_data_dict['affiliation'] = []
+                            yaml_data_dict['affiliation'] = ""
+                        else:
+                            if type(yaml_data_dict['affiliation']) is list:
+                                yaml_data_dict['affiliation'] = yaml_data_dict['affiliation'][0]
                 elif type(yaml_data_dict['author']) is list:
                     for anyone in yaml_data_dict['author']:
                         if 'name' in anyone:
@@ -735,10 +738,8 @@ def start(**kwargs):
         if type(MASTER_MD_DICT['author']) is list:
             # fix affiliations
             for author_key in MASTER_MD_DICT['author']:
-                new_affiliation_listobject = []
-                if 'affiliation' in author_key:
-                    new_affiliation_listobject.append(author_key['affiliation'])
-                author_key.update({'affiliation': new_affiliation_listobject})
+                if 'affiliation' not in author_key:
+                    author_key.update({'affiliation': ''})
     else:
         # 'author' element ist missing, create empty dummy:
         MASTER_MD_DICT['author'] = []
