@@ -143,8 +143,9 @@ def get_r_package_class(package):
         if package in list_crantop100:
             label += 'CRAN Top100,'
         if len(label) < 1:
-            label = 'none,'
-        return label[:-1]
+            return None
+        else:
+            return label[:-1]
     except:
         #raise
         status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
@@ -304,11 +305,11 @@ def parse_yaml(input_text):
                     yaml_data_dict['orcid'] = id_found
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
-                        yaml_data_dict['affiliation'] = ""
+                        yaml_data_dict['affiliation'] = []
                     else:
                         # we have affiliation but not an empty list, so make empty list
                         if yaml_data_dict['affiliation'] is None:
-                            yaml_data_dict['affiliation'] = ""
+                            yaml_data_dict['affiliation'] = []
                         else:
                             if type(yaml_data_dict['affiliation']) is list:
                                 yaml_data_dict['affiliation'] = yaml_data_dict['affiliation'][0]
@@ -380,8 +381,10 @@ def best_candidate(all_candidates_dict):
                                     for filename in file_list_input_candidates:
                                         # check if r inputfile is among encountered files
                                         if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
-                                            inputfiles.append(filename)
-                                            break
+                                            # keep list entries unique:
+                                            if filename not in inputfiles:
+                                                inputfiles.append(filename)
+                                                break
                     else:
                         # this feature is already present, extracted from another file:
                         # take better version
@@ -396,8 +399,9 @@ def best_candidate(all_candidates_dict):
                                     if 'text' in inputkey:
                                         for filename in file_list_input_candidates:
                                             if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
-                                                inputfiles.append(filename)
-                                                break
+                                                if filename not in inputfiles:
+                                                    inputfiles.append(filename)
+                                                    break
         result.update({'inputfiles': inputfiles})
         return result
     except:
@@ -620,7 +624,10 @@ def start(**kwargs):
     CANDIDATES_MD_DICT = {}
     global MASTER_MD_DICT  # this one is being updated per function call
     # need this layout for dummy:
-    MASTER_MD_DICT = {'author': [],
+    MASTER_MD_DICT = {'author': [{'affiliation': [],
+                                  'name': None,
+                                  'orcid': None,
+                                  }],
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
@@ -640,6 +647,7 @@ def start(**kwargs):
                'variable': None
                }
         },
+        'codefiles': [],
         'inputfiles': [],
         'keywords': [],
         'license': 'cc-by',  # default
@@ -710,6 +718,7 @@ def start(**kwargs):
                     CANDIDATES_MD_DICT[new_id][bagit_txt_file] = (parse_bagitfile(full_file_path))
             elif file_extension == '.r':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
+                MASTER_MD_DICT['codefiles'].append(full_file_path)
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
@@ -741,7 +750,7 @@ def start(**kwargs):
             # fix affiliations
             for author_key in MASTER_MD_DICT['author']:
                 if 'affiliation' not in author_key:
-                    author_key.update({'affiliation': ''})
+                    author_key.update({'affiliation': []})
     else:
         # 'author' element ist missing, create empty dummy:
         MASTER_MD_DICT['author'] = []

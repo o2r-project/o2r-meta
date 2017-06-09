@@ -1,6 +1,13 @@
 {
     "access_right": "open",
-    "author": [],
+    "author": [
+        {
+            "affiliation": [],
+            "name": null,
+            "orcid": null
+        }
+    ],
+    "codefiles": [],
     "communities": [
         {
             "identifier": "o2r"
