@@ -97,6 +97,7 @@ Explanation of the switches:
 + `-m` : option to additionally enable individual output of all processed files.
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
++ `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
 
 ### Supported files and formats for the metadata extraction process:
 

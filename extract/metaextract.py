@@ -62,20 +62,23 @@ def get_doi_http(md_title, md_author):
             status_note('requesting doi via crossref.org ...')
             my_params = {'query.title': md_title, 'query.author': md_author}
             r = requests.get('https://api.crossref.org/works', params=my_params, timeout=20)
-            #status_note('debug: <get_doi_http> GET ' + r.url)
             status_note(' '.join((str(r.status_code), r.reason)))
-            if 'message' in r.json():
-                if 'items' in r.json()['message']:
-                    if type(r.json()['message']['items']) is list:
-                        # take first hit, best match
-                        if 'DOI' in r.json()['message']['items'][0]:
-                            return r.json()['message']['items'][0]['DOI']
+            if r is not None:
+                status_note('debug: <get_doi_http> GET ' + r.url)
+                if 'message' in r.json():
+                    if 'items' in r.json()['message']:
+                        if type(r.json()['message']['items']) is list:
+                            # take first hit, best match
+                            if 'DOI' in r.json()['message']['items'][0]:
+                                return r.json()['message']['items'][0]['DOI']
         except requests.exceptions.Timeout:
             status_note('http doi request: timeout')
         except requests.exceptions.TooManyRedirects:
             status_note('http doi request: too many redirects')
         except requests.exceptions.RequestException as e:
             status_note('http doi request: ' + str(e))
+        except:
+            status_note('! error while requesting doi')
 
 
 def get_orcid_http(txt_input, bln_sandbox):
@@ -150,6 +153,11 @@ def get_r_package_class(package):
         #raise
         status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
+def get_rel_path(input_path):
+    # this is the path for output and display, relative to --basedir flag
+    output_path = os.path.relpath(os.path.join(input_path), basedir).replace('\\', '/')
+    return output_path
+
 
 def parse_bagitfile(file_path):
     txt_dict = {'bagittxt_file': file_path}
@@ -213,7 +221,7 @@ def parse_spatial(file_id, filepath, fformat):
         if 'files' not in CANDIDATES_MD_DICT[file_id]['spatial']:
             key_files = {'files': []}
             CANDIDATES_MD_DICT[file_id]['spatial'] = key_files
-        new_file_key['source_file'] = filepath
+        new_file_key['source_file'] = get_rel_path(filepath)
         new_file_key['geojson'] = {}
         if coords is not None:
             new_file_key['geojson']['bbox'] = coords.bounds
@@ -423,7 +431,7 @@ def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, 
             if s:
                 md_filepath = s.group(1)
         else:
-            md_filepath = path_file
+            md_filepath = get_rel_path(path_file)
         md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
         data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
                     'ercIdentifier': md_erc_id,
@@ -569,6 +577,8 @@ def start(**kwargs):
     input_dir = kwargs.get('i', None)
     global md_erc_id
     md_erc_id = kwargs.get('e', None)
+    global basedir
+    basedir = kwargs.get('b', None)
     global stay_offline
     stay_offline = kwargs.get('xo', None)
     global metafiles_all
@@ -693,7 +703,7 @@ def start(**kwargs):
             # give it a number
             new_id = str(uuid.uuid4())
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
-                file_list_input_candidates.append(full_file_path)
+                file_list_input_candidates.append(get_rel_path(full_file_path))
             if nr < 50:
                 # use buffering to prevent performance issues when parsing very large numbers of files
                 log_buffer = False
@@ -718,12 +728,12 @@ def start(**kwargs):
                     CANDIDATES_MD_DICT[new_id][bagit_txt_file] = (parse_bagitfile(full_file_path))
             elif file_extension == '.r':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
-                MASTER_MD_DICT['codefiles'].append(full_file_path)
+                MASTER_MD_DICT['codefiles'].append(get_rel_path(full_file_path))
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
             elif file_extension == '.html':
-                MASTER_MD_DICT['viewfile'].append(full_file_path)
+                MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
             else:
                 parse_spatial(new_id, full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -788,4 +798,4 @@ def start(**kwargs):
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
         get_ercspec_http(output_dir)
     # Write erc.yml according to ERC spec:
-    ercyml_write(output_dir)
+    #ercyml_write(output_dir)

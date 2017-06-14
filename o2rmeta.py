@@ -55,6 +55,7 @@ if __name__ == "__main__":
         group.add_argument('-s', '--outputtostdout', help='output the result of the extraction to stdout',
                            action='store_true', default=False)
         extractor.add_argument('-e', '--ercid', type=str, help='erc identifier', required=False)
+        extractor.add_argument('-b', '--basedir', type=str, help='base directory for relative paths', required=False)
         extractor.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
         extractor.add_argument('-xo', '--stayoffline', help='skip all http requests', action='store_true', default=False,
                             required=False)
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        my_version = 31  # update me!
+        my_version = 32  # update me!
         my_mod = ''
         try:
             my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
@@ -95,7 +96,7 @@ if __name__ == "__main__":
         try:
             if argsd['tool'] == "extract":
                 status_note('launching extractor')
-                metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], m=argsd['metafiles'], xml=argsd['modexml'])
+                metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], b=argsd['basedir'], m=argsd['metafiles'], xml=argsd['modexml'])
             elif argsd['tool'] == "broker":
                 status_note('launching broker')
                 metabroker.start(c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])
