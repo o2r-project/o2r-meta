@@ -198,9 +198,12 @@ def parse_r(input_text, parser_dict):
         #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
 
 
-def parse_spatial(file_id, filepath, fformat):
+def parse_spatial(filepath, fformat):
     try:
-        CANDIDATES_MD_DICT[file_id] = {}
+        # <side_key> is an dict key in candidates to store all spatial files as list, other than finding the best candidate of spatial file
+        side_key = 'global_spatial' #debug
+        if not side_key in CANDIDATES_MD_DICT:
+            CANDIDATES_MD_DICT[side_key] = {}
         # work on formats:
         coords = None
         if fformat == '.shp' or fformat == '.geojson':
@@ -216,26 +219,25 @@ def parse_spatial(file_id, filepath, fformat):
             return None
         # prepare json object:
         new_file_key = {}
-        if 'spatial' not in CANDIDATES_MD_DICT[file_id]:
-            CANDIDATES_MD_DICT[file_id]['spatial'] = {}
-        if 'files' not in CANDIDATES_MD_DICT[file_id]['spatial']:
+        if 'spatial' not in CANDIDATES_MD_DICT[side_key]:
+            CANDIDATES_MD_DICT[side_key]['spatial'] = {}
+        if 'files' not in CANDIDATES_MD_DICT[side_key]['spatial']:
             key_files = {'files': []}
-            CANDIDATES_MD_DICT[file_id]['spatial'] = key_files
+            CANDIDATES_MD_DICT[side_key]['spatial'] = key_files
         new_file_key['source_file'] = get_rel_path(filepath)
-        new_file_key['geojson'] = {}
+        new_file_key['geojson'] = {'type': 'Feature',
+                                   'geometry': {}
+                                }
         if coords is not None:
             new_file_key['geojson']['bbox'] = coords.bounds
-        new_file_key['geojson']['type'] = 'Feature'
-        new_file_key['geojson']['geometry'] = {}
-        if coords is not None:
             new_file_key['geojson']['geometry']['coordinates'] = [
                 [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
-        new_file_key['geojson']['geometry']['type'] = 'Polygon'
-        CANDIDATES_MD_DICT[file_id]['spatial']['files'].append(new_file_key)
+            new_file_key['geojson']['geometry']['type'] = 'Polygon'
+            CANDIDATES_MD_DICT[side_key]['spatial']['files'].append(new_file_key)
         # calculate union of all available coordinates
         # calculate this only once, at last
         current_coord_list = []
-        for key in CANDIDATES_MD_DICT[file_id]['spatial']['files']:
+        for key in CANDIDATES_MD_DICT[side_key]['spatial']['files']:
             if 'geojson' in key:
                 if 'geometry' in key['geojson']:
                     if 'coordinates' in key['geojson']['geometry']:
@@ -252,7 +254,7 @@ def parse_spatial(file_id, filepath, fformat):
         key_union['geojson']['geometry']['type'] = 'Polygon'
         if coords is not None:
             key_union['geojson']['geometry']['coordinates'] = coords
-        CANDIDATES_MD_DICT[file_id]['spatial'].update({'union': key_union})
+        CANDIDATES_MD_DICT[side_key]['spatial'].update({'union': key_union})
     except:
         raise
 
@@ -673,7 +675,7 @@ def start(**kwargs):
         'researchQuestions': [],
         'researchHypotheses': [],
         'softwarePaperCitation': None,
-        'spatial': {'files': [], 'union': []},
+        'spatial': {'files': None, 'union': None},
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
@@ -696,6 +698,7 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
+    nsp = 0 #debug
     display_interval = 2500  # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -735,7 +738,7 @@ def start(**kwargs):
             elif file_extension == '.html':
                 MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
             else:
-                parse_spatial(new_id, full_file_path, file_extension)
+                parse_spatial(full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
@@ -745,6 +748,9 @@ def start(**kwargs):
         if key in MASTER_MD_DICT:
             MASTER_MD_DICT[key] = best[key]
     # Make final adjustments on the master dict before output:
+    # \ Add spatial from candidates:
+    if 'spatial' in MASTER_MD_DICT and 'global_spatial' in CANDIDATES_MD_DICT:
+        MASTER_MD_DICT['spatial'] = CANDIDATES_MD_DICT['global_spatial']
     # \ Fix and complete author element, if existing:
     if 'author' in MASTER_MD_DICT:
         if type(MASTER_MD_DICT['author']) is str:
@@ -775,17 +781,18 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ add viewfile if mainfile rmd exists
+    # \ Add viewfile if mainfile rmd exists
     if 'viewfile' in MASTER_MD_DICT:
         # find main file name without ext
-        if MASTER_MD_DICT['viewfile'] is None:
+        if not MASTER_MD_DICT['viewfile']:
             if 'file' in MASTER_MD_DICT:
                 if 'filepath' in MASTER_MD_DICT['file']:
-                    if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
-                        if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
-                            main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
-                            if os.path.isfile(''.join((main_file_name, '.html'))):
-                                MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
+                    if MASTER_MD_DICT['file']['filepath'] is not None:
+                        if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
+                            if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
+                                main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
+                                if os.path.isfile(''.join((main_file_name, '.html'))):
+                                    MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
