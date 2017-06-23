@@ -6,3 +6,4 @@ jsonschema
 lxml
 python-dateutil
 requests
+rpy2

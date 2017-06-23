@@ -1,5 +1,5 @@
 """
-    Copyright (c) 2016 - o2r project
+    Copyright (c) 2016, 2017 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ from guess_language import guess_language
 
 
 def get_ercspec_http(spec_output_dir):
+    # use this function to configure a specification file that needs to be included
     if stay_offline:
         status_note('skipping erc spec download (http disabled)')
         return None
@@ -64,7 +65,7 @@ def get_doi_http(md_title, md_author):
             r = requests.get('https://api.crossref.org/works', params=my_params, timeout=20)
             status_note(' '.join((str(r.status_code), r.reason)))
             if r is not None:
-                status_note('debug: <get_doi_http> GET ' + r.url)
+                status_note(''.join(('debug: <get_doi_http> GET')))
                 if 'message' in r.json():
                     if 'items' in r.json()['message']:
                         if type(r.json()['message']['items']) is list:
@@ -76,7 +77,7 @@ def get_doi_http(md_title, md_author):
         except requests.exceptions.TooManyRedirects:
             status_note('http doi request: too many redirects')
         except requests.exceptions.RequestException as e:
-            status_note('http doi request: ' + str(e))
+            status_note(''.join(('http doi request: ', str(e))))
         except:
             status_note('! error while requesting doi')
 
@@ -107,7 +108,7 @@ def get_orcid_http(txt_input, bln_sandbox):
         except requests.exceptions.TooManyRedirects:
             status_note('http orcid request: too many redirects')
         except requests.exceptions.RequestException as e:
-            status_note('http orcid request: ' + str(e))
+            status_note(''.join(('http orcid request: ', str(e))))
 
 
 def get_r_package_class(package):
@@ -196,6 +197,22 @@ def parse_r(input_text, parser_dict):
     except Exception as exc:
         raise
         #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
+
+
+def parse_rdata(filepath):
+    try:
+        # set test user:
+        os.environ['R_USER'] = 'test'
+        import rpy2.robjects as robjects
+        my_robjs = []
+        # walk r objects stored in binary rdata file:
+        for key in robjects.r['load'](filepath):
+            my_robjs.append(str(key))
+        md_rdata = {'file': get_rel_path(filepath), 'rdata': my_robjs}
+        if 'r_rdata' in MASTER_MD_DICT:
+            MASTER_MD_DICT['r_rdata'].append(md_rdata)
+    except:
+        raise
 
 
 def parse_spatial(filepath, fformat):
@@ -671,6 +688,7 @@ def start(**kwargs):
         'r_comment': [],
         'r_input': [],
         'r_output': [],
+        'r_rdata': [],
         'recordDateCreated': None,
         'researchQuestions': [],
         'researchHypotheses': [],
@@ -735,6 +753,8 @@ def start(**kwargs):
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
+            elif file_extension == '.rdata':
+                parse_rdata(full_file_path)
             elif file_extension == '.html':
                 MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
             else:
