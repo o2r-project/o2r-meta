@@ -212,7 +212,8 @@ def parse_rdata(filepath):
         if 'r_rdata' in MASTER_MD_DICT:
             MASTER_MD_DICT['r_rdata'].append(md_rdata)
     except:
-        raise
+        status_note('debug: <parse_rdata> errored')
+        #raise
 
 
 def parse_spatial(filepath, fformat):
@@ -753,8 +754,8 @@ def start(**kwargs):
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
-            elif file_extension == '.rdata':
-                parse_rdata(full_file_path)
+            #elif file_extension == '.rdata':
+            #    parse_rdata(full_file_path)
             elif file_extension == '.html':
                 MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
             else:
