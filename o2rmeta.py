@@ -85,13 +85,6 @@ if __name__ == "__main__":
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)
-        #my_version = 32  # update me!
-        #my_mod = ''
-        #try:
-        #    my_mod = datetime.datetime.fromtimestamp(os.stat(__file__).st_mtime)
-        #except OSError:
-        #    pass
-        #status_note(''.join(('v', str(my_version), ' - ', str(my_mod))), debug=argsd['debug'])
         status_note(''.join(('received arguments: ', str(argsd))), debug=argsd['debug'])
         try:
             if argsd['tool'] == "extract":

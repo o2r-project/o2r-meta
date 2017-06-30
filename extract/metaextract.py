@@ -23,6 +23,7 @@ import re
 import sys
 import urllib.request
 import uuid
+from subprocess import Popen, PIPE, STDOUT
 from xml.dom import minidom
 
 import dicttoxml
@@ -154,10 +155,53 @@ def get_r_package_class(package):
         #raise
         status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
+
 def get_rel_path(input_path):
     # this is the path for output and display, relative to --basedir flag
     output_path = os.path.relpath(os.path.join(input_path), basedir).replace('\\', '/')
     return output_path
+
+
+def get_rdata(filepath):
+    # skip large files, unsuitable for text preview
+    if os.stat(filepath).st_size / 1024 ** 2 > 200:
+        status_note('[debug] skipping large RData file...')
+        return None
+    rhome_name = 'R_HOME'
+    if rhome_name in os.environ:
+        if os.environ[rhome_name] is not None:
+            # OK try R_HOME value
+            rpath = os.environ[rhome_name].replace("\\", "/")
+            # add executable to path
+            if not rpath.endswith('R') and not rpath.endswith('R.exe'):
+                if os.path.exists(os.path.join(rpath, 'R.exe')):
+                    rpath = os.path.join(rpath, 'R.exe')
+                else:
+                    if os.path.exists(os.path.join(rpath, 'R')):
+                        rpath = os.path.join(rpath, 'R')
+                    else:
+                        # Cannot take path
+                        status_note('[debug] invalid path to R executable')
+                        rpath = None
+            if not os.path.exists(rpath):
+                # Cannot take path
+                status_note('[debug] invalid path to R installation')
+                rpath = None
+        else:
+            status_note(''.join(('[debug] ', rhome_name, ' NULL')))
+            rpath = None
+    else:
+        status_note(''.join(('[debug] ', rhome_name, ' R_HOME env is not set...')))
+        return None
+    try:
+        if rpath is None:
+            return None
+        status_note('processing RData')
+        p = Popen([rpath, '--vanilla', os.path.abspath(filepath)], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+        out = p.communicate(input=b'ls.str()')[0].decode('ISO-8859-1')[:-4].split("> ls.str()")[1]
+        return out[:40000]
+    except:
+        raise
 
 
 def parse_bagitfile(file_path):
@@ -197,23 +241,6 @@ def parse_r(input_text, parser_dict):
     except Exception as exc:
         raise
         #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
-
-
-def parse_rdata(filepath):
-    try:
-        # set test user:
-        os.environ['R_USER'] = 'test'
-        import rpy2.robjects as robjects
-        my_robjs = []
-        # walk r objects stored in binary rdata file:
-        for key in robjects.r['load'](filepath):
-            my_robjs.append(str(key))
-        md_rdata = {'file': get_rel_path(filepath), 'rdata': my_robjs}
-        if 'r_rdata' in MASTER_MD_DICT:
-            MASTER_MD_DICT['r_rdata'].append(md_rdata)
-    except:
-        status_note('debug: <parse_rdata> errored')
-        #raise
 
 
 def parse_spatial(filepath, fformat):
@@ -747,15 +774,17 @@ def start(**kwargs):
             if file_extension == '.txt':
                 if file.lower() == 'bagit.txt':
                     CANDIDATES_MD_DICT[new_id] = {}
-                    CANDIDATES_MD_DICT[new_id][bagit_txt_file] = (parse_bagitfile(full_file_path))
+                    CANDIDATES_MD_DICT[new_id][bagit_txt_file] = parse_bagitfile(full_file_path)
             elif file_extension == '.r':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
                 MASTER_MD_DICT['codefiles'].append(get_rel_path(full_file_path))
             elif file_extension == '.rmd':
                 extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
                 parse_temporal(new_id, full_file_path, None, None)
-            #elif file_extension == '.rdata':
-            #    parse_rdata(full_file_path)
+            elif file_extension == '.rdata':
+                MASTER_MD_DICT['r_rdata'].append({'file': file,
+                                                  'filepath': get_rel_path(full_file_path),
+                                                  'rdata_preview': get_rdata(full_file_path)})
             elif file_extension == '.html':
                 MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
             else:
