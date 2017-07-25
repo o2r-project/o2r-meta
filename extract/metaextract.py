@@ -707,7 +707,12 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
-        'license': 'cc-by',  # default
+        'license': {
+            'text': 'cc-by',  # default
+            'code': None,
+            'data': None,
+            'uibindings': None
+        },
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
@@ -725,7 +730,8 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfile': [],
+        'viewfiles': [],
+        'viewfile': None,
         'version': None}
     bagit_txt_file = None
     global compare_extracted
@@ -786,7 +792,7 @@ def start(**kwargs):
                                                   'filepath': get_rel_path(full_file_path),
                                                   'rdata_preview': get_rdata(full_file_path)})
             elif file_extension == '.html':
-                MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
+                MASTER_MD_DICT['viewfiles'].append(get_rel_path(full_file_path))
             else:
                 parse_spatial(full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -831,10 +837,10 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add viewfile if mainfile rmd exists
-    if 'viewfile' in MASTER_MD_DICT:
+    # \ Add viewfiles if mainfile rmd exists
+    if 'viewfiles' in MASTER_MD_DICT:
         # find main file name without ext
-        if not MASTER_MD_DICT['viewfile']:
+        if not MASTER_MD_DICT['viewfiles']:
             if 'file' in MASTER_MD_DICT:
                 if 'filepath' in MASTER_MD_DICT['file']:
                     if MASTER_MD_DICT['file']['filepath'] is not None:
@@ -842,7 +848,7 @@ def start(**kwargs):
                             if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
                                 main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
                                 if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
+                                    MASTER_MD_DICT['viewfiles'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
