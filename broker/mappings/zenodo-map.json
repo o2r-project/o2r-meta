@@ -61,7 +61,7 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"license":  {
+		"license.text":  {
 			"translatesTo": "license",
 			"type": "string",
 			"hasParent": "root",
