@@ -61,10 +61,10 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"license.text":  {
+		"text":  {
 			"translatesTo": "license",
 			"type": "string",
-			"hasParent": "root",
+			"hasParent": "license",
 			"needsParent": "root"
 		},
 		"keywords":  {
