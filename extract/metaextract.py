@@ -356,8 +356,12 @@ def parse_yaml(input_text):
             # model author:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
-                    id_found = get_orcid_http(yaml_data_dict['author'], True)
-                    yaml_data_dict['orcid'] = id_found
+                    # todo: split multi author tag at <,> and or <and>
+                    if ',' in yaml_data_dict['author']:
+                        for author_name in yaml_data_dict['author'].split(', '):
+                            id_found = get_orcid_http(author_name, True)
+                            yaml_data_dict['orcid'] = id_found
+                            MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
                         yaml_data_dict['affiliation'] = []
@@ -368,12 +372,12 @@ def parse_yaml(input_text):
                         else:
                             if type(yaml_data_dict['affiliation']) is list:
                                 yaml_data_dict['affiliation'] = yaml_data_dict['affiliation'][0]
-                elif type(yaml_data_dict['author']) is list:
-                    for anyone in yaml_data_dict['author']:
-                        if 'name' in anyone:
-                            # todo: stop using sandbox for orcid retrieval
-                            id_found = get_orcid_http(anyone['name'], True)
-                            anyone['orcid'] = id_found
+                #elif type(yaml_data_dict['author']) is list:
+                #    for anyone in yaml_data_dict['author']:
+                #        if 'name' in anyone:
+                #            # todo: stop using sandbox for orcid retrieval
+                #            id_found = get_orcid_http(anyone['name'], True)
+                #            anyone['orcid'] = id_found
             # model date:
             if 'date' in yaml_data_dict:
                 try:
@@ -681,10 +685,11 @@ def start(**kwargs):
     CANDIDATES_MD_DICT = {}
     global MASTER_MD_DICT  # this one is being updated per function call
     # need this layout for dummy:
-    MASTER_MD_DICT = {'author': [{'affiliation': [],
-                                  'name': None,
-                                  'orcid': None,
-                                  }],
+    MASTER_MD_DICT = {'author': [],
+        #[{'affiliation': [],
+        #                          'name': None,
+        #                          'orcid': None,
+        #                          }]
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
@@ -707,7 +712,12 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
-        'license': 'cc-by',  # default
+        'license': {'text': None,
+                    'data': None,
+                    'code': None,
+                    'ui': None,
+                    'md': None
+                    },  # default
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
@@ -725,7 +735,8 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfile': [],
+        'viewfiles': [],
+        'viewfile': None,
         'version': None}
     bagit_txt_file = None
     global compare_extracted
@@ -744,7 +755,7 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
-    nsp = 0 #debug
+    ####nsp = 0 #debug
     display_interval = 2500  # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -786,7 +797,7 @@ def start(**kwargs):
                                                   'filepath': get_rel_path(full_file_path),
                                                   'rdata_preview': get_rdata(full_file_path)})
             elif file_extension == '.html':
-                MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
+                MASTER_MD_DICT['viewfiles'].append(get_rel_path(full_file_path))
             else:
                 parse_spatial(full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -795,6 +806,9 @@ def start(**kwargs):
     # we have a candidate best suited for <metadata_raw.json> main output
     # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
     for key in best:
+        if key == 'author':
+            # !!!!
+            continue
         if key in MASTER_MD_DICT:
             MASTER_MD_DICT[key] = best[key]
     # Make final adjustments on the master dict before output:
@@ -802,24 +816,24 @@ def start(**kwargs):
     if 'spatial' in MASTER_MD_DICT and 'global_spatial' in CANDIDATES_MD_DICT:
         MASTER_MD_DICT['spatial'] = CANDIDATES_MD_DICT['global_spatial']
     # \ Fix and complete author element, if existing:
-    if 'author' in MASTER_MD_DICT:
-        if type(MASTER_MD_DICT['author']) is str:
-            # this means there is only one author from yaml header in best candidate
-            new_author_listobject = []
-            author_element = {'name': MASTER_MD_DICT['author']}
-            if 'orcid' in MASTER_MD_DICT:
-                author_element.update({'orcid': MASTER_MD_DICT['orcid']})
-                MASTER_MD_DICT.pop('orcid')
-            new_author_listobject.append(author_element)
-            MASTER_MD_DICT['author'] = new_author_listobject
-        if type(MASTER_MD_DICT['author']) is list:
-            # fix affiliations
-            for author_key in MASTER_MD_DICT['author']:
-                if 'affiliation' not in author_key:
-                    author_key.update({'affiliation': []})
-    else:
-        # 'author' element ist missing, create empty dummy:
-        MASTER_MD_DICT['author'] = []
+    #if 'author' in MASTER_MD_DICT:
+    #    if type(MASTER_MD_DICT['author']) is str:
+    #        # this means there is only one author from yaml header in best candidate
+    #        new_author_listobject = []
+    #        author_element = {'name': MASTER_MD_DICT['author']}
+    #        if 'orcid' in MASTER_MD_DICT:
+    #            author_element.update({'orcid': MASTER_MD_DICT['orcid']})
+    #            MASTER_MD_DICT.pop('orcid')
+    #        new_author_listobject.append(author_element)
+    #        MASTER_MD_DICT['author'] = new_author_listobject
+    #    if type(MASTER_MD_DICT['author']) is list:
+    #        # fix affiliations
+    #        for author_key in MASTER_MD_DICT['author']:
+    #            if 'affiliation' not in author_key:
+    #                author_key.update({'affiliation': []})
+    #else:
+    #    # 'author' element ist missing, create empty dummy:
+    #    MASTER_MD_DICT['author'] = []
     # \ Try to still get doi, if None but title and author name available
     if MASTER_MD_DICT['identifier']['doi'] is None:
         if MASTER_MD_DICT['title'] is not None and MASTER_MD_DICT['author'][0]['name'] is not None:
@@ -831,10 +845,10 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add viewfile if mainfile rmd exists
-    if 'viewfile' in MASTER_MD_DICT:
+    # \ Add viewfiles if mainfile rmd exists
+    if 'viewfiles' in MASTER_MD_DICT:
         # find main file name without ext
-        if not MASTER_MD_DICT['viewfile']:
+        if not MASTER_MD_DICT['viewfiles']:
             if 'file' in MASTER_MD_DICT:
                 if 'filepath' in MASTER_MD_DICT['file']:
                     if MASTER_MD_DICT['file']['filepath'] is not None:
@@ -842,7 +856,7 @@ def start(**kwargs):
                             if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
                                 main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
                                 if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
+                                    MASTER_MD_DICT['viewfiles'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
