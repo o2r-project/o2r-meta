@@ -712,12 +712,21 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
+<<<<<<< HEAD
         'license': {'text': None,
                     'data': None,
                     'code': None,
                     'ui': None,
                     'md': None
                     },  # default
+=======
+        'license': {
+            'text': 'cc-by',  # default
+            'code': None,
+            'data': None,
+            'uibindings': None
+        },
+>>>>>>> 44f16038a963e2528f710a0d4280bfe981ae5aac
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
