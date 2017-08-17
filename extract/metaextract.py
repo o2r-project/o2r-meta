@@ -183,10 +183,13 @@ def get_rdata(filepath):
                         # Cannot take path
                         status_note('[debug] invalid path to R executable')
                         rpath = None
-            if not os.path.exists(rpath):
-                # Cannot take path
-                status_note('[debug] invalid path to R installation')
-                rpath = None
+            try:
+                if not os.path.exists(rpath):
+                    # Cannot take path
+                    status_note('[debug fnc <get_rdata>] invalid path to R installation')
+                    rpath = None
+            except:
+                pass
         else:
             status_note(''.join(('[debug] ', rhome_name, ' NULL')))
             rpath = None
@@ -247,7 +250,7 @@ def parse_spatial(filepath, fformat):
     try:
         # <side_key> is an dict key in candidates to store all spatial files as list, other than finding the best candidate of spatial file
         side_key = 'global_spatial' #debug
-        if not side_key in CANDIDATES_MD_DICT:
+        if side_key not in CANDIDATES_MD_DICT:
             CANDIDATES_MD_DICT[side_key] = {}
         # work on formats:
         coords = None
@@ -265,10 +268,10 @@ def parse_spatial(filepath, fformat):
         # prepare json object:
         new_file_key = {}
         if 'spatial' not in CANDIDATES_MD_DICT[side_key]:
-            CANDIDATES_MD_DICT[side_key]['spatial'] = {}
-        if 'files' not in CANDIDATES_MD_DICT[side_key]['spatial']:
+            CANDIDATES_MD_DICT[side_key] = {}
+        if 'files' not in CANDIDATES_MD_DICT[side_key]:
             key_files = {'files': []}
-            CANDIDATES_MD_DICT[side_key]['spatial'] = key_files
+            CANDIDATES_MD_DICT[side_key] = key_files
         new_file_key['source_file'] = get_rel_path(filepath)
         new_file_key['geojson'] = {'type': 'Feature',
                                    'geometry': {}
@@ -278,11 +281,11 @@ def parse_spatial(filepath, fformat):
             new_file_key['geojson']['geometry']['coordinates'] = [
                 [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
             new_file_key['geojson']['geometry']['type'] = 'Polygon'
-            CANDIDATES_MD_DICT[side_key]['spatial']['files'].append(new_file_key)
+            CANDIDATES_MD_DICT[side_key]['files'].append(new_file_key)
         # calculate union of all available coordinates
         # calculate this only once, at last
         current_coord_list = []
-        for key in CANDIDATES_MD_DICT[side_key]['spatial']['files']:
+        for key in CANDIDATES_MD_DICT[side_key]['files']:
             if 'geojson' in key:
                 if 'geometry' in key['geojson']:
                     if 'coordinates' in key['geojson']['geometry']:
@@ -299,7 +302,7 @@ def parse_spatial(filepath, fformat):
         key_union['geojson']['geometry']['type'] = 'Polygon'
         if coords is not None:
             key_union['geojson']['geometry']['coordinates'] = coords
-        CANDIDATES_MD_DICT[side_key]['spatial'].update({'union': key_union})
+        CANDIDATES_MD_DICT[side_key].update({'union': key_union})
     except:
         raise
 
@@ -362,6 +365,11 @@ def parse_yaml(input_text):
                             id_found = get_orcid_http(author_name, True)
                             yaml_data_dict['orcid'] = id_found
                             MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
+                    else:
+                        # author tag is present and string, but no concatenation
+                        id_found = get_orcid_http(yaml_data_dict['author'], True)
+                        yaml_data_dict['orcid'] = id_found
+                        MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
                         yaml_data_dict['affiliation'] = []
@@ -372,12 +380,12 @@ def parse_yaml(input_text):
                         else:
                             if type(yaml_data_dict['affiliation']) is list:
                                 yaml_data_dict['affiliation'] = yaml_data_dict['affiliation'][0]
-                #elif type(yaml_data_dict['author']) is list:
-                #    for anyone in yaml_data_dict['author']:
-                #        if 'name' in anyone:
-                #            # todo: stop using sandbox for orcid retrieval
-                #            id_found = get_orcid_http(anyone['name'], True)
-                #            anyone['orcid'] = id_found
+                elif type(yaml_data_dict['author']) is list:
+                    for anyone in yaml_data_dict['author']:
+                        if 'name' in anyone:
+                            # todo: stop using sandbox for orcid retrieval
+                            id_found = get_orcid_http(anyone['name'], True)
+                            anyone['orcid'] = id_found
             # model date:
             if 'date' in yaml_data_dict:
                 try:
@@ -815,32 +823,8 @@ def start(**kwargs):
     # \ Add spatial from candidates:
     if 'spatial' in MASTER_MD_DICT and 'global_spatial' in CANDIDATES_MD_DICT:
         MASTER_MD_DICT['spatial'] = CANDIDATES_MD_DICT['global_spatial']
-    # \ Fix and complete author element, if existing:
-    #if 'author' in MASTER_MD_DICT:
-    #    if type(MASTER_MD_DICT['author']) is str:
-    #        # this means there is only one author from yaml header in best candidate
-    #        new_author_listobject = []
-    #        author_element = {'name': MASTER_MD_DICT['author']}
-    #        if 'orcid' in MASTER_MD_DICT:
-    #            author_element.update({'orcid': MASTER_MD_DICT['orcid']})
-    #            MASTER_MD_DICT.pop('orcid')
-    #        new_author_listobject.append(author_element)
-    #        MASTER_MD_DICT['author'] = new_author_listobject
-    #    if type(MASTER_MD_DICT['author']) is list:
-    #        # fix affiliations
-    #        for author_key in MASTER_MD_DICT['author']:
-    #            if 'affiliation' not in author_key:
-    #                author_key.update({'affiliation': []})
-    #else:
-    #    # 'author' element ist missing, create empty dummy:
-    #    MASTER_MD_DICT['author'] = []
-    # \ Try to still get doi, if None but title and author name available
-    if MASTER_MD_DICT['identifier']['doi'] is None:
-        if MASTER_MD_DICT['title'] is not None and MASTER_MD_DICT['author'][0]['name'] is not None:
-            MASTER_MD_DICT['identifier']['doi'] = get_doi_http(MASTER_MD_DICT['title'], MASTER_MD_DICT['author'][0])
-            # also add url if get doi was successful
-            if MASTER_MD_DICT['identifier']['doi'] is not None:
-                MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
+    if MASTER_MD_DICT['identifier']['doi'] is not None:
+        MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
     # \ Fix and default publication date if none
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
