@@ -75,7 +75,7 @@ When calling o2r meta, you can chose from the following commands, each represent
 
 Options:
 
-+ `debug` : option to enable verbose debug info where applicable	
++ `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
 Each tool then has a number of required arguments:
 
