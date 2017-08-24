@@ -89,7 +89,7 @@ if __name__ == "__main__":
         try:
             if argsd['tool'] == "extract":
                 status_note('launching extractor')
-                metaextract.start(dbg=argsd['debug'], i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], b=argsd['basedir'], m=argsd['metafiles'], xml=argsd['modexml'])
+                metaextract.start(i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], b=argsd['basedir'], m=argsd['metafiles'], xml=argsd['modexml'])
             elif argsd['tool'] == "broker":
                 status_note('launching broker')
                 metabroker.start(c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])
