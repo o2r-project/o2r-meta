@@ -75,7 +75,7 @@ When calling o2r meta, you can chose from the following commands, each represent
 
 Options:
 
-+ `debug` : option to enable verbose debug info where applicable	
++ `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
 Each tool then has a number of required arguments:
 
@@ -131,7 +131,7 @@ The broker has two modes: In _mapping mode_, it creates fitting metadata for a g
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
 
 The broker can be used to translate between different standards for metadata sets. For example from extracted raw metadata to schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
-Translation instructions as well as checklists are stored in json formatted map files.
+Translation instructions as well as checklists are stored in json formatted map files, documented at [schema/docs/mappings_docs.md](https://github.com/o2r-project/o2r-meta/tree/master/schema/docs/mappings_docs.md).
 
     python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	

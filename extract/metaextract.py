@@ -50,8 +50,12 @@ def get_ercspec_http(spec_output_dir):
             with open(spec_file, 'wb') as f:
                 f.write(http)
             status_note(''.join(('saved <', spec_file, '>')))
-        except:
-            status_note('! failed to include download and include spec')
+        except Exception as exc:
+            if dbg:
+                raise
+            else:
+                status_note(''.join(('! failed to include download and include spec: ', exc.args[0])))
+
 
 
 def get_doi_http(md_title, md_author):
@@ -79,8 +83,11 @@ def get_doi_http(md_title, md_author):
             status_note('http doi request: too many redirects')
         except requests.exceptions.RequestException as e:
             status_note(''.join(('http doi request: ', str(e))))
-        except:
-            status_note('! error while requesting doi')
+        except Exception as exc:
+            if dbg:
+                raise
+            else:
+                status_note('! error while requesting doi')
 
 
 def get_orcid_http(txt_input, bln_sandbox):
@@ -110,6 +117,11 @@ def get_orcid_http(txt_input, bln_sandbox):
             status_note('http orcid request: too many redirects')
         except requests.exceptions.RequestException as e:
             status_note(''.join(('http orcid request: ', str(e))))
+        except Exception as exc:
+            if dbg:
+                raise
+            else:
+                status_note('! error while requesting orcid')
 
 
 def get_r_package_class(package):
@@ -151,9 +163,11 @@ def get_r_package_class(package):
             return None
         else:
             return label[:-1]
-    except:
-        #raise
-        status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while classifying r package:', str(exc.problem_mark), str(exc.problem))))
 
 
 def get_rel_path(input_path):
@@ -183,10 +197,16 @@ def get_rdata(filepath):
                         # Cannot take path
                         status_note('[debug] invalid path to R executable')
                         rpath = None
-            if not os.path.exists(rpath):
-                # Cannot take path
-                status_note('[debug] invalid path to R installation')
-                rpath = None
+            try:
+                if not os.path.exists(rpath):
+                    # Cannot take path
+                    status_note('[debug fnc <get_rdata>] invalid path to R installation')
+                    rpath = None
+            except Exception as exc:
+                if dbg:
+                    raise
+                else:
+                    pass
         else:
             status_note(''.join(('[debug] ', rhome_name, ' NULL')))
             rpath = None
@@ -200,18 +220,27 @@ def get_rdata(filepath):
         p = Popen([rpath, '--vanilla', os.path.abspath(filepath)], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
         out = p.communicate(input=b'ls.str()')[0].decode('ISO-8859-1')[:-4].split("> ls.str()")[1]
         return out[:40000]
-    except:
-        raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error while retrieving rdata')
 
 
 def parse_bagitfile(file_path):
-    txt_dict = {'bagittxt_file': file_path}
-    with open(file_path) as f:
-        lines = f.readlines()
-        for line in lines:
-            s = line.rstrip('\n').split(': ')
-            txt_dict[s[0]] = s[1]
-    return txt_dict
+    try:
+        txt_dict = {'bagittxt_file': file_path}
+        with open(file_path) as f:
+            lines = f.readlines()
+            for line in lines:
+                s = line.rstrip('\n').split(': ')
+                txt_dict[s[0]] = s[1]
+        return txt_dict
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error while parsing bagit file')
 
 
 def parse_r(input_text, parser_dict):
@@ -239,15 +268,17 @@ def parse_r(input_text, parser_dict):
                             parser_dict.setdefault(this_rule[0], []).append(segment)
         return parser_dict
     except Exception as exc:
-        raise
-        #status_note(''.join(('! error while parsing R input: ', str(exc.args[0]))))
+        if dbg:
+            raise
+        else:
+            status_note('! error while parsing r file')
 
 
 def parse_spatial(filepath, fformat):
     try:
         # <side_key> is an dict key in candidates to store all spatial files as list, other than finding the best candidate of spatial file
-        side_key = 'global_spatial' #debug
-        if not side_key in CANDIDATES_MD_DICT:
+        side_key = 'global_spatial'
+        if side_key not in CANDIDATES_MD_DICT:
             CANDIDATES_MD_DICT[side_key] = {}
         # work on formats:
         coords = None
@@ -265,10 +296,10 @@ def parse_spatial(filepath, fformat):
         # prepare json object:
         new_file_key = {}
         if 'spatial' not in CANDIDATES_MD_DICT[side_key]:
-            CANDIDATES_MD_DICT[side_key]['spatial'] = {}
-        if 'files' not in CANDIDATES_MD_DICT[side_key]['spatial']:
+            CANDIDATES_MD_DICT[side_key] = {}
+        if 'files' not in CANDIDATES_MD_DICT[side_key]:
             key_files = {'files': []}
-            CANDIDATES_MD_DICT[side_key]['spatial'] = key_files
+            CANDIDATES_MD_DICT[side_key] = key_files
         new_file_key['source_file'] = get_rel_path(filepath)
         new_file_key['geojson'] = {'type': 'Feature',
                                    'geometry': {}
@@ -278,11 +309,11 @@ def parse_spatial(filepath, fformat):
             new_file_key['geojson']['geometry']['coordinates'] = [
                 [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
             new_file_key['geojson']['geometry']['type'] = 'Polygon'
-            CANDIDATES_MD_DICT[side_key]['spatial']['files'].append(new_file_key)
+            CANDIDATES_MD_DICT[side_key]['files'].append(new_file_key)
         # calculate union of all available coordinates
         # calculate this only once, at last
         current_coord_list = []
-        for key in CANDIDATES_MD_DICT[side_key]['spatial']['files']:
+        for key in CANDIDATES_MD_DICT[side_key]['files']:
             if 'geojson' in key:
                 if 'geometry' in key['geojson']:
                     if 'coordinates' in key['geojson']['geometry']:
@@ -299,9 +330,12 @@ def parse_spatial(filepath, fformat):
         key_union['geojson']['geometry']['type'] = 'Polygon'
         if coords is not None:
             key_union['geojson']['geometry']['coordinates'] = coords
-        CANDIDATES_MD_DICT[side_key]['spatial'].update({'union': key_union})
-    except:
-        raise
+        CANDIDATES_MD_DICT[side_key].update({'union': key_union})
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error while parsing spatial information')
 
 
 def parse_temporal(file_id, filepath, data, timestamp):
@@ -312,9 +346,11 @@ def parse_temporal(file_id, filepath, data, timestamp):
             try:
                 # try parse from string, but input is potentially r code
                 date_new = dateparser.parse(timestamp).isoformat()
-            except:
-                raise
-                pass
+            except Exception as exc:
+                if dbg:
+                    raise
+                else:
+                    status_note('! error while parsing date')
         else:
             if filepath is not None:
                 date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
@@ -337,8 +373,11 @@ def parse_temporal(file_id, filepath, data, timestamp):
                     else:
                         # nothing yet, so take this one
                         data['temporal'].update({'end': date_new})
-    except:
-        raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error while parsing temporal information')
 
 
 def parse_yaml(input_text):
@@ -356,8 +395,17 @@ def parse_yaml(input_text):
             # model author:
             if 'author' in yaml_data_dict:
                 if type(yaml_data_dict['author']) is str:
-                    id_found = get_orcid_http(yaml_data_dict['author'], True)
-                    yaml_data_dict['orcid'] = id_found
+                    # todo: split multi author tag at <,> and or <and>
+                    if ',' in yaml_data_dict['author']:
+                        for author_name in yaml_data_dict['author'].split(', '):
+                            id_found = get_orcid_http(author_name, True)
+                            yaml_data_dict['orcid'] = id_found
+                            MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
+                    else:
+                        # author tag is present and string, but no concatenation
+                        id_found = get_orcid_http(yaml_data_dict['author'], True)
+                        yaml_data_dict['orcid'] = id_found
+                        MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
                     if 'affiliation' not in yaml_data_dict:
                         # we have author but miss affiliation, so add empty list
                         yaml_data_dict['affiliation'] = []
@@ -379,8 +427,10 @@ def parse_yaml(input_text):
                 try:
                     parse_temporal(None, None, CANDIDATES_MD_DICT, yaml_data_dict['date'])
                 except Exception as exc:
-                    status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'],
-                                         '> (', str(exc.args[0]), ')')))
+                    if dbg:
+                        raise
+                    else:
+                        status_note(''.join(('[debug] ! failed to parse temporal <', yaml_data_dict['date'], '> (', str(exc.args[0]), ')')))
             # model doi:
             this_doi = None
             if 'doi' in yaml_data_dict:
@@ -411,9 +461,16 @@ def parse_yaml(input_text):
                 if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
                     MASTER_MD_DICT['interaction']['interactive'] = True
         return yaml_data_dict
-    except yaml.YAMLError as exc:
-        #raise
-        status_note(''.join(('! error while parsing yaml input:', str(exc.problem_mark), str(exc.problem))))
+    except yaml.YAMLError as yexc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while parsing yaml input:', str(yexc.problem_mark), str(yexc.problem))))
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error while parsing yaml')
 
 
 def best_candidate(all_candidates_dict):
@@ -459,8 +516,12 @@ def best_candidate(all_candidates_dict):
                                                     break
         result.update({'inputfiles': inputfiles})
         return result
-    except:
-        raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note('! error in candidate management')
+
 
 # base extract
 def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, rule_set):
@@ -519,8 +580,10 @@ def extract_from_candidate(file_id, path_file, out_format, out_mode, multiline, 
         if metafiles_all:
             output_extraction(data_dict, out_format, out_mode, path_file)
     except Exception as exc:
-        raise
-        #status_note(''.join(('! error while extracting: ', exc.args[0])))
+        if dbg:
+            raise
+        else:
+            status_note('! error while extracting')
 
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
@@ -553,8 +616,10 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 outfile.write(output_data)
             status_note(''.join((str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file).replace('\\', '/'))))
     except Exception as exc:
-        raise
-        #status_note(''.join(('! error while creating output: ', exc.args[0])))
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while creating output: ', exc.args[0])))
 
 
 def guess_paper_source():
@@ -564,9 +629,11 @@ def guess_paper_source():
             return MASTER_MD_DICT['file']['filename']
         else:
             return None
-    except:
-        raise
-        #return None
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while guessing paper source: ', exc.args[0])))
 
 
 def calculate_geo_bbox_union(coordinate_list):
@@ -589,8 +656,11 @@ def calculate_geo_bbox_union(coordinate_list):
             if n[1] > max_y:
                 max_y = n[1]
         return [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
-    except:
-        raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while extracting: ', exc.args[0])))
 
 
 def ercyml_write(out_path):
@@ -609,8 +679,11 @@ def ercyml_write(out_path):
             with open(out_path, 'w', encoding='utf-8') as outfile:
                 yaml.dump(data, outfile, default_flow_style=False)
         status_note(out_path + ' written.')
-    except:
-        raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while extracting: ', exc.args[0])))
 
 
 def status_note(msg, **kwargs):
@@ -620,6 +693,8 @@ def status_note(msg, **kwargs):
 
 
 def start(**kwargs):
+    global dbg
+    dbg = kwargs.get('dbg', None)
     global input_dir
     input_dir = kwargs.get('i', None)
     global md_erc_id
@@ -651,7 +726,7 @@ def start(**kwargs):
     if input_dir:
         if not os.path.isdir(input_dir):
             status_note(''.join(('! error, input dir <', input_dir, '> does not exist')))
-            sys.exit()
+            sys.exit(0)
     # load rules:
     # rule set for r, compose as: category name TAB entry feature name TAB regex
     global rule_set_r
@@ -681,10 +756,7 @@ def start(**kwargs):
     CANDIDATES_MD_DICT = {}
     global MASTER_MD_DICT  # this one is being updated per function call
     # need this layout for dummy:
-    MASTER_MD_DICT = {'author': [{'affiliation': [],
-                                  'name': None,
-                                  'orcid': None,
-                                  }],
+    MASTER_MD_DICT = {'author': [],
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
@@ -707,7 +779,12 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
-        'license': 'cc-by',  # default
+        'license': {'text': None,
+                    'data': None,
+                    'code': None,
+                    'uibindings': None,
+                    'md': None
+                    },
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
@@ -725,7 +802,8 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfile': [],
+        'viewfiles': [],
+        'viewfile': None,
         'version': None}
     bagit_txt_file = None
     global compare_extracted
@@ -737,14 +815,15 @@ def start(**kwargs):
     try:
         with open(os.path.join("schema", "json", "dummy.json"), 'w', encoding='utf-8') as dummyfile:
             dummyfile.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
-    except:
-        pass
-        #raise
+    except Exception as exc:
+        if dbg:
+            raise
+        else:
+            status_note(''.join(('! error while extracting: ', exc.args[0])))
     # process all files in input directory +recursive
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
-    nsp = 0 #debug
     display_interval = 2500  # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -786,7 +865,7 @@ def start(**kwargs):
                                                   'filepath': get_rel_path(full_file_path),
                                                   'rdata_preview': get_rdata(full_file_path)})
             elif file_extension == '.html':
-                MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
+                MASTER_MD_DICT['viewfiles'].append(get_rel_path(full_file_path))
             else:
                 parse_spatial(full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -795,46 +874,24 @@ def start(**kwargs):
     # we have a candidate best suited for <metadata_raw.json> main output
     # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
     for key in best:
+        if key == 'author':
+            continue
         if key in MASTER_MD_DICT:
             MASTER_MD_DICT[key] = best[key]
     # Make final adjustments on the master dict before output:
     # \ Add spatial from candidates:
     if 'spatial' in MASTER_MD_DICT and 'global_spatial' in CANDIDATES_MD_DICT:
         MASTER_MD_DICT['spatial'] = CANDIDATES_MD_DICT['global_spatial']
-    # \ Fix and complete author element, if existing:
-    if 'author' in MASTER_MD_DICT:
-        if type(MASTER_MD_DICT['author']) is str:
-            # this means there is only one author from yaml header in best candidate
-            new_author_listobject = []
-            author_element = {'name': MASTER_MD_DICT['author']}
-            if 'orcid' in MASTER_MD_DICT:
-                author_element.update({'orcid': MASTER_MD_DICT['orcid']})
-                MASTER_MD_DICT.pop('orcid')
-            new_author_listobject.append(author_element)
-            MASTER_MD_DICT['author'] = new_author_listobject
-        if type(MASTER_MD_DICT['author']) is list:
-            # fix affiliations
-            for author_key in MASTER_MD_DICT['author']:
-                if 'affiliation' not in author_key:
-                    author_key.update({'affiliation': []})
-    else:
-        # 'author' element ist missing, create empty dummy:
-        MASTER_MD_DICT['author'] = []
-    # \ Try to still get doi, if None but title and author name available
-    if MASTER_MD_DICT['identifier']['doi'] is None:
-        if MASTER_MD_DICT['title'] is not None and MASTER_MD_DICT['author'][0]['name'] is not None:
-            MASTER_MD_DICT['identifier']['doi'] = get_doi_http(MASTER_MD_DICT['title'], MASTER_MD_DICT['author'][0])
-            # also add url if get doi was successful
-            if MASTER_MD_DICT['identifier']['doi'] is not None:
-                MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
+    if MASTER_MD_DICT['identifier']['doi'] is not None:
+        MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
     # \ Fix and default publication date if none
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add viewfile if mainfile rmd exists
-    if 'viewfile' in MASTER_MD_DICT:
+    # \ Add viewfiles if mainfile rmd exists
+    if 'viewfiles' in MASTER_MD_DICT:
         # find main file name without ext
-        if not MASTER_MD_DICT['viewfile']:
+        if not MASTER_MD_DICT['viewfiles']:
             if 'file' in MASTER_MD_DICT:
                 if 'filepath' in MASTER_MD_DICT['file']:
                     if MASTER_MD_DICT['file']['filepath'] is not None:
@@ -842,7 +899,7 @@ def start(**kwargs):
                             if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
                                 main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
                                 if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
+                                    MASTER_MD_DICT['viewfiles'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
@@ -854,5 +911,5 @@ def start(**kwargs):
         # write to file
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
         get_ercspec_http(output_dir)
-    # Write erc.yml according to ERC spec:
+    # Write erc.yml according to ERC spec (feature to be decided):
     #ercyml_write(output_dir)

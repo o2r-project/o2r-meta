@@ -1,12 +1,6 @@
 {
     "access_right": "open",
-    "author": [
-        {
-            "affiliation": [],
-            "name": null,
-            "orcid": null
-        }
-    ],
+    "author": [],
     "codefiles": [],
     "communities": [
         {
@@ -44,7 +38,13 @@
         }
     },
     "keywords": [],
-    "license": "cc-by",
+    "license": {
+        "code": null,
+        "data": null,
+        "md": null,
+        "text": null,
+        "uibindings": null
+    },
     "paperLanguage": [],
     "paperSource": null,
     "publicationDate": null,
@@ -68,5 +68,6 @@
     "title": null,
     "upload_type": "publication",
     "version": null,
-    "viewfile": []
+    "viewfile": null,
+    "viewfiles": []
 }
