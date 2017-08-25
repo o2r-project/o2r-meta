@@ -707,7 +707,12 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
-        'license': 'cc-by',  # default
+        'license': {'text': None,
+                    'data': None,
+                    'code': None,
+                    'uibindings': None,
+                    'md': None
+                    },
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
@@ -725,7 +730,8 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfile': [],
+        'viewfiles': [],
+        'viewfile': None,
         'version': None}
     bagit_txt_file = None
     global compare_extracted
