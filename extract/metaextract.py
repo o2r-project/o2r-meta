@@ -663,29 +663,6 @@ def calculate_geo_bbox_union(coordinate_list):
             status_note(''.join(('! error while extracting: ', exc.args[0])))
 
 
-def ercyml_write(out_path):
-    try:
-        if out_path is not None:
-            out_path = os.path.join(out_path, 'erc_raw.yml')
-            new_id = str(uuid.uuid4())
-            spec_version = 1
-            data = {'id': new_id,
-                    'spec_version': spec_version,
-                    'structure': {},
-                    'execution': {},
-                    'licenses': {},
-                    'extensions': {}
-                    }
-            with open(out_path, 'w', encoding='utf-8') as outfile:
-                yaml.dump(data, outfile, default_flow_style=False)
-        status_note(out_path + ' written.')
-    except Exception as exc:
-        if dbg:
-            raise
-        else:
-            status_note(''.join(('! error while extracting: ', exc.args[0])))
-
-
 def status_note(msg, **kwargs):
     log_buffer = kwargs.get('b', None)
     if not log_buffer:
@@ -911,5 +888,3 @@ def start(**kwargs):
         # write to file
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
         get_ercspec_http(output_dir)
-    # Write erc.yml according to ERC spec (feature to be decided):
-    #ercyml_write(output_dir)
