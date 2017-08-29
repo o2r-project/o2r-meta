@@ -707,12 +707,12 @@ def start(**kwargs):
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
-        'license': {
-            'text': 'cc-by',  # default
-            'code': None,
-            'data': None,
-            'uibindings': None
-        },
+        'license': {'text': None,
+                    'data': None,
+                    'code': None,
+                    'uibindings': None,
+                    'md': None
+                    },
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
