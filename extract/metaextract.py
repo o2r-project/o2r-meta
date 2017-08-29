@@ -792,7 +792,7 @@ def start(**kwargs):
                                                   'filepath': get_rel_path(full_file_path),
                                                   'rdata_preview': get_rdata(full_file_path)})
             elif file_extension == '.html':
-                MASTER_MD_DICT['viewfile'].append(get_rel_path(full_file_path))
+                MASTER_MD_DICT['viewfiles'].append(get_rel_path(full_file_path))
             else:
                 parse_spatial(full_file_path, file_extension)
     status_note(''.join((str(nr), ' files processed')))
@@ -848,7 +848,7 @@ def start(**kwargs):
                             if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
                                 main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
                                 if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['viewfile'].append(''.join((main_file_name, '.html')))
+                                    MASTER_MD_DICT['viewfiles'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()
