@@ -17,7 +17,6 @@
 
 import datetime
 import json
-###import mimetypes
 import os
 import re
 import sys
@@ -26,14 +25,12 @@ from subprocess import Popen, PIPE, STDOUT
 from xml.dom import minidom
 
 import dicttoxml
-
-###import yaml
 from dateutil import parser as dateparser
-
 from helpers.helpers import *
 from helpers.http_requests import *
 
-#todo overhaul
+
+# todo overhaul
 def extract_spatial(filepath, fformat):
     try:
         # <side_key> is an dict key in candidates to store all spatial files as list, other than finding the best candidate of spatial file
@@ -273,11 +270,14 @@ def calculate_geo_bbox_union(coordinate_list):
         raise
 
 
-def register_parsers():
+def register_parsers(**kwargs):
+    dbg = kwargs.get('dbg', None)
     global PARSERS_CLASS_LIST
-    # todo: generify
+    # todo: generify, autoimport from dir /parsers
     from parsers.parse_bagittxt import ParseBagitTxt
     PARSERS_CLASS_LIST.append(ParseBagitTxt())
+    from parsers.parse_displayfiles import ParseDisplayFiles
+    PARSERS_CLASS_LIST.append(ParseDisplayFiles())
     from parsers.parse_geojson import ParseGeojson
     PARSERS_CLASS_LIST.append(ParseGeojson())
     from parsers.parse_rmd import ParseRmd
@@ -286,15 +286,17 @@ def register_parsers():
     PARSERS_CLASS_LIST.append(ParseRData())
     from parsers.parse_yaml import ParseYaml
     PARSERS_CLASS_LIST.append(ParseYaml())
-    for x in PARSERS_CLASS_LIST:
+    if dbg:
+        for x in PARSERS_CLASS_LIST:
             status_note(str(x), d=True)
 
 
-def get_formats():
+def get_formats(**kwargs):
+    dbg = kwargs.get('dbg', None)
     # give out list of supported file formats as provided by importet parser classes
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
-    register_parsers()
+    register_parsers(dbg=dbg)
     try:
         formatslist = []
         for cl in PARSERS_CLASS_LIST:
@@ -347,31 +349,7 @@ def start(**kwargs):
     # parsers:
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
-    register_parsers()
-    # load rules:
-    # rule set for r, compose as: category name TAB entry feature name TAB regex
-    global rule_set_r
-    # rule_set_r = ['\t'.join(('r_comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')),
-    #               #'\t'.join(('Comment', 'seperator', r'#\s?([#*~+-_])\1*')),
-    #               '\t'.join(('r_comment', 'codefragment', r'#{1,3}\s*(.*\=.*\(.*\))')),
-    #               '\t'.join(('r_comment', 'contact', r'#{1,3}\s*(.*[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.].*)')),
-    #               '\t'.join(('r_comment', 'url', r'#{1,3}\s*http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')),
-    #               '\t'.join(('depends', '.*installs', r'install.packages\((.*)\)')),
-    #               '\t'.join(('depends', '', r'.*library\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-    #               '\t'.join(('depends', '', r'.*require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
-    #               '\t'.join(('r_input', 'data input', r'.*data[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*load[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*read[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*read\.csv[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*readGDAL[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*readOGR\(dsn\=[\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_input', 'data input', r'.*readLines[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-    #               '\t'.join(('r_output', 'file', r'.*write\..*\((.*)\)')),
-    #               '\t'.join(('r_output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
-    #               '\t'.join(('r_output', 'setseed', r'.*set\.seed\((.*)\)'))]
-    # # rule set for rmd #
-    # rule_set_rmd_multiline = ['\t'.join(('yaml', r'---\n(.*?)\n---\n')),
-    #                           '\t'.join(('rblock', r'\`{3}(.*)\`{3}'))]
+    register_parsers(dbg=is_debug)
     # other parameters
     global CANDIDATES_MD_DICT
     CANDIDATES_MD_DICT = {}
@@ -423,10 +401,11 @@ def start(**kwargs):
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
-        'viewfiles': [],
-        'viewfile': None,
+        'displayfile': None,
+        'display_candidates': [],
+        'mainfile': None,
+        'mainfile_candidates': [],
         'version': None}
-    bagit_txt_file = None
     global compare_extracted
     compare_extracted = {}  # dict for evaluations to find best metafile for main output
     global main_metadata_filename
@@ -476,27 +455,7 @@ def start(**kwargs):
                     if file_extension in x.get_formats():
                         if hasattr(x, 'parse'):
                             #extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
-                            CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, of=output_format, om=output_mode, md=MASTER_MD_DICT, m=True, xo=stay_offline)
-
-
-            #if file_extension == '.txt':
-            #    if file.lower() == 'bagit.txt':
-            #        CANDIDATES_MD_DICT[new_id] = {}
-            #        CANDIDATES_MD_DICT[new_id][bagit_txt_file] = parse_bagitfile(full_file_path)
-            #elif file_extension == '.r':
-            #    extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
-            #    MASTER_MD_DICT['codefiles'].append(get_rel_path(full_file_path))
-            #elif file_extension == '.rmd':
-            #    extract_from_candidate(new_id, full_file_path, output_format, output_mode, True, rule_set_rmd_multiline)
-            #    parse_temporal(new_id, full_file_path, None, None)
-            #elif file_extension == '.rdata':
-            #    MASTER_MD_DICT['r_rdata'].append({'file': file,
-            #                                      'filepath': get_rel_path(full_file_path),
-            #                                      'rdata_preview': get_rdata(full_file_path)})
-            #elif file_extension == '.html':
-            #    MASTER_MD_DICT['viewfiles'].append(get_rel_path(full_file_path))
-            #else:
-            #    parse_spatial(full_file_path, file_extension)
+                            CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, m=True, xo=stay_offline)
     status_note([nr, ' files processed'])
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
@@ -518,10 +477,10 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add viewfiles if mainfile rmd exists
-    if 'viewfiles' in MASTER_MD_DICT:
+    # \ Add display_candidates if mainfile rmd exists
+    if 'display_candidates' in MASTER_MD_DICT:
         # find main file name without ext
-        if not MASTER_MD_DICT['viewfiles']:
+        if not MASTER_MD_DICT['display_candidates']:
             if 'file' in MASTER_MD_DICT:
                 if 'filepath' in MASTER_MD_DICT['file']:
                     if MASTER_MD_DICT['file']['filepath'] is not None:
@@ -529,7 +488,7 @@ def start(**kwargs):
                             if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
                                 main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
                                 if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['viewfiles'].append(''.join((main_file_name, '.html')))
+                                    MASTER_MD_DICT['display_candidates'].append(''.join((main_file_name, '.html')))
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()

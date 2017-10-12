@@ -71,7 +71,7 @@ if __name__ == "__main__":
         status_note(['received arguments: ', argsd], d=False)
         if argsd['tool'] == "extract":
             if argsd['formats']:
-                metaextract.get_formats()
+                metaextract.get_formats(dbg=argsd['debug'])
                 sys.exit(0)
             else:
                 status_note('launching extractor')

@@ -9,6 +9,8 @@
     ],
     "depends": [],
     "description": null,
+    "display_candidates": [],
+    "displayfile": null,
     "ercIdentifier": null,
     "file": {
         "filename": null,
@@ -45,6 +47,8 @@
         "text": null,
         "uibindings": null
     },
+    "mainfile": null,
+    "mainfile_candidates": [],
     "paperLanguage": [],
     "paperSource": null,
     "publicationDate": null,
@@ -67,7 +71,5 @@
     },
     "title": null,
     "upload_type": "publication",
-    "version": null,
-    "viewfile": null,
-    "viewfiles": []
+    "version": null
 }
