@@ -34,7 +34,8 @@ class ParseYaml:
     def get_formats():
         return FORMATS
 
-    def internal_parse(self, input_text, MASTER_MD_DICT, stay_offline):
+    @staticmethod
+    def internal_parse(input_text, MASTER_MD_DICT, stay_offline):
         # This is for R markdown files with yaml headers
         try:
             yaml_data_dict = yaml.safe_load(input_text)
@@ -52,12 +53,12 @@ class ParseYaml:
                         # todo: split multi author tag at <,> and or <and>
                         if ',' in yaml_data_dict['author']:
                             for author_name in yaml_data_dict['author'].split(', '):
-                                id_found = get_orcid_http(author_name, True)
+                                id_found = get_orcid_http(author_name, True, stay_offline)
                                 yaml_data_dict['orcid'] = id_found
                                 MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
                         else:
                             # author tag is present and string, but no concatenation
-                            id_found = get_orcid_http(yaml_data_dict['author'], True)
+                            id_found = get_orcid_http(yaml_data_dict['author'], True, stay_offline)
                             yaml_data_dict['orcid'] = id_found
                             MASTER_MD_DICT['author'].append(
                                 {'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
@@ -75,7 +76,6 @@ class ParseYaml:
                         for anyone in yaml_data_dict['author']:
                             if 'name' in anyone:
                                 # todo: stop using sandbox for orcid retrieval
-                                #id_found = get_orcid_http(anyone['name'], True)
                                 anyone['orcid'] = get_orcid_http(anyone['name'], True, stay_offline)
                 # model date:
                 if 'date' in yaml_data_dict:

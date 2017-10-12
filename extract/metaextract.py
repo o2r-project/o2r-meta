@@ -30,80 +30,9 @@ from helpers.helpers import *
 from helpers.http_requests import *
 
 
-# todo overhaul
-def extract_spatial(filepath, fformat):
-    try:
-        # <side_key> is an dict key in candidates to store all spatial files as list, other than finding the best candidate of spatial file
-        side_key = 'global_spatial'
-        if side_key not in CANDIDATES_MD_DICT:
-            CANDIDATES_MD_DICT[side_key] = {}
-        # work on formats:
-        coords = None
-        if fformat == '.shp':
-            # deprecated
-            # coords = fiona.open(filepath, 'r')
-            return None
-        elif fformat == '.json':
-            #todo: check if geojson
-            return None
-        elif fformat == '.geojson':
-            #todo: bbox extraction
-            return None
-        # geojpeg
-        elif fformat == '.jp2':
-            return None
-        # geotif
-        elif fformat == '.tif' or fformat == '.tiff':
-            return None
-        else:
-            # all other file extensions: exit
-            return None
-        # prepare json object:
-        new_file_key = {}
-        if 'spatial' not in CANDIDATES_MD_DICT[side_key]:
-            CANDIDATES_MD_DICT[side_key] = {}
-        if 'files' not in CANDIDATES_MD_DICT[side_key]:
-            key_files = {'files': []}
-            CANDIDATES_MD_DICT[side_key] = key_files
-        new_file_key['source_file'] = get_rel_path(filepath)
-        new_file_key['geojson'] = {'type': 'Feature',
-                                   'geometry': {}
-                                }
-        if coords is not None:
-            new_file_key['geojson']['bbox'] = coords.bounds
-            new_file_key['geojson']['geometry']['coordinates'] = [
-                [[coords.bounds[0], coords.bounds[1]], [coords.bounds[2], coords.bounds[3]]]]
-            new_file_key['geojson']['geometry']['type'] = 'Polygon'
-            CANDIDATES_MD_DICT[side_key]['files'].append(new_file_key)
-        # calculate union of all available coordinates
-        # calculate this only once, at last
-        current_coord_list = []
-        for key in CANDIDATES_MD_DICT[side_key]['files']:
-            if 'geojson' in key:
-                if 'geometry' in key['geojson']:
-                    if 'coordinates' in key['geojson']['geometry']:
-                        if len(key['geojson']['geometry']['coordinates']) > 0:
-                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][0]))
-                            current_coord_list.append((key['geojson']['geometry']['coordinates'][0][1]))
-        key_union = {}
-        coords = calculate_geo_bbox_union(current_coord_list)
-        key_union['geojson'] = {}
-        if coords is not None:
-            key_union['geojson']['bbox'] = [coords[0][0], coords[0][1], coords[1][0], coords[1][1]]
-        key_union['geojson']['type'] = 'Feature'
-        key_union['geojson']['geometry'] = {}
-        key_union['geojson']['geometry']['type'] = 'Polygon'
-        if coords is not None:
-            key_union['geojson']['geometry']['coordinates'] = coords
-        CANDIDATES_MD_DICT[side_key].update({'union': key_union})
-    except Exception as exc:
-        if dbg:
-            raise
-        else:
-            status_note('! error while parsing spatial information')
-
 
 def extract_temporal(file_id, filepath, data, timestamp):
+    global is_debug
     global date_new
     date_new = None
     try:
@@ -139,21 +68,39 @@ def extract_temporal(file_id, filepath, data, timestamp):
                         # nothing yet, so take this one
                         data['temporal'].update({'end': date_new})
     except Exception as exc:
-        if dbg:
-            raise
-        else:
-            status_note('! error while parsing temporal information')
+        status_note(str(exc), d=is_debug)
 
 
 def best_candidate(all_candidates_dict):
     # "all_candidates_dict" contains one dict for each file that was extracted from
-    # each features found in each of these dicts is compared here to result in a single dict with max completeness
+    # each feature found in each of these dicts is compared here to result in a single dict with max completeness
     global is_debug
+    if all_candidates_dict is None:
+        status_note('unable to evaluate best md candidate', d=is_debug)
+        return None
+    print(str(all_candidates_dict))
     try:
+        # first find most complext candidate for 'mainfile' suggestion:
+        k_max = 0
+        k_max_filename = ''
+        for k in all_candidates_dict:
+            if k is None:
+                continue
+            if all_candidates_dict[k] is None:
+                continue
+            candidate = len(all_candidates_dict[k])
+            if candidate > k_max:
+                k_max = candidate
+                if 'mainfile' in all_candidates_dict[k]:
+                    if all_candidates_dict[k]['mainfile'] is not None:
+                        k_max_filename = all_candidates_dict[k]['mainfile']
+                        print(str(k_max_filename))
+        # - - - - - - - - - - - - - - - - -
+        # now create compositional dict for all features available
         result = {}
         inputfiles = []
         for key in all_candidates_dict:
-            if all_candidates_dict[key] != {}:
+            if all_candidates_dict[key] is not None:
                 for subkey in all_candidates_dict[key]:
                     # determine completeness
                     if subkey not in result:
@@ -188,10 +135,10 @@ def best_candidate(all_candidates_dict):
                                                     inputfiles.append(filename)
                                                     break
         result.update({'inputfiles': inputfiles})
+        result.update({'mainfile': k_max_filename})
         return result
     except Exception as exc:
-        status_note('! error in candidate management', d=is_debug)
-        raise
+        status_note(str(exc), d=is_debug)
 
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
@@ -224,10 +171,7 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 outfile.write(output_data)
             status_note([str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file).replace('\\', '/')])
     except Exception as exc:
-        if dbg:
-            raise
-        else:
-            status_note(['! error while creating output: ', exc.args[0]])
+        status_note(str(exc), d=is_debug)
 
 
 def guess_paper_source():
@@ -238,36 +182,10 @@ def guess_paper_source():
         else:
             return None
     except Exception as exc:
-        if dbg:
-            raise
-        else:
-            status_note(['! error while guessing paper source: ', exc.args[0]])
+        status_note(str(exc), d=is_debug)
 
 
-def calculate_geo_bbox_union(coordinate_list):
-    global is_debug
-    try:
-        if coordinate_list is None:
-            return [(0, 0), (0, 0), (0, 0), (0, 0)]
-        min_x = 181.0
-        min_y = 181.0
-        max_x = -181.0
-        max_y = -181.0
-        ##max =[181.0, 181.0, -181.0, -181.0]  # proper max has -90/90 & -180/180
-        # todo: deal with international date line wrapping / GDAL
-        for n in coordinate_list:
-            if n[0] < min_x:
-                min_x = n[0]
-            if n[0] > max_x:
-                max_x = n[0]
-            if n[1] < min_y:
-                min_y = n[1]
-            if n[1] > max_y:
-                max_y = n[1]
-        return [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
-    except Exception as exc:
-        status_note(['! error while extracting: ', exc.args[0]], d=is_debug)
-        raise
+
 
 
 def register_parsers(**kwargs):
@@ -356,6 +274,7 @@ def start(**kwargs):
     global MASTER_MD_DICT  # this one is being updated per function call
     # need this layout for dummy:
     MASTER_MD_DICT = {'author': [],
+        'bagit': {'bagittxt_files': []},
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
@@ -387,6 +306,7 @@ def start(**kwargs):
         'access_right': 'open',  # default
         'paperLanguage': [],
         'paperSource': None,
+        'provenance': [],
         'publicationDate': None,
         'publication_type': 'other',  # default
         'r_comment': [],
@@ -402,7 +322,7 @@ def start(**kwargs):
         'title': None,
         'upload_type': 'publication',  # default
         'displayfile': None,
-        'display_candidates': [],
+        'displayfile_candidates': [],
         'mainfile': None,
         'mainfile_candidates': [],
         'version': None}
@@ -442,11 +362,12 @@ def start(**kwargs):
                 else:
                     log_buffer = True
             # skip large files, config max file size in mb here
-            if os.stat(full_file_path).st_size / 1024 ** 2 > 900:
+            if os.stat(full_file_path).st_size / 1024 ** 2 > 2047:
+                status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
                 continue
             # deal with different input formats:
             file_extension = os.path.splitext(full_file_path)[1].lower()
-            status_note(['processing ', os.path.join(root, file).replace('\\', '/')], b=log_buffer)
+            status_note(['processing ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
             # new file / new source
             nr += 1
             # interact with different file formats:
@@ -461,7 +382,6 @@ def start(**kwargs):
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
     # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
-    ####status_note(str(best), d=True)  ## test
     for key in best:
         #if key == 'author':
         #    continue
@@ -477,18 +397,22 @@ def start(**kwargs):
     if 'publicationDate' in MASTER_MD_DICT:
         if MASTER_MD_DICT['publicationDate'] is None:
             MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add display_candidates if mainfile rmd exists
-    if 'display_candidates' in MASTER_MD_DICT:
-        # find main file name without ext
-        if not MASTER_MD_DICT['display_candidates']:
-            if 'file' in MASTER_MD_DICT:
-                if 'filepath' in MASTER_MD_DICT['file']:
-                    if MASTER_MD_DICT['file']['filepath'] is not None:
-                        if MASTER_MD_DICT['file']['filepath'].lower().endswith('.rmd'):
-                            if os.path.isfile(MASTER_MD_DICT['file']['filepath']):
-                                main_file_name, file_extension = os.path.splitext(MASTER_MD_DICT['file']['filepath'])
-                                if os.path.isfile(''.join((main_file_name, '.html'))):
-                                    MASTER_MD_DICT['display_candidates'].append(''.join((main_file_name, '.html')))
+    # \ Add display file if mainfile rmd exists
+    if 'displayfile_candidates' in MASTER_MD_DICT:
+        if 'mainfile' in MASTER_MD_DICT:
+            if MASTER_MD_DICT['mainfile'] is not None:
+                if os.path.isfile(MASTER_MD_DICT['mainfile']):
+                    main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
+                    # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
+                    main_basefile_name = os.path.basename(main_pathfile_name)
+                    if 'displayfile_candidates' in MASTER_MD_DICT:
+                        match = None
+                        for x in MASTER_MD_DICT['displayfile_candidates']:
+                            x_main, x_extension = os.path.splitext(os.path.basename(x))
+                            if x_main == main_basefile_name:
+                                match = x
+                    if match is not None:
+                        MASTER_MD_DICT['displayfile'] = match
     # \ Fix and complete paperSource element, if existing:
     if 'paperSource' in MASTER_MD_DICT:
         MASTER_MD_DICT['paperSource'] = guess_paper_source()

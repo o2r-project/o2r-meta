@@ -37,13 +37,18 @@ class ParseBagitTxt:
         path_file = kwargs.get('p', None)
         MASTER_MD_DICT = kwargs.get('md', None)
         try:
-            txt_dict = {'bagittxt_file': path_file}
+            if not path_file.endswith('bagit.txt'):
+                return None
+            txt_dict = {path_file: {}}
             with open(path_file) as f:
                 lines = f.readlines()
                 for line in lines:
                     s = line.rstrip('\n').split(': ')
-                    txt_dict[s[0]] = s[1]
-            MASTER_MD_DICT.update(txt_dict)
+                    txt_dict[path_file].update({str(s[0]): str(s[1])})
+            if 'bagit' in MASTER_MD_DICT:
+                if 'bagittxt_files' in MASTER_MD_DICT['bagit']:
+                    MASTER_MD_DICT['bagit']['bagittxt_files'].append(txt_dict)
+                MASTER_MD_DICT['provenance'] = get_prov(path_file)
             return MASTER_MD_DICT
         except Exception as exc:
-            raise
+            status_note(str(exc), d=True)

@@ -63,15 +63,17 @@ class ParseRmd:
 
     def parse(self, **kwargs):
         path_file = kwargs.get('p', None)
-        out_format = kwargs.get('of', None)  # todo secure remove
-        out_mode = kwargs.get('om', None)  # todo secure remove
+        #out_format = kwargs.get('of', None)  # todo secure remove
+        #out_mode = kwargs.get('om', None)  # todo secure remove
         MASTER_MD_DICT = kwargs.get('md', None)
         multiline = kwargs.get('m', None)
-        stay_offline = kwargs.get('xo', None)
         try:
+            # todo: clean out initial vars
+            md_erc_id = ''
+            stay_offline = kwargs.get('xo', None)
             md_file = os.path.basename(path_file)
             md_mime_type = mimetypes.guess_type(path_file)
-            md_erc_id = "" # todo
+            #md_erc_id = ''  # todo
             if md_mime_type[0] is None:
                 if md_file.lower().endswith('.r'):
                     md_mime_type = 'text/plain'
@@ -85,8 +87,9 @@ class ParseRmd:
             else:
                 md_filepath = get_rel_path(path_file)
             md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
-            data_dict = {'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type},
-                         'ercIdentifier': md_erc_id,
+            #'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type
+            data_dict = {'mainfile': path_file,
+                         'ercIdentifier': '', #md_erc_id,
                          'recordDateCreated': md_record_date,
                          'depends': []}
             try:
@@ -118,8 +121,10 @@ class ParseRmd:
             except UnicodeDecodeError:
                 status_note(['! failed to decode <', md_file, '>'])
             # save to list of extracted md:
+            data_dict['provenance'] = get_prov(path_file)
             return data_dict
             # save or output results
+            # todo: reenable that option:
             #if metafiles_all:
             #    output_extraction(data_dict, out_format, out_mode, path_file)
         except Exception as exc:

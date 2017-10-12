@@ -1,6 +1,9 @@
 {
     "access_right": "open",
     "author": [],
+    "bagit": {
+        "bagittxt_files": []
+    },
     "codefiles": [],
     "communities": [
         {
@@ -9,8 +12,8 @@
     ],
     "depends": [],
     "description": null,
-    "display_candidates": [],
     "displayfile": null,
+    "displayfile_candidates": [],
     "ercIdentifier": null,
     "file": {
         "filename": null,
@@ -51,6 +54,7 @@
     "mainfile_candidates": [],
     "paperLanguage": [],
     "paperSource": null,
+    "provenance": [],
     "publicationDate": null,
     "publication_type": "other",
     "r_comment": [],

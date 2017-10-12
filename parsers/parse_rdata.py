@@ -17,7 +17,7 @@
 
 __all__ = ['ParseRData']
 
-
+import os
 from helpers.helpers import *
 
 ID = 'o2r meta rdata parser'
@@ -34,9 +34,9 @@ class ParseRData:
         return FORMATS
 
     def parse(self, **kwargs):
-        p = filepath
+        path_file = kwargs.get('p', None)
         # skip large files, unsuitable for text preview
-        if os.stat(filepath).st_size / 1024 ** 2 > 200:
+        if os.stat(path_file).st_size / 1024 ** 2 > 250:
             status_note('skipping large RData file...', d=True)
             return None
         rhome_name = 'R_HOME'
@@ -53,31 +53,29 @@ class ParseRData:
                             rpath = os.path.join(rpath, 'R')
                         else:
                             # Cannot take path
-                            status_note('invalid path to R executable', d=True)
+                            status_note('cannot parse .data file, R_HOME not configured or invalid path to R executable', d=True)
                             rpath = None
                 try:
-                    if not os.path.exists(rpath):
-                        # Cannot take path
-                        status_note('fnc <get_rdata>] invalid path to R installation', d=True)
-                        rpath = None
+                    if rpath is not None:
+                        if not os.path.exists(rpath):
+                            # Cannot take path
+                            status_note('cannot parse .data file, invalid path to R installation', d=True)
+                            rpath = None
                 except Exception as exc:
-                    if is_debug:
                         raise
-                    else:
-                        pass
             else:
                 status_note(rhome_name, d=True)
                 rpath = None
         else:
-            status_note([rhome_name, ' R_HOME env is not set...'], d=True)
+            status_note([rhome_name, 'cannot parse .rdata file, R_HOME not configured'], d=True)
             return None
         try:
             if rpath is None:
                 return None
             status_note('processing RData')
-            p = Popen([rpath, '--vanilla', os.path.abspath(filepath)], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+            p = Popen([rpath, '--vanilla', os.path.abspath(path_file)], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
             out = p.communicate(input=b'ls.str()')[0].decode('ISO-8859-1')[:-4].split("> ls.str()")[1]
             return out[:40000]
         except Exception as exc:
-            status_note('! error while retrieving rdata', d=True)
+            status_note(str(exc), d=True)
             raise

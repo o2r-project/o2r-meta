@@ -2,13 +2,17 @@ import datetime
 import sys
 import os
 
-__all__ = ['get_rel_path', 'status_note']
+__all__ = ['get_rel_path', 'get_prov', 'status_note']
 
 
 def get_rel_path(input_path, basedir):
     # this is the path for output and display, relative to --basedir flag
     output_path = os.path.relpath(os.path.join(input_path), basedir).replace('\\', '/')
     return output_path
+
+
+def get_prov(path_file):
+    return {path_file: ''.join((sys._getframe(1).f_globals['__name__'], '_', sys._getframe(1).f_code.co_name))}
 
 
 def status_note(msg, **kwargs):

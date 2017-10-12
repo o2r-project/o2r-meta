@@ -23,11 +23,8 @@ o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyri
 
 
 ## Installation
-o2r meta is designed for python 3.6 and supports python 3.4+.
 
-**Installation steps**
-
-(1) Acquire python version 3.6
+(1) Acquire python 3.6
 
 (2) Install the required modules:
 
@@ -39,7 +36,7 @@ Another way of installation is provided by the Dockerfile. Build it like this:
 
     docker build -t meta .
 
-And start a tool of o2rmeta like this:
+And start a tool of o2r meta like this:
 
 	docker run meta o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
 
@@ -61,7 +58,7 @@ Options:
 
 + `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
-Each tool then has a number of required arguments:
+Each tool then has a number of arguments:
 
 
 # (1) Extractor tool:
@@ -74,7 +71,7 @@ Example call:
 	
 Explanation of the switches:
 
-+ `-f` returns a list of supported file formats
++ `-f` returns a list of supported file formats and terminates program
 + `-i` <INPUT_DIR> : starting path for recursive search for parsable files
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
 + `-o` <OUTPUT_DIR> : output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
