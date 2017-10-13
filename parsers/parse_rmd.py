@@ -18,7 +18,6 @@ __all__ = ['ParseRmd']
 
 import json
 import os
-import mimetypes
 import re
 import datetime
 from guess_language import guess_language
@@ -62,36 +61,14 @@ class ParseRmd:
         return FORMATS
 
     def parse(self, **kwargs):
-        path_file = kwargs.get('p', None)
-        #out_format = kwargs.get('of', None)  # todo secure remove
-        #out_mode = kwargs.get('om', None)  # todo secure remove
-        MASTER_MD_DICT = kwargs.get('md', None)
-        multiline = kwargs.get('m', None)
         try:
-            # todo: clean out initial vars
-            md_erc_id = ''
+            path_file = kwargs.get('p', None)
+            MASTER_MD_DICT = kwargs.get('md', None)
+            multiline = kwargs.get('m', None)
             stay_offline = kwargs.get('xo', None)
-            md_file = os.path.basename(path_file)
-            md_mime_type = mimetypes.guess_type(path_file)
-            #md_erc_id = ''  # todo
-            if md_mime_type[0] is None:
-                if md_file.lower().endswith('.r'):
-                    md_mime_type = 'text/plain'
-                if md_file.lower().endswith('.rmd'):
-                    md_mime_type = 'text/markdown'
-            if md_erc_id is not None:
-                pattern = ''.join(('(', md_erc_id, '.*)'))
-                s = re.search(pattern, path_file)
-                if s:
-                    md_filepath = s.group(1)
-            else:
-                md_filepath = get_rel_path(path_file)
-            md_record_date = datetime.datetime.today().strftime('%Y-%m-%d')
-            #'file': {'filename': md_file, 'filepath': md_filepath, 'mimetype': md_mime_type
             data_dict = {'mainfile': path_file,
-                         'ercIdentifier': '', #md_erc_id,
-                         'recordDateCreated': md_record_date,
-                         'depends': []}
+                        'depends': []
+                         }
             try:
                 with open(path_file, encoding='utf-8') as input_file:
                     content = input_file.read()
@@ -113,11 +90,11 @@ class ParseRmd:
                                     from parsers.parse_yaml import ParseYaml
                                     data_dict.update(ParseYaml().internal_parse(s.group(1), MASTER_MD_DICT, stay_offline))
                                 if this_rule[0].startswith('rblock'):
-                                     data_dict = parse_r(s.group(1), data_dict)
+                                    data_dict = parse_r(s.group(1), data_dict)
                     else:
                         # parse entire file as one code block
-                        # data_dict.update(r_codeblock=parse_r(content, data_dict))
-                        data_dict = parse_r(content, data_dict)
+                        data_dict.update(r_codeblock=parse_r(content, data_dict))
+                        #data_dict = parse_r(content, data_dict)
             except UnicodeDecodeError:
                 status_note(['! failed to decode <', md_file, '>'])
             # save to list of extracted md:

@@ -12,7 +12,7 @@ def get_rel_path(input_path, basedir):
 
 
 def get_prov(path_file):
-    return {path_file: ''.join((sys._getframe(1).f_globals['__name__'], '_', sys._getframe(1).f_code.co_name))}
+    return {path_file: ' '.join((sys._getframe(1).f_globals['__name__'], sys._getframe(1).f_code.co_name))}
 
 
 def status_note(msg, **kwargs):

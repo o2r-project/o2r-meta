@@ -63,8 +63,8 @@ if __name__ == "__main__":
         harvester.add_argument('-q', '--query', type=str,  help='query string', required=True)
         # - - - - - - - - - - - - - - - - - -
         validator = subparsers.add_parser("validate")
-        validator.add_argument("-s", "--schema", type=str, required=True)
-        validator.add_argument("-c", "--candidate", type=str, required=True)
+        validator.add_argument('-s', '--schema', type=str, required=True)
+        validator.add_argument('-c', '--candidate', type=str, required=True)
         # - - - - - - - - - - - - - - - - - -
         args = parser.parse_args()
         argsd = vars(args)

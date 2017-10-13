@@ -78,7 +78,6 @@ def best_candidate(all_candidates_dict):
     if all_candidates_dict is None:
         status_note('unable to evaluate best md candidate', d=is_debug)
         return None
-    print(str(all_candidates_dict))
     try:
         # first find most complext candidate for 'mainfile' suggestion:
         k_max = 0
@@ -90,11 +89,10 @@ def best_candidate(all_candidates_dict):
                 continue
             candidate = len(all_candidates_dict[k])
             if candidate > k_max:
-                k_max = candidate
                 if 'mainfile' in all_candidates_dict[k]:
                     if all_candidates_dict[k]['mainfile'] is not None:
+                        k_max = candidate
                         k_max_filename = all_candidates_dict[k]['mainfile']
-                        print(str(k_max_filename))
         # - - - - - - - - - - - - - - - - -
         # now create compositional dict for all features available
         result = {}
@@ -278,7 +276,7 @@ def start(**kwargs):
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
-        'ercIdentifier': None,
+        'ercIdentifier': md_erc_id,
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
         'identifier': {'doi': None, 'doiurl': None, 'reserveddoi': None},
@@ -317,7 +315,7 @@ def start(**kwargs):
         'researchQuestions': [],
         'researchHypotheses': [],
         'softwarePaperCitation': None,
-        'spatial': {'files': None, 'union': None},
+        'spatial': {'files': [], 'union': None},
         'temporal': {'begin': None, 'end': None},
         'title': None,
         'upload_type': 'publication',  # default
@@ -367,16 +365,21 @@ def start(**kwargs):
                 continue
             # deal with different input formats:
             file_extension = os.path.splitext(full_file_path)[1].lower()
-            status_note(['processing ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
             # new file / new source
             nr += 1
             # interact with different file formats:
+            has_been_processed = False
             for x in PARSERS_CLASS_LIST:
                 if hasattr(x, 'get_formats'):
                     if file_extension in x.get_formats():
                         if hasattr(x, 'parse'):
-                            #extract_from_candidate(new_id, full_file_path, output_format, output_mode, False, rule_set_r)
                             CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, m=True, xo=stay_offline)
+                            has_been_processed = True
+            if has_been_processed:
+                #####CANDIDATES_MD_DICT[new_id]['mainfile'] = full_file_path
+                ##if 'recordDateCreated' in CANDIDATES_MD_DICT[new_id]:
+                ##    CANDIDATES_MD_DICT[new_id]['recordDateCreated'] = datetime.datetime.today().strftime('%Y-%m-%d')
+                status_note(os.path.normpath(os.path.join(root, file)), b=log_buffer, d=is_debug)
     status_note([nr, ' files processed'])
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
@@ -389,8 +392,9 @@ def start(**kwargs):
             MASTER_MD_DICT[key] = best[key]
     # Make final adjustments on the master dict before output:
     # \ Add spatial from candidates:
-    if 'spatial' in MASTER_MD_DICT and 'global_spatial' in CANDIDATES_MD_DICT:
-        MASTER_MD_DICT['spatial'] = CANDIDATES_MD_DICT['global_spatial']
+    # todo: compute union bbox from list of filewise bboxes
+    #
+    #
     if MASTER_MD_DICT['identifier']['doi'] is not None:
         MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
     # \ Fix and default publication date if none

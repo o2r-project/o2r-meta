@@ -3,5 +3,6 @@ dicttoxml
 guess_language-spirit
 jsonschema
 lxml
+pygeoj
 python-dateutil
 requests
