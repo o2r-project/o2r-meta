@@ -392,8 +392,14 @@ def start(**kwargs):
             MASTER_MD_DICT[key] = best[key]
     # Make final adjustments on the master dict before output:
     # \ Add spatial from candidates:
-    # todo: compute union bbox from list of filewise bboxes
-    #
+    print(str(MASTER_MD_DICT))
+    if 'spatial' in MASTER_MD_DICT:
+        if 'files' in MASTER_MD_DICT['spatial']:
+            coorlist = []
+            for key in MASTER_MD_DICT['spatial']['files']:
+                if 'bbox' in key:
+                    coorlist.append(key['bbox'])
+            MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
     #
     if MASTER_MD_DICT['identifier']['doi'] is not None:
         MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))

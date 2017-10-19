@@ -2,7 +2,7 @@ import datetime
 import sys
 import os
 
-__all__ = ['get_rel_path', 'get_prov', 'status_note']
+__all__ = ['get_rel_path', 'get_prov', 'status_note', 'calculate_geo_bbox_union']
 
 
 def get_rel_path(input_path, basedir):
@@ -33,3 +33,30 @@ def status_note(msg, **kwargs):
         debug_txt = ''
     if not log_buffer:
         print(''.join(('[o2rmeta]', debug_txt, date_txt, ' ', msg)))
+
+
+def calculate_geo_bbox_union(coordinate_list):
+    global is_debug
+    if coordinate_list is None:
+        #return [(0, 0), (0, 0), (0, 0), (0, 0)]
+        return None
+    else:
+        try:
+            min_x = 181.0
+            min_y = 181.0
+            max_x = -181.0
+            max_y = -181.0
+            # max =[181.0, 181.0, -181.0, -181.0]  # proper max has -90/90 & -180/180
+            # todo: deal with international date line wrapping
+            for n in coordinate_list:
+                if n[0] < min_x:
+                    min_x = n[0]
+                if n[0] > max_x:
+                    max_x = n[0]
+                if n[1] < min_y:
+                    min_y = n[1]
+                if n[1] > max_y:
+                    max_y = n[1]
+            return [(min_x, min_y), (max_x, min_y), (max_x, max_y), (min_x, max_y)]
+        except Exception as exc:
+            status_note(str(exc), d=True)
