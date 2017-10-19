@@ -1,12 +1,9 @@
 {
     "access_right": "open",
-    "author": [
-        {
-            "affiliation": [],
-            "name": null,
-            "orcid": null
-        }
-    ],
+    "author": [],
+    "bagit": {
+        "bagittxt_files": []
+    },
     "codefiles": [],
     "communities": [
         {
@@ -15,6 +12,8 @@
     ],
     "depends": [],
     "description": null,
+    "displayfile": null,
+    "displayfile_candidates": [],
     "ercIdentifier": null,
     "file": {
         "filename": null,
@@ -44,9 +43,18 @@
         }
     },
     "keywords": [],
-    "license": "cc-by",
+    "license": {
+        "code": null,
+        "data": null,
+        "md": null,
+        "text": null,
+        "uibindings": null
+    },
+    "mainfile": null,
+    "mainfile_candidates": [],
     "paperLanguage": [],
     "paperSource": null,
+    "provenance": [],
     "publicationDate": null,
     "publication_type": "other",
     "r_comment": [],
@@ -58,7 +66,7 @@
     "researchQuestions": [],
     "softwarePaperCitation": null,
     "spatial": {
-        "files": null,
+        "files": [],
         "union": null
     },
     "temporal": {
@@ -67,6 +75,5 @@
     },
     "title": null,
     "upload_type": "publication",
-    "version": null,
-    "viewfile": []
+    "version": null
 }

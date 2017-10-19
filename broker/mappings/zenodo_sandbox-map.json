@@ -1,0 +1,138 @@
+{
+	"Settings": {
+		"name": "zenodo_sandbox",
+		"outputfile": "metadata_zenodo_sandbox.json",
+		"map_description": "maps o2r schema compliant MD to Zenodo Sandbox for deposition creation",
+		"mode": "json",
+		"root": "metadata"
+	},
+	"Map": {
+		"access_right":  {
+			"translatesTo": "access_right",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"author": {
+			"translatesTo": "creators",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"name": {
+			"translatesTo": "name",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"affiliation": {
+			"translatesTo": "affiliation",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"publicationDate": {
+			"translatesTo": "publication_date",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publication_type":  {
+			"translatesTo": "publication_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"abstract": {
+			"translatesTo": "description",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"title":  {
+			"translatesTo": "title",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"license":  {
+			"translatesTo": "license",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"keywords":  {
+			"translatesTo": "keywords",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"communities":  {
+			"translatesTo": "communities",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"hasParent": "communities",
+			"needsParent": "communities"
+		},
+		"upload_type": {
+			"translatesTo": "upload_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
+	},
+	"Map_disabled": {
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"recordDateCreated":  {
+			"translatesTo": "dateCreated",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"todo": "image_type",
+		"todo": "embargo_date",
+		"todo": "access_conditions",
+		"todo": "doi",
+		"todo": "prereserve_doi",
+		"todo": "notes",
+		"todo": "related_identifiers",
+		"todo": "contributors",
+		"todo": "references",
+		"todo": "grants",
+		"todo": "journal_title",
+		"todo": "journal_volume",
+		"todo": "journal_issue",
+		"todo": "journal_pages",
+		"todo": "conference_title",
+		"todo": "conference_acronym",
+		"todo": "conference_dates",
+		"todo": "conference_place",
+		"todo": "conference_url",
+		"todo": "conference_session",
+		"todo": "conference_session_part",
+		"todo": "imprint_publisher",
+		"todo": "imprint_isbn",
+		"todo": "imprint_place",
+		"todo": "partof_title",
+		"todo": "partof_pages",
+		"todo": "thesis_supervisors",
+		"todo": "thesis_university",
+		"todo": "subjects"
+	}
+}

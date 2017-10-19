@@ -1,0 +1,41 @@
+{
+	"Settings": {
+		"name": "b2share_sandbox",
+		"outputfile": "metadata_b2share_sandbox.json",
+		"map_description": "maps o2r schema compliant MD to Eudat b2share Sandbox for deposition creation",
+		"mode": "json",
+		"root": "metadata"
+	},
+	"Map": {
+		"publicationDate": {
+			"translatesTo": "publication_date",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publication_type":  {
+			"translatesTo": "description_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"title":  {
+			"translatesTo": "title",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"open_access":  {
+			"translatesTo": "open_access",
+			"type": "boolean",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
+	}
+}

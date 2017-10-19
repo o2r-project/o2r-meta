@@ -1,4 +1,8 @@
-[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
+**DEV** | **MASTER** 
+------ | ------ |
+[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=dev)](https://travis-ci.org/o2r-project/o2r-meta) |[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
+current development branch<br> containing latest updates | "stable" branch for<br> o2r ref. implementation |
+
 
 # o2r meta
 
@@ -19,35 +23,12 @@ o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyri
 
 
 ## Installation
-o2r meta is designed for python 3.6 and supports python 3.4+.
 
-**Installation steps**
+(1) Acquire python 3.6
 
-(1) Acquire python version 3.4+.
-
-(2) Parts of o2r meta require the _gdal_ module that is known for causing trouble when installed via _PIP_. Therefore it is recommended to prepare the installation like this:
-
-    sudo add-apt-repository ppa:ubuntugis/ppa -y
-    sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-    sudo apt-get -qq update
-    sudo apt-get install -y python3-dev
-    sudo apt-get install -y libgdal1h
-    sudo apt-get install -y libgdal-dev
-    sudo apt-get build-dep -y python-gdal
-    sudo apt-get install -y python-gdal
-    export CPLUS_INCLUDE_PATH=/usr/include/gdal
-    export C_INCLUDE_PATH=/usr/include/gdal
-
-and afterwards install _gdal_ this way:
-
-    pip install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
-
-Alternatively you can use a [precompiled python wheel](http://www.lfd.uci.edu/~gohlke/pythonlibs/#gdal) (_note_: these are inofficially provided) of the gdal module that fits your desired platform.
-
-(3) Install the required modules:
+(2) Install the required modules:
 
     pip install -r requirements.txt
-
 
 ### Using Docker
 
@@ -55,7 +36,7 @@ Another way of installation is provided by the Dockerfile. Build it like this:
 
     docker build -t meta .
 
-And start the extractor (e.g.) like this:
+And start a tool of o2r meta like this:
 
 	docker run meta o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
 
@@ -75,9 +56,9 @@ When calling o2r meta, you can chose from the following commands, each represent
 
 Options:
 
-+ `debug` : option to enable verbose debug info where applicable	
++ `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
-Each tool then has a number of required arguments:
+Each tool then has a number of arguments:
 
 
 # (1) Extractor tool:
@@ -90,9 +71,10 @@ Example call:
 	
 Explanation of the switches:
 
-+ `-i` <INPUT_DIR> : required starting path for recursive search for parsable files
++ `-f` returns a list of supported file formats and terminates program
++ `-i` <INPUT_DIR> : starting path for recursive search for parsable files
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
-+ `-o` <OUTPUT_DIR> : required output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
++ `-o` <OUTPUT_DIR> : output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
 + `-xo` : option to disable http requests (the extractor will stay offline. This disables orcid retrieval, erc spec download, doi retrieval, ...)
 + `-m` : option to additionally enable individual output of all processed files.
 + `-xml` : option to change output format from json (default) to xml.
@@ -131,7 +113,7 @@ The broker has two modes: In _mapping mode_, it creates fitting metadata for a g
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
 
 The broker can be used to translate between different standards for metadata sets. For example from extracted raw metadata to schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
-Translation instructions as well as checklists are stored in json formatted map files.
+Translation instructions as well as checklists are stored in json formatted map files, documented at [schema/docs/mappings_docs.md](https://github.com/o2r-project/o2r-meta/tree/master/schema/docs/mappings_docs.md).
 
     python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 	
