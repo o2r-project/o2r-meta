@@ -45,6 +45,7 @@ And start a tool of o2r meta like this:
 ## Documentation
 
 + Current documentation as part of the [ERC-SPEC](http://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
++ Current elements of raw MD [elements.md](schema/docs/elements.md)
 + Current [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
 + [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
 + ~~[schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)~~ 
@@ -83,7 +84,7 @@ Explanation of the switches:
 
 ### List of elements for raw MD
 
-See [elements.md](schema\docs\elements.md).
+See [elements.md](schema/docs/elements.md).
 
 
 ### Supported files and formats for the metadata extraction process:
