@@ -12,31 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM alpine:3.6
-
-# Python, based on frolvlad/alpine-python3
-RUN apk add --no-cache \
-  python3 \
-  && python3 -m ensurepip \
-  && rm -r /usr/lib/python*/ensurepip \
-  && pip3 install --upgrade pip setuptools \
-  && if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
-  && rm -r /root/.cache
-
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" > /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
-  && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
-
-RUN apk add --update-cache \
-    python3-dev \
-    g++ \
-    gcc \
-    libxml2-dev \
-    libxslt-dev \
-    gdal \
-    gdal-dev \
-    py-gdal \
-    git
+FROM python:3-stretch
 
 WORKDIR /o2r-meta
 COPY requirements.txt requirements.txt
@@ -50,8 +26,6 @@ COPY parsers parsers
 COPY schema schema
 COPY validate validate
 COPY o2rmeta.py o2rmeta.py
-
-RUN apk del git py-pip
 
 # Metadata http://label-schema.org/rc1/
 LABEL maintainer="o2r-project <https://o2r.info>" \
