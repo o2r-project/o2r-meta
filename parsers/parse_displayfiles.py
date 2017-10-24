@@ -38,15 +38,16 @@ class ParseDisplayFiles:
         MASTER_MD_DICT = kwargs.get('md', None)
         path_file = kwargs.get('p', None)
         extension = kwargs.get('ext', None)
-        MASTER_MD_DICT = add_candidates('codefiles', extension, ['.r', '.rmd', '.js', '.py'], MASTER_MD_DICT, path_file)
-        MASTER_MD_DICT = add_candidates('displayfile_candidates', extension, ['.html', '.htm', '.png', 'pdf'], MASTER_MD_DICT, path_file)
-        MASTER_MD_DICT = add_candidates('mainfile_candidates', extension, ['.r', '.rmd'], MASTER_MD_DICT, path_file)
+        basedir = kwargs.get('bd', None)
+        MASTER_MD_DICT = add_candidates('codefiles', extension, ['.r', '.rmd', '.js', '.py'], MASTER_MD_DICT, path_file, basedir)
+        MASTER_MD_DICT = add_candidates('displayfile_candidates', extension, ['.html', '.htm', '.png', 'pdf'], MASTER_MD_DICT, path_file, basedir)
+        MASTER_MD_DICT = add_candidates('mainfile_candidates', extension, ['.r', '.rmd'], MASTER_MD_DICT, path_file, basedir)
         return MASTER_MD_DICT
 
 
-def add_candidates(key_name, extension, extensions_list, master_dict, path_file):
+def add_candidates(key_name, extension, extensions_list, master_dict, path_file, basedir):
     if key_name in master_dict:
         if os.path.isfile(path_file):
             if extension in extensions_list:
-                master_dict[key_name].append(path_file)
+                master_dict[key_name].append(os.path.normpath(os.path.relpath(path_file, basedir)))
     return master_dict

@@ -45,6 +45,7 @@ And start a tool of o2r meta like this:
 ## Documentation
 
 + Current documentation as part of the [ERC-SPEC](http://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
++ Current elements of raw MD [elements.md](schema/docs/elements.md)
 + Current [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
 + [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
 + ~~[schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)~~ 
@@ -71,7 +72,7 @@ Example call:
 	
 Explanation of the switches:
 
-+ `-f` returns a list of supported file formats and terminates program
++ `-f` returns a list of supported file formats (extensions) and terminates program
 + `-i` <INPUT_DIR> : starting path for recursive search for parsable files
 + `-s`: option to print out results to console. This switch is mutually exclusive with `-o`. At least one of them must be given
 + `-o` <OUTPUT_DIR> : output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
@@ -81,29 +82,14 @@ Explanation of the switches:
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
 
+### List of elements for raw MD
+
+See [elements.md](schema/docs/elements.md).
+
+
 ### Supported files and formats for the metadata extraction process:
 
-_Feel free to open an issue for suggestions!_
-
-Current version:
-
-**file type** | **description** | **extracted part** | **status**
------- | ------ | ------ | ------ |
-(r session) | live extraction | memory objects | under evaluation
-.cdl/.nc | NetCDF | geometry | under evaluation
-.csv/.tsv | seperated values | column headers | planned
-.geojson/.json | GeoJSON | geometry | WIP
-.gpkg | OGC GeoPackage | geometry | planned
-.jp2 | JPEG2000 | geometry | planned
-.py | python script | all | planned
-.r | R Script | all | implemented
-.rmd | R-Markdown | all | implemented
-.shp | Esri shapefile | geometry | implemented
-.tex | LaTeX | header | planned
-.tif(f) | geo TIFF | geometry | planned
-.yml | YAML | metadata | planned
-bagit.txt | BagIt | metadata | implemented
-... | ... | ... | ...
+Use `python o2rmeta.py extract -f` to see supported formats.
 
 
 
