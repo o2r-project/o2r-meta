@@ -34,40 +34,40 @@ _Last updated: 2017-10-20, work in progress!_
 - `inputfiles` _Array of strings_. A compiled list of files from the extracted workspace that is called or used in the extracted code of the workspace.
 - `interaction` TBD
 - `keywords` _Array of strings_.
-- `license`_Object_.  
-- `license.code` _String_.  
-- `license.data `_String_.  
-- `license.md` _String_. 
-- `license.text`_String_. 
-- `license.uibindings` _String_. 
-- `mainfile` _String_. 
-- `mainfile_candidates` _Array_. 
-- `paperLanguage` _Array of strings_. 
-- `paperSource` _String_. _Deprecated_.
+- `license`_Object_.  License information for the entire ERC.
+- `license.code` _String_. License information for the code included.
+- `license.data `_String_. License information for the data included.
+- `license.md` _String_. License information for the metadata included. Should be cc0 to include in catalogues.
+- `license.text`_String_. License information for the text included.
+- `license.uibindings` _String_. License information for the UI-bindings included.
+- `mainfile` _String_. The suggested main file of workspace
+- `mainfile_candidates` _Array_. Unsorted list of mainfile candidates of the workspace.
+- `paperLanguage` _Array of strings_. List of guessed languages for the workspace.
+- ~~`paperSource` _String_.~~ _Deprecated_.
 - `provenance`  _Array of objects_. More information of where the MD came from.
-- `publicationDate` _String_. Iso date timestamp.
+- `publicationDate` _String_. The publication date of the paper publication as ISO8601 string.
 - `publication_type` _String_. Zenodo preset. Defaults to "other".
-- `r_comment` _Array of objects_.
+- `r_comment` _Array of objects_. Comments in extracted R code.
 - `r_comment.feature` _String_.
 - `r_comment.line` _Integer_.
 - `r_comment.text` _String_.
-- `r_input`  _Array of objects_.
-- `r_input[0].feature`
+- `r_input`  _Array of objects_. Input contexts in extracted R code.
+- `r_input[0].feature` _String_
 - `r_input[0].line` _Integer_.
 - `r_input[0].text` _String_.
-- `r_output` _Array of objects_.
-- `r_output[0].feature`
+- `r_output` _Array of objects_. Output contexts in extracted R code.
+- `r_output[0].feature` _String_.
 - `r_output[0].line`_Integer_.
 - `r_output[0].text` _String_.
 - `r_rdata` _Array of objects_.
-- `recordDateCreated` _String_.
+- `recordDateCreated` _String_. The publication date of the paper publication as ISO8601 string.
 - `researchHypotheses` _Array of strings_. _Deprecated_.
 - `researchQuestions` _Array of strings_. _Deprecated_.
 - `softwarePaperCitation` _String_.
-- `spatial` _Object_.
+- `spatial` _Object_. Spatial information of the workspace.
 - `spatial.files` _Array of objects_.
 - `spatial.files.bbox`_Array of strings_. Contains the coordinates of the corresponding bounding box of the file.
-- `spatial.files.name`
+- `spatial.files.name` _String_. File names extracted from.
 - `spatial.union` _Object_.
 - `spatial.union.bbox`_Array of array of strings_. The union bounding box of the spatial extractions (files). _Will be made geojson compatible_.
 - `temporal` _Object_. Aggregated information about the relevant time period of the underlying data sets.
