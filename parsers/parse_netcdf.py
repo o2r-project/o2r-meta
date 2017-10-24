@@ -21,6 +21,7 @@ from helpers.helpers import *
 import netCDF4
 
 
+ID = 'o2r meta netcdf parser'
 FORMATS = ['.nc']
 # FORMATS = ['.nc', '.cdl']
 
@@ -43,13 +44,3 @@ class ParseNetcdf:
             return None
         except Exception as exc:
             status_note(str(exc), d=True)
-
-
-import netCDF4
-
-
-a = netCDF4.Dataset("data/smith_sandwell_topo_v8_2.nc")
-
-# try bbox
-
-print(str(a.dimensions))
