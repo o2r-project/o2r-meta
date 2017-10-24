@@ -4,13 +4,16 @@ broker/tests/all
 metadata_raw.json
 metadata_o2r.json
 metadata_zenodo.json
+metadata_zenodo_sandbox.json
 metadata_eudat.json
+metadata_b2share.json
+metadata_b2share_sandbox.json
 metadata_mods.json
 testerc.yml
 erc.yml
 erc_raw.yml
 erc_spec.zip
-
+*.backup
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -167,23 +167,9 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note([str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.relpath(out_path_file).replace('\\', '/')])
+            status_note([str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.normpath(os.path.relpath(out_path_file))])
     except Exception as exc:
         status_note(str(exc), d=is_debug)
-
-
-def guess_paper_source():
-    try:
-        # todo: get paperSource from rmd file that has same name as its html rendering
-        if 'file' in MASTER_MD_DICT:
-            return MASTER_MD_DICT['file']['filename']
-        else:
-            return None
-    except Exception as exc:
-        status_note(str(exc), d=is_debug)
-
-
-
 
 
 def register_parsers(**kwargs):
@@ -303,7 +289,6 @@ def start(**kwargs):
                     },
         'access_right': 'open',  # default
         'paperLanguage': [],
-        'paperSource': None,
         'provenance': [],
         'publicationDate': None,
         'publication_type': 'other',  # default
@@ -329,16 +314,14 @@ def start(**kwargs):
     global main_metadata_filename
     main_metadata_filename = 'metadata_raw.json'
     global file_list_input_candidates
-    # create dummy file to indicate latest data structure
-    try:
-        with open(os.path.join("schema", "json", "dummy.json"), 'w', encoding='utf-8') as dummyfile:
-            dummyfile.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
-    except Exception as exc:
-        if is_debug:
-            raise
-        else:
-            status_note(['! error while extracting: ', exc.args[0]], d=is_debug)
-    # process all files in input directory +recursive
+    # create dummy file if in debug mode to indicate latest data structure
+    if is_debug:
+        try:
+            with open(os.path.join(os.path.dirname(sys.modules['__main__'].__file__), 'schema', 'json', 'dummy.json'), 'w', encoding='utf-8') as f:
+                f.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
+        except Exception as exc:
+                status_note(['! could not write md dummy file: ', exc.args[0]], d=is_debug)
+    # process all files in input directory recursively
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
@@ -349,7 +332,7 @@ def start(**kwargs):
             # give it a number
             new_id = str(uuid.uuid4())
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
-                file_list_input_candidates.append(get_rel_path(full_file_path, basedir))
+                file_list_input_candidates.append(os.path.relpath(full_file_path, basedir))
             if nr < 50:
                 # use buffering to prevent performance issues when parsing very large numbers of files
                 log_buffer = False
@@ -373,7 +356,7 @@ def start(**kwargs):
                 if hasattr(x, 'get_formats'):
                     if file_extension in x.get_formats():
                         if hasattr(x, 'parse'):
-                            CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, m=True, xo=stay_offline)
+                            CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, bd=basedir, m=True, xo=stay_offline)
                             has_been_processed = True
             if has_been_processed:
                 #####CANDIDATES_MD_DICT[new_id]['mainfile'] = full_file_path
@@ -423,9 +406,6 @@ def start(**kwargs):
                                 match = x
                     if match is not None:
                         MASTER_MD_DICT['displayfile'] = match
-    # \ Fix and complete paperSource element, if existing:
-    if 'paperSource' in MASTER_MD_DICT:
-        MASTER_MD_DICT['paperSource'] = guess_paper_source()
     # Process output
     if output_mode == '@s' or output_dir is None:
         # write to screen
