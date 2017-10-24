@@ -38,9 +38,9 @@ Another way of installation is provided by the Dockerfile. Build it like this:
 
 And start a tool of o2r meta like this:
 
-	docker run meta o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
+	docker run -v $(pwd)/extract/tests/:/testdata:ro meta -debug extract -i /testdata -s
 
-	
+You can pass all options to the images as if running o2rmeta.py directly, but must naturally mount all required data into the container.
 
 ## Documentation
 
