@@ -30,7 +30,6 @@ from helpers.helpers import *
 from helpers.http_requests import *
 
 
-
 def extract_temporal(file_id, filepath, data, timestamp):
     global is_debug
     global date_new
@@ -79,7 +78,7 @@ def best_candidate(all_candidates_dict):
         status_note('unable to evaluate best md candidate', d=is_debug)
         return None
     try:
-        # first find most complext candidate for 'mainfile' suggestion:
+        # first find most complex candidate for 'mainfile' suggestion:
         k_max = 0
         k_max_filename = ''
         for k in all_candidates_dict:
@@ -133,7 +132,7 @@ def best_candidate(all_candidates_dict):
                                                     inputfiles.append(filename)
                                                     break
         result.update({'inputfiles': inputfiles})
-        result.update({'mainfile': k_max_filename})
+        result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
         return result
     except Exception as exc:
         status_note(str(exc), d=is_debug)
