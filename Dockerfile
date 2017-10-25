@@ -27,6 +27,12 @@ COPY schema schema
 COPY validate validate
 COPY o2rmeta.py o2rmeta.py
 
+# Metadata params provided with docker build command
+ARG VERSION=dev
+ARG VCS_URL
+ARG VCS_REF
+ARG BUILD_DATE
+
 # Metadata http://label-schema.org/rc1/
 LABEL maintainer="o2r-project <https://o2r.info>" \
   org.label-schema.vendor="o2r project" \
@@ -37,7 +43,6 @@ LABEL maintainer="o2r-project <https://o2r.info>" \
   org.label-schema.vcs-url=$VCS_URL \
   org.label-schema.vcs-ref=$VCS_REF \
   org.label-schema.build-date=$BUILD_DATE \
-  org.label-schema.docker.schema-version="rc1" \
-  info.o2r.meta.version=$META_VERSION
+  org.label-schema.docker.schema-version="rc1"
 
 ENTRYPOINT ["python3", "/o2r-meta/o2rmeta.py"]
