@@ -31,6 +31,78 @@
 			"hasParent": "author",
 			"needsParent": "creators"
 		},
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "author",
+			"needsParent": "creators"
+		},
+		"codefiles": {
+			"translatesTo": "codefiles",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"displayfile": {
+			"translatesTo": "displayfile",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"displayfile_candidates": {
+			"translatesTo": "displayfile_candidates",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"depends": {
+			"translatesTo": "depends",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"ercIdentifier": {
+			"translatesTo": "ercIdentifier",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"inputfiles": {
+			"translatesTo": "inputfiles",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"interaction": {
+			"translatesTo": "interaction",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"mainfile": {
+			"translatesTo": "mainfile",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"mainfile_candidates": {
+			"translatesTo": "mainfile_candidates",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"paperLanguage": {
+			"translatesTo": "paperLanguage",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
 		"publicationDate": {
 			"translatesTo": "publication_date",
 			"type": "string",
@@ -39,6 +111,18 @@
 		},
 		"publication_type":  {
 			"translatesTo": "publication_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"spatial":  {
+			"translatesTo": "spatial",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"temporal":  {
+			"translatesTo": "temporal",
 			"type": "string",
 			"hasParent": "root",
 			"needsParent": "root"
