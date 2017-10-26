@@ -45,4 +45,7 @@ LABEL maintainer="o2r-project <https://o2r.info>" \
   org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.docker.schema-version="rc1"
 
+RUN useradd o2r
+USER o2r
+
 ENTRYPOINT ["python3", "/o2r-meta/o2rmeta.py"]
