@@ -77,65 +77,78 @@ def best_candidate(all_candidates_dict):
     if all_candidates_dict is None:
         status_note('unable to evaluate best md candidate', d=is_debug)
         return None
-    try:
-        # first find most complex candidate for 'mainfile' suggestion:
-        k_max = 0
-        k_max_filename = ''
-        for k in all_candidates_dict:
-            if k is None:
-                continue
-            if all_candidates_dict[k] is None:
-                continue
-            candidate = len(all_candidates_dict[k])
-            if candidate > k_max:
-                if 'mainfile' in all_candidates_dict[k]:
-                    if all_candidates_dict[k]['mainfile'] is not None:
-                        k_max = candidate
-                        k_max_filename = all_candidates_dict[k]['mainfile']
-        # - - - - - - - - - - - - - - - - -
-        # now create compositional dict for all features available
-        result = {}
-        inputfiles = []
-        for key in all_candidates_dict:
-            if all_candidates_dict[key] is not None:
-                for subkey in all_candidates_dict[key]:
-                    # determine completeness
-                    if subkey not in result:
-                        new_key = {subkey: all_candidates_dict[key][subkey]}
-                        result.update(new_key)
-                        # include function input file paths
-                        if subkey == 'r_input':
-                            for inputkey in all_candidates_dict[key][subkey]:
-                                if 'text' in inputkey:
-                                    for filename in file_list_input_candidates:
-                                        # check if r inputfile is among encountered files
-                                        if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
-                                            # keep list entries unique:
-                                            if filename not in inputfiles:
-                                                inputfiles.append(filename)
-                                                break
-                    else:
-                        # this feature is already present, extracted from another file:
-                        # take better version
-                        if len(str(result[subkey])) < len(str(all_candidates_dict[key][subkey])):
-                            # present key is less complex than new key, hence take new one
-                            result.pop(subkey)
-                            new_key = {subkey: all_candidates_dict[key][subkey]}
-                            result.update(new_key)
-                            # include function input file paths
-                            if subkey == 'r_input':
-                                for inputkey in all_candidates_dict[key][subkey]:
-                                    if 'text' in inputkey:
-                                        for filename in file_list_input_candidates:
-                                            if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
-                                                if filename not in inputfiles:
-                                                    inputfiles.append(filename)
-                                                    break
-        result.update({'inputfiles': inputfiles})
-        result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
-        return result
-    except Exception as exc:
-        status_note(str(exc), d=is_debug)
+    else:
+        if all_candidates_dict == {}:
+            return None
+        else:
+            abort = True
+            # test all entries empty and abort if no content:
+            for none_test in all_candidates_dict:
+                if all_candidates_dict[none_test] is not None:
+                    abort = False
+            if abort:
+                return None
+            else:
+                try:
+                    # first find most complex candidate for 'mainfile' suggestion:
+                    k_max = 0
+                    k_max_filename = ''
+                    for k in all_candidates_dict:
+                        if k is None:
+                            continue
+                        if all_candidates_dict[k] is None:
+                            continue
+                        candidate = len(all_candidates_dict[k])
+                        if candidate > k_max:
+                            if 'mainfile' in all_candidates_dict[k]:
+                                if all_candidates_dict[k]['mainfile'] is not None:
+                                    k_max = candidate
+                                    k_max_filename = all_candidates_dict[k]['mainfile']
+                    # - - - - - - - - - - - - - - - - -
+                    # now create compositional dict for all features available
+                    result = {}
+                    inputfiles = []
+                    for key in all_candidates_dict:
+                        if all_candidates_dict[key] is not None:
+                            for subkey in all_candidates_dict[key]:
+                                # determine completeness
+                                if subkey not in result:
+                                    new_key = {subkey: all_candidates_dict[key][subkey]}
+                                    result.update(new_key)
+                                    # include function input file paths
+                                    if subkey == 'r_input':
+                                        for inputkey in all_candidates_dict[key][subkey]:
+                                            if 'text' in inputkey:
+                                                for filename in file_list_input_candidates:
+                                                    # check if r inputfile is among encountered files
+                                                    if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                                        # keep list entries unique:
+                                                        if filename not in inputfiles:
+                                                            inputfiles.append(filename)
+                                                            break
+                                else:
+                                    # this feature is already present, extracted from another file:
+                                    # take better version
+                                    if len(str(result[subkey])) < len(str(all_candidates_dict[key][subkey])):
+                                        # present key is less complex than new key, hence take new one
+                                        result.pop(subkey)
+                                        new_key = {subkey: all_candidates_dict[key][subkey]}
+                                        result.update(new_key)
+                                        # include function input file paths
+                                        if subkey == 'r_input':
+                                            for inputkey in all_candidates_dict[key][subkey]:
+                                                if 'text' in inputkey:
+                                                    for filename in file_list_input_candidates:
+                                                        if inputkey['text'] == os.path.basename(filename) and inputkey['text'] not in inputfiles:
+                                                            if filename not in inputfiles:
+                                                                inputfiles.append(filename)
+                                                                break
+                    result.update({'inputfiles': inputfiles})
+                    result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
+                    return result
+                except Exception as exc:
+                    raise
+                    status_note(str(exc), d=is_debug)
 
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
@@ -367,49 +380,54 @@ def start(**kwargs):
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
     # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
-    for key in best:
-        #if key == 'author':
-        #    continue
-        if key in MASTER_MD_DICT:
-            MASTER_MD_DICT[key] = best[key]
-    # Make final adjustments on the master dict before output:
-    # \ Add spatial from candidates:
-    print(str(MASTER_MD_DICT))
-    if 'spatial' in MASTER_MD_DICT:
-        if 'files' in MASTER_MD_DICT['spatial']:
-            coorlist = []
-            for key in MASTER_MD_DICT['spatial']['files']:
-                if 'bbox' in key:
-                    coorlist.append(key['bbox'])
-            MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
-    #
-    if MASTER_MD_DICT['identifier']['doi'] is not None:
-        MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
-    # \ Fix and default publication date if none
-    if 'publicationDate' in MASTER_MD_DICT:
-        if MASTER_MD_DICT['publicationDate'] is None:
-            MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-    # \ Add display file if mainfile rmd exists
-    if 'displayfile_candidates' in MASTER_MD_DICT:
-        if 'mainfile' in MASTER_MD_DICT:
-            if MASTER_MD_DICT['mainfile'] is not None:
-                if os.path.isfile(MASTER_MD_DICT['mainfile']):
-                    main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
-                    # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
-                    main_basefile_name = os.path.basename(main_pathfile_name)
-                    if 'displayfile_candidates' in MASTER_MD_DICT:
-                        match = None
-                        for x in MASTER_MD_DICT['displayfile_candidates']:
-                            x_main, x_extension = os.path.splitext(os.path.basename(x))
-                            if x_main == main_basefile_name:
-                                match = x
-                    if match is not None:
-                        MASTER_MD_DICT['displayfile'] = match
-    # Process output
-    if output_mode == '@s' or output_dir is None:
-        # write to screen
-        output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
-    else:
-        # write to file
+    if best is None:
+        status_note('Warning: could not find extractable content', d=False)
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
-        get_ercspec_http(output_dir, stay_offline)
+        sys.exit(0)
+    else:
+        for key in best:
+            #if key == 'author':
+            #    continue
+            if key in MASTER_MD_DICT:
+                MASTER_MD_DICT[key] = best[key]
+        # Make final adjustments on the master dict before output:
+        # \ Add spatial from candidates:
+        print(str(MASTER_MD_DICT))
+        if 'spatial' in MASTER_MD_DICT:
+            if 'files' in MASTER_MD_DICT['spatial']:
+                coorlist = []
+                for key in MASTER_MD_DICT['spatial']['files']:
+                    if 'bbox' in key:
+                        coorlist.append(key['bbox'])
+                MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
+        #
+        if MASTER_MD_DICT['identifier']['doi'] is not None:
+            MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
+        # \ Fix and default publication date if none
+        if 'publicationDate' in MASTER_MD_DICT:
+            if MASTER_MD_DICT['publicationDate'] is None:
+                MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
+        # \ Add display file if mainfile rmd exists
+        if 'displayfile_candidates' in MASTER_MD_DICT:
+            if 'mainfile' in MASTER_MD_DICT:
+                if MASTER_MD_DICT['mainfile'] is not None:
+                    if os.path.isfile(MASTER_MD_DICT['mainfile']):
+                        main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
+                        # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
+                        main_basefile_name = os.path.basename(main_pathfile_name)
+                        if 'displayfile_candidates' in MASTER_MD_DICT:
+                            match = None
+                            for x in MASTER_MD_DICT['displayfile_candidates']:
+                                x_main, x_extension = os.path.splitext(os.path.basename(x))
+                                if x_main == main_basefile_name:
+                                    match = x
+                        if match is not None:
+                            MASTER_MD_DICT['displayfile'] = match
+        # Process output
+        if output_mode == '@s' or output_dir is None:
+            # write to screen
+            output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
+        else:
+            # write to file
+            output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+            get_ercspec_http(output_dir, stay_offline)
