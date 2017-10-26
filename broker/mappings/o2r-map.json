@@ -7,116 +7,89 @@
 		"root": ""
 	},
 	"Map": {
-		"author":  {
-			"translatesTo": "author",
+		"access_right":  {
+			"translatesTo": "access_right",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"author": {
+			"translatesTo": "creators",
 			"type": "array",
-			"parent": "none"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"name": {
-			"translatesTo": "authorName",
+			"translatesTo": "name",
 			"type": "string",
-			"parent": "author"
+			"hasParent": "author",
+			"needsParent": "creators"
 		},
-		"affiliation":  {
+		"affiliation": {
 			"translatesTo": "affiliation",
 			"type": "string",
-			"parent": "author"
+			"hasParent": "author",
+			"needsParent": "creators"
 		},
-		"orcid":  {
-			"translatesTo": "authorId",
+		"publicationDate": {
+			"translatesTo": "publication_date",
 			"type": "string",
-			"parent": "author"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
-		"objectType": {
-			"translatesTo": "objectType",
+		"publication_type":  {
+			"translatesTo": "publication_type",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
-		"recordDateCreated": {
-			"translatesTo": "dateCreated",
+		"description":  {
+			"translatesTo": "description",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
 		"abstract": {
 			"translatesTo": "description",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
-		"depends": {
-			"translatesTo": "depends",
-			"type": "array",
-			"parent": "none"
-		},
-		
-		"inputfiles": {
-			"translatesTo": "inputfiles",
-			"type": "string",
-			"parent": "root"
-		},
-		"identifier": {
-			"translatesTo": "identifier",
-			"type": "string",
-			"parent": "depends"
-		},
-		"operatingSystem": {
-			"translatesTo": "operatingSystem",
-			"type": "string",
-			"parent": "depends"
-		},
-		"packageSystem": {
-			"translatesTo": "packageSystem",
-			"type": "string",
-			"parent": "depends"
-		},
-		"interactionMethod": {
-			"translatesTo": "interactionMethod",
-			"type": "string",
-			"parent": "root"
-		},
-		"generatedBy": {
-			"translatesTo": "generatedBy",
-			"type": "string",
-			"parent": "root"
-		},
-		"ercIdentifier": {
-			"translatesTo": "ercIdentifier",
-			"type": "string",
-			"parent": "root"
-		},
-		"identifier": {
-			"translatesTo": "identifier",
-			"type": "string",
-			"parent": "root"
-		},
-		"paperLanguage": {
-			"translatesTo": "paperLanguage",
-			"type": "string",
-			"parent": "root"
-		},
-		"plain": {
-			"translatesTo": "keywords",
-			"type": "list",
-			"parent": "keywords"
-		},
-		"spatial": {
-			"translatesTo": "spatial",
-			"type": "string",
-			"parent": "root"
-		},
-		"temporal": {
-			"translatesTo": "temporal",
-			"type": "string",
-			"parent": "root"
-		},
-		"title": {
+		"title":  {
 			"translatesTo": "title",
 			"type": "string",
-			"parent": "root"
+			"hasParent": "root",
+			"needsParent": "root"
 		},
-		"version": {
-			"translatesTo": "version",
+		"license":  {
+			"translatesTo": "license",
 			"type": "string",
-			"parent": "depends"
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"keywords":  {
+			"translatesTo": "keywords",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"communities":  {
+			"translatesTo": "communities",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"hasParent": "communities",
+			"needsParent": "communities"
+		},
+		"upload_type": {
+			"translatesTo": "upload_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
 		}
 	}
 }

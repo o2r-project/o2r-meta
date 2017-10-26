@@ -23,6 +23,7 @@ import sys
 import datetime
 import xml.etree.ElementTree as ElT
 from xml.dom import minidom
+from helpers.helpers import *
 
 
 def check(checklist_pathfile, input_json):
@@ -68,16 +69,49 @@ def do_outputs(output_data, out_mode, out_name):
                 output_data = json.dumps(output_data, sort_keys=True, indent=4, separators=(',', ': '))
                 outfile.write(str(output_data))
                 # for xml:
-                # TBD
-            status_note(''.join((str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename))))
+                # todo: xml
+            status_note([str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename)], d=False)
+            # update meta meta for archival:
+            update_archival(out_mode)
         except Exception as exc:
-            status_note(''.join(('! error while creating outputs: ', exc.args[0])))
+            raise
+            status_note(['! error while creating outputs: ', exc.args[0]], d=is_debug)
+
+
+def update_archival(outpath):
+    #add information to "package slip" meta meta data
+    try:
+        infofile = os.path.join(outpath, "package_slip.json")
+        if os.path.isfile(infofile):
+            # file exists, needs update
+            with open(infofile, encoding='utf-8') as data_file:
+                data = json.load(data_file)
+                found = False
+                for key in data['standards_used']:
+                    if key == archival_info['standards_used'][0]:
+                        found = True
+                if not found:
+                    data['standards_used'].append(archival_info['standards_used'][0])
+        else:
+            # file does not exist, needs to be created
+            data = archival_info
+            #todo: add info about present md files
+        # in any case: write current data back to info file
+        with open(infofile, 'w', encoding='utf-8') as outfile:
+            # for json:
+            output_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+            outfile.write(str(output_data))
+            status_note([str(os.stat(infofile).st_size), ' bytes written to ', os.path.abspath(infofile)], d=False)
+    except Exception as exc:
+        #status_note(str(exc), d=is_debug)
+        raise
 
 
 def map_json(element, value, map_data, output_dict):
     # parse complete map, find out how keys translate to target schema
     if element in map_data:
         # prepare types:
+        status_note(['processing element <', str(element), '>'], d=is_debug)
         if map_data[element]['hasParent'] != 'root':
             pass
         else:
@@ -96,7 +130,7 @@ def map_json(element, value, map_data, output_dict):
         if type(value) is list:
         # plain list, as for keywords
             if element in map_data:
-                print(str(value))
+                ##print(str(value))
                 allString = False
                 for x in value:
                     # if all is plain string in that list, take whole list
@@ -210,7 +244,7 @@ def map_xml(element, value, map_data, xml_root):
                 return xml_root
             # element is not in map data:
             else:
-                status_note(''.join(('skipping nested key <', str(element), '> (not in map)')))
+                status_note(['skipping nested key <', str(element), '> (not in map)'], d=False)
         # value from metadata is simple, i.e. not nested, no list, no dictionary, just string:
         elif type(value) is str:
             if element in map_data:
@@ -232,20 +266,20 @@ def map_xml(element, value, map_data, xml_root):
                         a = ElT.SubElement(xml_root, field)
                 return xml_root
             else:
-                status_note(''.join(('skipping key <', element, '> (not in map)')))
+                status_note(['skipping key <', element, '> (not in map)'], d=False)
         else:
-            status_note('unknown data type in key')
+            status_note('unknown data type in key', d=False)
     except:
-        status_note('! error while mapping xml')
+        status_note('! error while mapping xml', d=False)
         raise
 
 
-def status_note(msg):
-    print(''.join(('[o2rmeta][broker] ', msg)))
 
 
 # Main
 def start(**kwargs):
+    global is_debug
+    is_debug = kwargs.get('dbg', None)
     global input_file
     input_file = kwargs.get('i', None)
     global output_dir
@@ -255,13 +289,15 @@ def start(**kwargs):
     my_check = kwargs.get('c', None)
     global my_map
     my_map = kwargs.get('m', None)
+    global archival_info
+    archival_info = {'standards_used': []}
     # output mode
     if output_to_console:
         output_mode = '@s'
     elif output_dir:
         output_mode = output_dir
         if not os.path.isdir(output_dir):
-            status_note(''.join(('directory at <', output_dir, '> will be created during extraction...')))
+            status_note(['directory at <', output_dir, '> will be created during extraction...'], d=False)
     else:
         # not possible currently because output arg group is on mutual exclusive
         output_mode = '@none'
@@ -272,23 +308,28 @@ def start(**kwargs):
         try:
             with open(my_map, encoding='utf-8') as data_file:
                 map_file = json.load(data_file)
-                settings_data = map_file['Settings']
-                map_data = map_file['Map']
-                my_mode = settings_data['mode']
-        except:
+                if 'Settings' in map_file:
+                    settings_data = map_file['Settings']
+                    map_data = map_file['Map']
+                    my_mode = settings_data['mode']
+                    if 'name' in map_file['Settings']:
+                        archival_info['standards_used'].append({map_file['Settings']['name']: map_file['Settings']})
+        except Exception as exc:
+            status_note(str(exc), d=is_debug)
             raise
         # distinguish format for output
         if my_mode == 'json':
             # parse target file # try parse all possible metadata files:
             if not os.path.basename(input_file).startswith('metadata_'):
-                status_note('Warning: inputfile does not look like a metadata file object')
+                status_note('Warning: inputfile does not look like a metadata file object', d=False)
             json_output = {}
             with open(os.path.join(input_file), encoding='utf-8') as data_file:
                 test_data = json.load(data_file)
             for element in test_data:
                 try:
                     map_json(element, test_data[element], map_data, json_output)
-                except:
+                except Exception as erc:
+                    status_note(str(erc), d=is_debug)
                     raise
             do_outputs(json_output, output_mode, settings_data['outputfile'])
         elif my_mode == 'txt':
@@ -311,4 +352,4 @@ def start(**kwargs):
             output = ElT.tostring(root, encoding='utf8', method='xml')
             do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
         else:
-            status_note('! error: cannot process map mode of <' + my_map + '>')
+            status_note(['! error: cannot process map mode of <', my_map, '>'], d=False)
