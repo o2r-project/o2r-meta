@@ -171,7 +171,7 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
         else:
             # output path is given in <out_mode>
             if out_path_file is not None:
-                if os.path.basename(out_path_file) != main_metadata_filename:
+                if os.path.basename(out_path_file) != CONFIG['output_md_filename']:
                     timestamp = re.sub('\D', '', str(datetime.datetime.now().strftime('%Y%m%d%H:%M:%S.%f')[:-4]))
                     # "meta_" prefix as distinctive feature for metabroker later in workflow
                     out_path_file = os.path.join(out_mode, '_'.join(('meta', timestamp, os.path.basename(out_path_file)[:8].replace('.', '_'), output_fileext)))
@@ -260,15 +260,19 @@ def start(**kwargs):
         if not os.path.isdir(input_dir):
             status_note(['! error, input dir <', input_dir, '> does not exist'])
             sys.exit(0)
-    # parsers:
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
     register_parsers(dbg=is_debug)
-    # other parameters
+
+    global CONFIG
+    # Configure meta extract here:
+    CONFIG = {'extract_max_file_size_mb': 2047,
+              'display_threshold': 2500,
+              'buffer_size_number_of_files': 50,
+              'output_md_filename': 'metadata_raw.json'}
     global CANDIDATES_MD_DICT
     CANDIDATES_MD_DICT = {}
-    global MASTER_MD_DICT  # this one is being updated per function call
-    # need this layout for dummy:
+    global MASTER_MD_DICT
     MASTER_MD_DICT = {'author': [],
         'bagit': {'bagittxt_files': []},
         'communities': [{'identifier': 'o2r'}],
@@ -299,11 +303,11 @@ def start(**kwargs):
                     'uibindings': None,
                     'md': None
                     },
-        'access_right': 'open',  # default
+        'access_right': 'open',
         'paperLanguage': [],
         'provenance': [],
         'publicationDate': None,
-        'publication_type': 'other',  # default
+        'publication_type': 'other',
         'r_comment': [],
         'r_input': [],
         'r_output': [],
@@ -315,16 +319,12 @@ def start(**kwargs):
         'spatial': {'files': [], 'union': None},
         'temporal': {'begin': None, 'end': None},
         'title': None,
-        'upload_type': 'publication',  # default
+        'upload_type': 'publication',
         'displayfile': None,
         'displayfile_candidates': [],
         'mainfile': None,
         'mainfile_candidates': [],
         'version': None}
-    global compare_extracted
-    compare_extracted = {}  # dict for evaluations to find best metafile for main output
-    global main_metadata_filename
-    main_metadata_filename = 'metadata_raw.json'
     global file_list_input_candidates
     # create dummy file if in debug mode to indicate latest data structure
     if is_debug:
@@ -337,7 +337,7 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
-    display_interval = 2500  # display progress every X processed files
+    display_interval = CONFIG['display_threshold'] # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
             full_file_path = os.path.join(root, file).replace('\\', '/')
@@ -345,7 +345,7 @@ def start(**kwargs):
             new_id = str(uuid.uuid4())
             if os.path.isfile(full_file_path) and full_file_path not in file_list_input_candidates:
                 file_list_input_candidates.append(os.path.relpath(full_file_path, basedir))
-            if nr < 50:
+            if nr < CONFIG['buffer_size_number_of_files']:
                 # use buffering to prevent performance issues when parsing very large numbers of files
                 log_buffer = False
             else:
@@ -355,7 +355,7 @@ def start(**kwargs):
                 else:
                     log_buffer = True
             # skip large files, config max file size in mb here
-            if os.stat(full_file_path).st_size / 1024 ** 2 > 2047:
+            if os.stat(full_file_path).st_size / 1024 ** 2 > CONFIG['extract_max_file_size_mb']:
                 status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
                 continue
             # deal with different input formats:
@@ -382,7 +382,7 @@ def start(**kwargs):
     # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
     if best is None:
         status_note('Warning: could not find extractable content', d=False)
-        output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+        output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, CONFIG['output_md_filename']))
         sys.exit(0)
     else:
         for key in best:
@@ -400,7 +400,7 @@ def start(**kwargs):
                     if 'bbox' in key:
                         coorlist.append(key['bbox'])
                 MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
-        #
+        # Identifier
         if MASTER_MD_DICT['identifier']['doi'] is not None:
             MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
         # \ Fix and default publication date if none
@@ -409,25 +409,31 @@ def start(**kwargs):
                 MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
         # \ Add display file if mainfile rmd exists
         if 'displayfile_candidates' in MASTER_MD_DICT:
-            if 'mainfile' in MASTER_MD_DICT:
-                if MASTER_MD_DICT['mainfile'] is not None:
-                    if os.path.isfile(MASTER_MD_DICT['mainfile']):
-                        main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
-                        # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
-                        main_basefile_name = os.path.basename(main_pathfile_name)
-                        if 'displayfile_candidates' in MASTER_MD_DICT:
-                            match = None
-                            for x in MASTER_MD_DICT['displayfile_candidates']:
-                                x_main, x_extension = os.path.splitext(os.path.basename(x))
-                                if x_main == main_basefile_name:
-                                    match = x
-                        if match is not None:
-                            MASTER_MD_DICT['displayfile'] = match
+            if 'displayfile' in MASTER_MD_DICT:
+                if not MASTER_MD_DICT['displayfile']:
+                    # take next best candidate
+                    if len(MASTER_MD_DICT['displayfile_candidates']) >= 1:
+                        MASTER_MD_DICT['displayfile'] = MASTER_MD_DICT['displayfile_candidates'][0]
+                # refine candidate if matching mainfile
+                if 'mainfile' in MASTER_MD_DICT:
+                    if MASTER_MD_DICT['mainfile'] is not None:
+                        if os.path.isfile(MASTER_MD_DICT['mainfile']):
+                            main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
+                            # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
+                            main_basefile_name = os.path.basename(main_pathfile_name)
+                            if 'displayfile_candidates' in MASTER_MD_DICT:
+                                match = None
+                                for x in MASTER_MD_DICT['displayfile_candidates']:
+                                    x_main, x_extension = os.path.splitext(os.path.basename(x))
+                                    if x_main == main_basefile_name:
+                                        match = x
+                            if match is not None:
+                                MASTER_MD_DICT['displayfile'] = match
         # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen
             output_extraction(MASTER_MD_DICT, output_format, output_mode, None)
         else:
             # write to file
-            output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, main_metadata_filename))
+            output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, CONFIG['output_md_filename']))
             get_ercspec_http(output_dir, stay_offline)
