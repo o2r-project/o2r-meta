@@ -78,7 +78,7 @@ if __name__ == "__main__":
                 metaextract.start(dbg=argsd['debug'], i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], f=argsd['formats'], b=argsd['basedir'], m=argsd['metafiles'], xml=argsd['modexml'])
         elif argsd['tool'] == "broker":
             status_note('launching broker')
-            metabroker.start(dbg=argsd['debug'],c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])
+            metabroker.start(dbg=argsd['debug'], c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])
         elif argsd['tool'] == "validate":
             status_note('launching validator')
             metavalidate.start(s=argsd['schema'], c=argsd['candidate'])
