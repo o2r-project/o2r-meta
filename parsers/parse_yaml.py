@@ -115,7 +115,7 @@ class ParseYaml:
                         MASTER_MD_DICT['interaction']['interactive'] = True
             return yaml_data_dict
         except yaml.YAMLError as yexc:
-                status_note(['! error while parsing yaml input:', yexc.problem_mark, yexc.problem], d=True)
+                status_note(['! error while parsing yaml input:', str(yexc)], d=True)
                 raise
         except Exception as exc:
             status_note('! error while parsing yaml', d=True)
