@@ -65,6 +65,7 @@ class ParseRmd:
             path_file = kwargs.get('p', None)
             MASTER_MD_DICT = kwargs.get('md', None)
             multiline = kwargs.get('m', None)
+            is_debug = kwargs.get('is_debug', None)
             stay_offline = kwargs.get('xo', None)
             data_dict = {'mainfile': path_file,
                         'depends': []
@@ -88,7 +89,11 @@ class ParseRmd:
                             if s:
                                 if this_rule[0].startswith('yaml'):
                                     from parsers.parse_yaml import ParseYaml
-                                    data_dict.update(ParseYaml().internal_parse(s.group(1), MASTER_MD_DICT, stay_offline))
+                                    parsed = ParseYaml().internal_parse(s.group(1), MASTER_MD_DICT, stay_offline, is_debug)
+                                    if parsed == 'error':
+                                        return parsed
+                                    else:
+                                        data_dict.update(parsed)
                                 if this_rule[0].startswith('rblock'):
                                     data_dict = parse_r(s.group(1), data_dict)
                     else:
@@ -96,7 +101,8 @@ class ParseRmd:
                         data_dict.update(r_codeblock=parse_r(content, data_dict))
                         #data_dict = parse_r(content, data_dict)
             except UnicodeDecodeError:
-                status_note(['! failed to decode <', md_file, '>'])
+                status_note(['! error, failed to decode <', md_file, '>'], d=is_debug)
+                return 'error'
             # save to list of extracted md:
             data_dict['provenance'] = get_prov(path_file)
             return data_dict
@@ -105,8 +111,8 @@ class ParseRmd:
             #if metafiles_all:
             #    output_extraction(data_dict, out_format, out_mode, path_file)
         except Exception as exc:
-            status_note('! error while extracting', d=True)
-            raise
+            status_note('! error while extracting Rmd', d=is_debug)
+            return 'error'
 
 
 def parse_r(input_text, parser_dict):

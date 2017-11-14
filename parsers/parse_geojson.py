@@ -34,14 +34,16 @@ class ParseGeojson:
     def get_formats():
         return FORMATS
 
-    def parse(self, **kwargs):
+    @staticmethod
+    def parse(**kwargs):
         try:
             path_file = kwargs.get('p', None)
             MASTER_MD_DICT = kwargs.get('md', None)
+            is_debug = kwargs.get('is_debug', None)
             gj = pygeoj.load(filepath=path_file)
             if 'spatial' in MASTER_MD_DICT:
                 if 'files' in MASTER_MD_DICT['spatial']:
                     MASTER_MD_DICT['spatial']['files'].append({"name": path_file, "bbox": gj.bbox})
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=True)
+            status_note(['! error while parsing geojson ', str(exc)], d=is_debug)

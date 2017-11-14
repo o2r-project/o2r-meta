@@ -34,15 +34,21 @@ class ParseDisplayFiles:
     def get_formats():
         return FORMATS
 
-    def parse(self, **kwargs):
-        MASTER_MD_DICT = kwargs.get('md', None)
-        path_file = kwargs.get('p', None)
-        extension = kwargs.get('ext', None)
-        basedir = kwargs.get('bd', None)
-        MASTER_MD_DICT = add_candidates('codefiles', extension, ['.r', '.rmd', '.js', '.py'], MASTER_MD_DICT, path_file, basedir)
-        MASTER_MD_DICT = add_candidates('displayfile_candidates', extension, ['.html', '.htm', '.png', 'pdf'], MASTER_MD_DICT, path_file, basedir)
-        MASTER_MD_DICT = add_candidates('mainfile_candidates', extension, ['.r', '.rmd'], MASTER_MD_DICT, path_file, basedir)
-        return MASTER_MD_DICT
+    @staticmethod
+    def parse(**kwargs):
+        try:
+            MASTER_MD_DICT = kwargs.get('md', None)
+            path_file = kwargs.get('p', None)
+            is_debug = kwargs.get('is_debug', None)
+            extension = kwargs.get('ext', None)
+            basedir = kwargs.get('bd', None)
+            MASTER_MD_DICT = add_candidates('codefiles', extension, ['.r', '.rmd', '.js', '.py'], MASTER_MD_DICT, path_file, basedir)
+            MASTER_MD_DICT = add_candidates('displayfile_candidates', extension, ['.html', '.htm', '.png', 'pdf'], MASTER_MD_DICT, path_file, basedir)
+            MASTER_MD_DICT = add_candidates('mainfile_candidates', extension, ['.r', '.rmd'], MASTER_MD_DICT, path_file, basedir)
+            return MASTER_MD_DICT
+        except Exception as exc:
+            status_note('! error while listing display files', d=is_debug)
+            return 'error'
 
 
 def add_candidates(key_name, extension, extensions_list, master_dict, path_file, basedir):
