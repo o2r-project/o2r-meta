@@ -103,7 +103,11 @@ def best_candidate(all_candidates_dict):
                                                                 inputfiles.append(filename)
                                                                 break
                     result.update({'inputfiles': inputfiles})
-                    result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
+                    #todo: catch if inputdir is deeper than outputdir
+                    if basedir is not None:
+                        result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
+                    else:
+                        result.update({'mainfile': os.path.basename(k_max_filename)})
                     return result
                 except Exception as exc:
                     status_note(str(exc), d=is_debug)
@@ -153,6 +157,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseDisplayFiles())
     from parsers.parse_geojson import ParseGeojson
     PARSERS_CLASS_LIST.append(ParseGeojson())
+    from parsers.parse_netcdf import ParseNetcdf
+    PARSERS_CLASS_LIST.append(ParseNetcdf())
     from parsers.parse_rmd import ParseRmd
     PARSERS_CLASS_LIST.append(ParseRmd())
     from parsers.parse_rdata import ParseRData
@@ -262,6 +268,7 @@ def start(**kwargs):
                     'uibindings': None,
                     'md': None
                     },
+        'ncdf': {'ncdf_files': []},
         'access_right': 'open',
         'paperLanguage': [],
         'provenance': [],
@@ -297,6 +304,7 @@ def start(**kwargs):
     log_buffer = False
     nr = 0  # number of files processed
     nr_errs = 0  # number of errors occured
+    nr_skips = 0  # number of skipped files
     display_interval = CONFIG['display_threshold'] # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -317,6 +325,7 @@ def start(**kwargs):
             # skip large files, config max file size in mb here
             if os.stat(full_file_path).st_size / 1024 ** 2 > CONFIG['extract_max_file_size_mb']:
                 status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
+                nr_skips += 1
                 continue
             # deal with different input formats:
             file_extension = os.path.splitext(full_file_path)[1].lower()
@@ -342,6 +351,7 @@ def start(**kwargs):
                     status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
     status_note(['total files processed: ', nr], d=False)
     status_note(['total extraction errors: ', nr_errs], d=False)
+    status_note(['total skipped files: ', nr_skips], d=False)
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
