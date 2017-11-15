@@ -51,6 +51,7 @@ class ParseNetcdf:
                     MASTER_MD_DICT['ncdf']['ncdf_files'].append(ncdf_dict)
             return MASTER_MD_DICT
         except Exception as exc:
+            #raise  # remove
             status_note(str(exc), d=is_debug)
             return 'error'
 
@@ -70,5 +71,6 @@ def extract_netcdf_dataset_str(dataset):
                         if not str(value[0].strip()).startswith('<'):
                             data_dict[value[0].strip()] = value[1].strip()
     except:
+        #raise  # remove
         return
     return data_dict
