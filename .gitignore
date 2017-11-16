@@ -13,6 +13,7 @@ testerc.yml
 erc.yml
 erc_raw.yml
 erc_spec.zip
+erc_spec.pdf
 *.backup
 # Byte-compiled / optimized / DLL files
 __pycache__/

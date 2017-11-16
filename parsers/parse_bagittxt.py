@@ -36,6 +36,7 @@ class ParseBagitTxt:
     def parse(self, **kwargs):
         path_file = kwargs.get('p', None)
         MASTER_MD_DICT = kwargs.get('md', None)
+        is_debug = kwargs.get('is_debug', None)
         try:
             if not path_file.endswith('bagit.txt'):
                 return None
@@ -51,4 +52,5 @@ class ParseBagitTxt:
                 MASTER_MD_DICT['provenance'] = get_prov(path_file)
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=True)
+            status_note(str(exc), d=is_debug)
+            return 'error'

@@ -1,0 +1,23 @@
+---
+title: "Investigating the renderability of unicoded supplemental mathematical operator signs in erc metadata"
+author:
+    - name: "Juniko Teshita"
+      affiliation: o2r test case devision
+date: "2017"
+output: html_document
+abstract: |
+    This is a unicode test about these chars from the block Supplemental Mathematical Operators ∓≂⤼ and not to forget this one ⩬.
+keywords:
+    - utf
+    - tests
+---
+
+```{r plot, echo=FALSE}
+xx <- c(41, 217, 134, 610, 451, 106, 92, 105, 6, 146, 85, 45, 518, 204, 2, 136, 62, 712, 577, 674, 154, 25, 186, 211, 194)
+print(xx)
+var(xx)
+csubvalue <- mean(xx)
+summary(csubvalue)
+```
+
+>  This is a test, thank you.

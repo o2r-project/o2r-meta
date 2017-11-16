@@ -52,6 +52,9 @@
     },
     "mainfile": null,
     "mainfile_candidates": [],
+    "ncdf": {
+        "ncdf_files": []
+    },
     "paperLanguage": [],
     "provenance": [],
     "publicationDate": null,

@@ -19,6 +19,7 @@ __all__ = ['ParseRData']
 
 import os
 from helpers.helpers import *
+from subprocess import Popen, PIPE, STDOUT
 
 ID = 'o2r meta rdata parser'
 FORMATS = ['.rdata']
@@ -33,8 +34,10 @@ class ParseRData:
     def get_formats():
         return FORMATS
 
-    def parse(self, **kwargs):
+    @staticmethod
+    def parse(**kwargs):
         path_file = kwargs.get('p', None)
+        is_debug = kwargs.get('is_debug', None)
         # skip large files, unsuitable for text preview
         if os.stat(path_file).st_size / 1024 ** 2 > 250:
             status_note('skipping large RData file...', d=True)
@@ -53,21 +56,21 @@ class ParseRData:
                             rpath = os.path.join(rpath, 'R')
                         else:
                             # Cannot take path
-                            status_note('cannot parse .data file, R_HOME not configured or invalid path to R executable', d=True)
+                            status_note('cannot parse .data file, R_HOME not configured or invalid path to R executable', d=is_debug)
                             rpath = None
                 try:
                     if rpath is not None:
                         if not os.path.exists(rpath):
                             # Cannot take path
-                            status_note('cannot parse .data file, invalid path to R installation', d=True)
+                            status_note('cannot parse .data file, invalid path to R installation', d=is_debug)
                             rpath = None
                 except Exception as exc:
-                        raise
+                    status_note(['! error parsing rdata', str(exc)], d=is_debug)
             else:
                 status_note(rhome_name, d=True)
                 rpath = None
         else:
-            status_note([rhome_name, 'cannot parse .rdata file, R_HOME not configured'], d=True)
+            status_note([rhome_name, 'cannot parse .rdata file, R_HOME not configured'], d=is_debug)
             return None
         try:
             if rpath is None:

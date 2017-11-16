@@ -21,53 +21,12 @@ import os
 import re
 import sys
 import uuid
-from subprocess import Popen, PIPE, STDOUT
 from xml.dom import minidom
 
 import dicttoxml
-from dateutil import parser as dateparser
+
 from helpers.helpers import *
 from helpers.http_requests import *
-
-
-def extract_temporal(file_id, filepath, data, timestamp):
-    global is_debug
-    global date_new
-    date_new = None
-    try:
-        if timestamp is not None:
-            try:
-                # try parse from string, but input is potentially r code
-                date_new = dateparser.parse(timestamp).isoformat()
-            except Exception as exc:
-                if dbg:
-                    raise
-                else:
-                    status_note('! error while parsing date')
-        else:
-            if filepath is not None:
-                date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
-        if data is not None:
-            if 'temporal' in data and date_new is not None:
-                if 'begin' in data['temporal'] and 'end' in data['temporal']:
-                    date_earliest = data['temporal']['begin']
-                    if date_earliest is not None:
-                        if date_new < date_earliest:
-                            # new candidate is earlier than earliest
-                            data['temporal'].update({'begin': date_new})
-                    else:
-                        # nothing yet, so take this one
-                        data['temporal'].update({'begin': date_new})
-                    date_latest = data['temporal']['end']
-                    if date_latest is not None:
-                        if date_new > date_latest:
-                            # new candidate is later than latest
-                            data['temporal'].update({'end': date_new})
-                    else:
-                        # nothing yet, so take this one
-                        data['temporal'].update({'end': date_new})
-    except Exception as exc:
-        status_note(str(exc), d=is_debug)
 
 
 def best_candidate(all_candidates_dict):
@@ -144,11 +103,15 @@ def best_candidate(all_candidates_dict):
                                                                 inputfiles.append(filename)
                                                                 break
                     result.update({'inputfiles': inputfiles})
-                    result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
+                    #todo: catch if inputdir is deeper than outputdir
+                    if basedir is not None:
+                        result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
+                    else:
+                        result.update({'mainfile': os.path.basename(k_max_filename)})
                     return result
                 except Exception as exc:
-                    raise
                     status_note(str(exc), d=is_debug)
+                    raise
 
 
 def output_extraction(data_dict, out_format, out_mode, out_path_file):
@@ -179,7 +142,7 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note([str(os.stat(out_path_file).st_size), ' bytes written to ', os.path.normpath(os.path.relpath(out_path_file))])
+            status_note([str(round(os.stat(out_path_file).st_size / 1024, 4)), ' KB written to ', os.path.normpath(os.path.relpath(out_path_file))])
     except Exception as exc:
         status_note(str(exc), d=is_debug)
 
@@ -194,6 +157,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseDisplayFiles())
     from parsers.parse_geojson import ParseGeojson
     PARSERS_CLASS_LIST.append(ParseGeojson())
+    from parsers.parse_netcdf import ParseNetcdf
+    PARSERS_CLASS_LIST.append(ParseNetcdf())
     from parsers.parse_rmd import ParseRmd
     PARSERS_CLASS_LIST.append(ParseRmd())
     from parsers.parse_rdata import ParseRData
@@ -217,7 +182,7 @@ def get_formats(**kwargs):
             #status_note(str(type(cl)), d=True)
             for f in cl.get_formats():
                 formatslist.append(f)
-        status_note('returning list of supported formats:')
+        status_note('returning list of supported formats:', d=False)
         for ff in set(formatslist):
             print(str(ff))
     except Exception as exc:
@@ -303,6 +268,7 @@ def start(**kwargs):
                     'uibindings': None,
                     'md': None
                     },
+        'ncdf': {'ncdf_files': []},
         'access_right': 'open',
         'paperLanguage': [],
         'provenance': [],
@@ -337,6 +303,8 @@ def start(**kwargs):
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
     nr = 0  # number of files processed
+    nr_errs = 0  # number of errors occured
+    nr_skips = 0  # number of skipped files
     display_interval = CONFIG['display_threshold'] # display progress every X processed files
     for root, subdirs, files in os.walk(input_dir):
         for file in files:
@@ -357,29 +325,37 @@ def start(**kwargs):
             # skip large files, config max file size in mb here
             if os.stat(full_file_path).st_size / 1024 ** 2 > CONFIG['extract_max_file_size_mb']:
                 status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
+                nr_skips += 1
                 continue
             # deal with different input formats:
             file_extension = os.path.splitext(full_file_path)[1].lower()
-            # new file / new source
-            nr += 1
             # interact with different file formats:
             has_been_processed = False
+            has_failed = False
             for x in PARSERS_CLASS_LIST:
                 if hasattr(x, 'get_formats'):
                     if file_extension in x.get_formats():
                         if hasattr(x, 'parse'):
-                            CANDIDATES_MD_DICT[new_id] = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, bd=basedir, m=True, xo=stay_offline)
-                            has_been_processed = True
+                            cache_extracted = x.parse(p=full_file_path, ext=file_extension, of=output_format, om=output_mode, md=MASTER_MD_DICT, bd=basedir, m=True, is_debug=is_debug, xo=stay_offline)
+                            if cache_extracted == 'error':
+                                has_failed = True
+                            else:
+                                CANDIDATES_MD_DICT[new_id] = cache_extracted
+                                has_been_processed = True
             if has_been_processed:
-                #####CANDIDATES_MD_DICT[new_id]['mainfile'] = full_file_path
-                ##if 'recordDateCreated' in CANDIDATES_MD_DICT[new_id]:
-                ##    CANDIDATES_MD_DICT[new_id]['recordDateCreated'] = datetime.datetime.today().strftime('%Y-%m-%d')
-                status_note(os.path.normpath(os.path.join(root, file)), b=log_buffer, d=is_debug)
-    status_note([nr, ' files processed'])
+                if has_failed:
+                    nr_errs += 1
+                    status_note(['failed to extract: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+                else:
+                    nr += 1
+                    status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+    status_note(['total files processed: ', nr], d=False)
+    status_note(['total extraction errors: ', nr_errs], d=False)
+    status_note(['total skipped files: ', nr_skips], d=False)
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
-    # now merge data_dicts, take only keys that are present in "MASTER_MD_DICT":
+    # now merge data dicts, take only keys that are present in "MASTER_MD_DICT":
     if best is None:
         status_note('Warning: could not find extractable content', d=False)
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, CONFIG['output_md_filename']))
@@ -392,7 +368,6 @@ def start(**kwargs):
                 MASTER_MD_DICT[key] = best[key]
         # Make final adjustments on the master dict before output:
         # \ Add spatial from candidates:
-        print(str(MASTER_MD_DICT))
         if 'spatial' in MASTER_MD_DICT:
             if 'files' in MASTER_MD_DICT['spatial']:
                 coorlist = []

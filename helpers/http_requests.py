@@ -24,37 +24,37 @@ import requests
 from helpers.helpers import *
 
 ID = 'o2r meta http requester'
-FORMATS = []
 timeout = 3
+user_agent = 'o2r-meta'
+spec_url = 'http://o2r.info/erc-spec/erc-spec.pdf'
 
 
 def get_id():
     return str(ID)
 
 
-def get_formats():
-    return FORMATS
-
-
 def get_ercspec_http(spec_output_dir, stay_offline):
+    global user_agent
+    global spec_url
     # use this function to configure a specification file that needs to be included
     if stay_offline:
         status_note('skipping erc spec download (http disabled)')
         return None
     else:
         try:
-            spec_url = 'https://github.com/o2r-project/erc-spec/archive/master.zip'  # update
-            spec_file = os.path.normpath(os.path.join(spec_output_dir, 'erc_spec.zip'))
+            spec_file = os.path.normpath(os.path.join(spec_output_dir, 'erc_spec.pdf'))
             status_note('downloading current erc spec')
-            headers = {'User-Agent': 'o2rmeta'}
+            headers = {'User-Agent': user_agent}
             req = urllib.request.Request(spec_url, None, headers)
-            http = urllib.request.urlopen(req).read()
+            http = urllib.request.urlopen(req, timeout=timeout).read()
             with open(spec_file, 'wb') as f:
                 f.write(http)
-            status_note(''.join(('saved <', spec_file, '>')))
+            status_note(['saved <', spec_file, '>'], d=False)
+        except urllib.error.HTTPError as hexc:
+            status_note(['! failed to download and include spec:\n\t', spec_url, '\n\t', str(hexc)], d=True)
         except Exception as exc:
-            status_note(['! failed to download and include spec: ', exc.args[0]], d=True)
-            raise
+            status_note(['! failed to download and include spec: ', str(exc)], d=True)
+            #raise
 
 
 def get_doi_http(md_title, md_author, stay_offline):
@@ -119,5 +119,3 @@ def get_orcid_http(txt_input, bln_sandbox, stay_offline):
         except Exception as exc:
             status_note('! error while requesting orcid', d=True)
             raise
-
-

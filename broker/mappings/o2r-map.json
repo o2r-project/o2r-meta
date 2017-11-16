@@ -159,15 +159,9 @@
 		},
 		"communities":  {
 			"translatesTo": "communities",
-			"type": "array",
+			"type": "string",
 			"hasParent": "root",
 			"needsParent": "root"
-		},
-		"identifier": {
-			"translatesTo": "identifier",
-			"type": "string",
-			"hasParent": "communities",
-			"needsParent": "communities"
 		},
 		"upload_type": {
 			"translatesTo": "upload_type",

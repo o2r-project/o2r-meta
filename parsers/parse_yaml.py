@@ -20,6 +20,7 @@ __all__ = ['ParseYaml']
 import yaml
 from helpers.helpers import *
 from helpers.http_requests import *
+from dateutil import parser as dateparser
 
 ID = 'o2r meta yaml parser'
 FORMATS = []
@@ -35,10 +36,10 @@ class ParseYaml:
         return FORMATS
 
     @staticmethod
-    def internal_parse(input_text, MASTER_MD_DICT, stay_offline):
+    def internal_parse(input_text, MASTER_MD_DICT, stay_offline, is_debug):
         # This is for R markdown files with yaml headers
         try:
-            yaml_data_dict = yaml.safe_load(input_text)
+            yaml_data_dict = yaml.load(input_text)
             if yaml_data_dict is not None:
                 # model description / abstract:
                 if 'description' in yaml_data_dict:
@@ -80,10 +81,9 @@ class ParseYaml:
                 # model date:
                 if 'date' in yaml_data_dict:
                     try:
-                        #parse_temporal(None, None, CANDIDATES_MD_DICT, yaml_data_dict['date'])
-                        pass
+                        extract_temporal(None, None, MASTER_MD_DICT, yaml_data_dict['date'], is_debug)
                     except Exception as exc:
-                        status_note(['! failed to parse temporal <', yaml_data_dict['date'], '> (', str(exc.args[0]), ')'], d=True)
+                        status_note(['! unable to parse temporal <', yaml_data_dict['date'], '> (', str(exc), ')'], d=is_debug)
                 # model doi:
                 this_doi = None
                 if 'doi' in yaml_data_dict:
@@ -115,8 +115,49 @@ class ParseYaml:
                         MASTER_MD_DICT['interaction']['interactive'] = True
             return yaml_data_dict
         except yaml.YAMLError as yexc:
-                status_note(['! error while parsing yaml input:', yexc.problem_mark, yexc.problem], d=True)
-                raise
-        except Exception as exc:
-            status_note('! error while parsing yaml', d=True)
-            raise
+            if hasattr(yexc, 'problem_mark'):
+                if yexc.context is not None:
+                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem), ' ', str(yexc.context)], d=True)
+                    return 'error'
+                else:
+                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem)], d=is_debug)
+                return 'error'
+            else:
+                status_note(['! error: unable to parse yaml \n\t', str(yexc)], d=is_debug)
+                return 'error'
+
+
+def extract_temporal(file_id, filepath, data, timestamp, is_debug):
+    global date_new
+    date_new = None
+    try:
+        if timestamp is not None:
+            try:
+                # try parse from string, but input is potentially r code
+                date_new = dateparser.parse(timestamp).isoformat()
+            except Exception as exc:
+                status_note(['! error while parsing date', str(exc)], d=is_debug)
+        else:
+            if filepath is not None:
+                date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
+        if data is not None:
+            if 'temporal' in data and date_new is not None:
+                if 'begin' in data['temporal'] and 'end' in data['temporal']:
+                    date_earliest = data['temporal']['begin']
+                    if date_earliest is not None:
+                        if date_new < date_earliest:
+                            # new candidate is earlier than earliest
+                            data['temporal'].update({'begin': date_new})
+                    else:
+                        # nothing yet, so take this one
+                        data['temporal'].update({'begin': date_new})
+                    date_latest = data['temporal']['end']
+                    if date_latest is not None:
+                        if date_new > date_latest:
+                            # new candidate is later than latest
+                            data['temporal'].update({'end': date_new})
+                    else:
+                        # nothing yet, so take this one
+                        data['temporal'].update({'end': date_new})
+    except Exception as exc:
+        status_note(str(exc), d=is_debug)
