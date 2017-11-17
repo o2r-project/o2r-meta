@@ -18,6 +18,15 @@ WORKDIR /o2r-meta
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+# Install potentially failing dependencies, but do not fail build if optional requirements are missing
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libgdal-dev
+COPY requirements-opt.txt requirements-opt.txt
+#RUN pip install -r requirements-opt.txt; exit 0
+RUN pip install -r requirements-opt.txt 2>&1 > /tmp/o2r-meta-optional.log \
+  || echo "\n\nErrors installing optional dependencies\n\n" && cat /tmp/o2r-meta-optional.log
+
 COPY broker broker
 COPY extract extract
 COPY harvest harvest
