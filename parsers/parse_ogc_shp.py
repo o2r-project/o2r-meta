@@ -14,23 +14,23 @@
     limitations under the License.
 
 """
-__all__ = ['ParseGeojson']
+__all__ = ['ParseGeopackage']
 
 from helpers.helpers import *
 
-#import json
 
 try:
-    import pygeoj
-    FORMATS = ['.geojson']
+    from fiona import *
+    FORMATS = ['.gpkg', '.shp']
 except ImportError as iexc:
     FORMATS = []
     availability_issues = str(iexc)
 
-ID = 'o2r meta geojson parser'
+
+ID = 'o2r meta ogc geopackage and shapefile parser'
 
 
-class ParseGeojson:
+class ParseGeopackage:
     @staticmethod
     def get_id():
         return str(ID)
@@ -42,15 +42,16 @@ class ParseGeojson:
         return FORMATS
 
     @staticmethod
+    def get_availability():
+        return available
+
+    @staticmethod
     def parse(**kwargs):
         try:
             path_file = kwargs.get('p', None)
             MASTER_MD_DICT = kwargs.get('md', None)
             is_debug = kwargs.get('is_debug', None)
-            gj = pygeoj.load(filepath=path_file)
-            if 'spatial' in MASTER_MD_DICT:
-                if 'files' in MASTER_MD_DICT['spatial']:
-                    MASTER_MD_DICT['spatial']['files'].append({"name": path_file, "bbox": gj.bbox})
+            # todo: add extractions
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(['! error while parsing geojson ', str(exc)], d=is_debug)
+            status_note(['! error while parsing geopackge ', str(exc)], d=is_debug)

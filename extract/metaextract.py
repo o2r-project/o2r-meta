@@ -159,6 +159,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseGeojson())
     from parsers.parse_netcdf import ParseNetcdf
     PARSERS_CLASS_LIST.append(ParseNetcdf())
+    from parsers.parse_ogc_shp import ParseGeopackage
+    PARSERS_CLASS_LIST.append(ParseGeopackage())
     from parsers.parse_rmd import ParseRmd
     PARSERS_CLASS_LIST.append(ParseRmd())
     from parsers.parse_rdata import ParseRData
