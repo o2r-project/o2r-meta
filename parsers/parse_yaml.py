@@ -76,8 +76,8 @@ class ParseYaml:
                     elif type(yaml_data_dict['author']) is list:
                         for anyone in yaml_data_dict['author']:
                             if 'name' in anyone:
-                                # todo: stop using sandbox for orcid retrieval
-                                anyone['orcid'] = get_orcid_http(anyone['name'], True, stay_offline)
+                                if not 'orcid' in anyone:
+                                    anyone['orcid'] = get_orcid_http(anyone['name'], False, stay_offline)
                 # model date:
                 if 'date' in yaml_data_dict:
                     try:

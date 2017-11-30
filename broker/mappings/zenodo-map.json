@@ -13,7 +13,7 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"author": {
+		"creators": {
 			"translatesTo": "creators",
 			"type": "array",
 			"hasParent": "root",
@@ -22,16 +22,28 @@
 		"name": {
 			"translatesTo": "name",
 			"type": "string",
-			"hasParent": "author",
+			"hasParent": "creators",
 			"needsParent": "creators"
 		},
 		"affiliation": {
 			"translatesTo": "affiliation",
 			"type": "string",
-			"hasParent": "author",
+			"hasParent": "creators",
 			"needsParent": "creators"
 		},
-		"publicationDate": {
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "creators"
+		},
+		"gnd": {
+			"translatesTo": "gnd",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "creators"
+		},
+		"publication_date": {
 			"translatesTo": "publication_date",
 			"type": "string",
 			"hasParent": "root",
@@ -93,12 +105,6 @@
 		}
 	},
 	"Map_disabled": {
-		"orcid": {
-			"translatesTo": "orcid",
-			"type": "string",
-			"hasParent": "author",
-			"needsParent": "creators"
-		},
 		"recordDateCreated":  {
 			"translatesTo": "dateCreated",
 			"type": "string",
