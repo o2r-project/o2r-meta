@@ -153,7 +153,7 @@ Additionally the following features will be made available in the future:
 	
 Example call:
 	
-	python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c schema/json/example1-valid.json
+	python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c broker/tests/metadata_o2r.json
 
 Explanation of the switches:
 

@@ -110,9 +110,9 @@ class ParseYaml:
                     if 'plain' in yaml_data_dict['title']:
                         yaml_data_dict['title'] = yaml_data_dict['title']['plain']
                 # model interaction / shiny:
-                if 'runtime' in yaml_data_dict:
-                    if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
-                        MASTER_MD_DICT['interaction']['interactive'] = True
+                #if 'runtime' in yaml_data_dict:
+                #    if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
+                #        MASTER_MD_DICT['interaction']['interactive'] = True
             return yaml_data_dict
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):

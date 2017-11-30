@@ -249,18 +249,7 @@ def start(**kwargs):
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
         'identifier': {'doi': None, 'doiurl': None, 'reserveddoi': None},
-        'interaction': {'interactive': False,
-            'ui_binding': {'purpose': None,
-                'widget': None,
-                'code': {'filename': None,
-                    'function': None,
-                    'shinyInputFunction': None,
-                    'shinyRenderFunction': None,
-                    'functionParameter': None
-                    },
-               'variable': None
-               }
-        },
+        'interaction': [],  # {'shinyURL': {'path': 'pathToShinyURL', 'type': 'text/shiny'}, 'underlyingdata': '#pathToData', underlyingCode: '#pathToCode'}
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
