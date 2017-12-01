@@ -20,7 +20,6 @@
 			},
 			"required": ["name"]
 		},
-		
 		"depends": {
 			"type": "array",
 			"items": {
@@ -105,9 +104,6 @@
 			"type": "string"
 		},
 		"spatial": {
-			"$ref": "#/definitions/spatial"
-		},
-		"temporal": {
 			"$ref": "#/definitions/spatial"
 		},
 		"softwarePaperCitation": {
