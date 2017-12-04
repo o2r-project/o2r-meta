@@ -76,8 +76,8 @@ class ParseYaml:
                     elif type(yaml_data_dict['author']) is list:
                         for anyone in yaml_data_dict['author']:
                             if 'name' in anyone:
-                                # todo: stop using sandbox for orcid retrieval
-                                anyone['orcid'] = get_orcid_http(anyone['name'], True, stay_offline)
+                                if not 'orcid' in anyone:
+                                    anyone['orcid'] = get_orcid_http(anyone['name'], False, stay_offline)
                 # model date:
                 if 'date' in yaml_data_dict:
                     try:
@@ -110,9 +110,9 @@ class ParseYaml:
                     if 'plain' in yaml_data_dict['title']:
                         yaml_data_dict['title'] = yaml_data_dict['title']['plain']
                 # model interaction / shiny:
-                if 'runtime' in yaml_data_dict:
-                    if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
-                        MASTER_MD_DICT['interaction']['interactive'] = True
+                #if 'runtime' in yaml_data_dict:
+                #    if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
+                #        MASTER_MD_DICT['interaction']['interactive'] = True
             return yaml_data_dict
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):

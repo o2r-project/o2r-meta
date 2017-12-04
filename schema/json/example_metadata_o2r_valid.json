@@ -1,0 +1,93 @@
+{
+    "access_right": "open",
+    "codefiles": [
+        "extract\\tests\\carberry\\jc.Rmd"
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "creators": [
+        {
+            "affiliation": "Brown University",
+            "name": "Josiah Stinkney Carberry",
+            "orcid": "https://orcid.org/0000-0002-1825-0097"
+        }
+    ],
+    "depends": [],
+    "description": "The implications of flexible communication have been fareaching and pervasive. Given the current status of amphibious symmetries, researchers urgently desire the development of journaling file systems. In this position paper, we understand how von Neumann machines can be applied to the development of information retrieval systems.\n",
+    "displayfile": null,
+    "displayfile_candidates": [],
+    "ercIdentifier": null,
+    "identifier": {
+        "doi": "10.5555/666655554444",
+        "doiurl": "https://doi.org/10.5555/666655554444",
+        "reserveddoi": null
+    },
+    "inputfiles": [],
+    "interaction": [{
+        "interactive": false,
+        "ui_binding": {
+            "code": {
+                "filename": null,
+                "function": null,
+                "functionParameter": null,
+                "shinyInputFunction": null,
+                "shinyRenderFunction": null
+            },
+            "purpose": null,
+            "variable": null,
+            "widget": null
+        }
+    }],
+    "keywords": [
+        "psychoceramics",
+        "ionian philology"
+    ],
+    "license": {
+        "code": null,
+        "data": null,
+        "md": null,
+        "text": null,
+        "uibindings": null
+    },
+    "mainfile": "jc.Rmd",
+    "mainfile_candidates": [
+        "extract\\tests\\carberry\\jc.Rmd"
+    ],
+    "paperLanguage": [
+        "en"
+    ],
+    "publication_date": "2017-11-30",
+    "publication_type": "other",
+    "spatial": {
+        "files": [],
+        "union": {
+            "bbox": [
+                [
+                    181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    -181.0
+                ],
+                [
+                    181.0,
+                    -181.0
+                ]
+            ]
+        }
+    },
+    "temporal": {
+        "begin": "2017-11-30T00:00:00",
+        "end": "2017-11-30T00:00:00"
+    },
+    "title": "The Memory Bus Considered Harmful remixed",
+    "upload_type": "publication"
+}
