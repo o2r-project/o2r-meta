@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM python:3-stretch
+FROM python:3.6-stretch
 
 WORKDIR /o2r-meta
 COPY requirements.txt requirements.txt
@@ -53,6 +53,17 @@ LABEL maintainer="o2r-project <https://o2r.info>" \
   org.label-schema.vcs-ref=$VCS_REF \
   org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.docker.schema-version="rc1"
+
+## based on https://github.com/rocker-org/rocker/blob/master/r-base/Dockerfile, but use simply the available R version
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		r-base \
+		#r-base-dev \
+		#r-recommended \
+  && echo 'options(repos = c(CRAN = "https://cran.rstudio.com/"), download.file.method = "libcurl")' >> /etc/R/Rprofile.site \
+    ##&& echo 'source("/etc/R/Rprofile.site")' >> /etc/littler.r \
+	&& rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
+	&& rm -rf /var/lib/apt/lists/*
 
 RUN useradd o2r
 USER o2r
