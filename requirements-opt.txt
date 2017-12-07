@@ -1,2 +1,2 @@
 fiona
-pygdal
+rpy2

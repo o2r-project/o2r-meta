@@ -159,6 +159,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseGeojson())
     from parsers.parse_netcdf import ParseNetcdf
     PARSERS_CLASS_LIST.append(ParseNetcdf())
+    from parsers.parse_ogc_shp import ParseGeopackage
+    PARSERS_CLASS_LIST.append(ParseGeopackage())
     from parsers.parse_rmd import ParseRmd
     PARSERS_CLASS_LIST.append(ParseRmd())
     from parsers.parse_rdata import ParseRData
@@ -247,18 +249,7 @@ def start(**kwargs):
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
         'identifier': {'doi': None, 'doiurl': None, 'reserveddoi': None},
-        'interaction': {'interactive': False,
-            'ui_binding': {'purpose': None,
-                'widget': None,
-                'code': {'filename': None,
-                    'function': None,
-                    'shinyInputFunction': None,
-                    'shinyRenderFunction': None,
-                    'functionParameter': None
-                    },
-               'variable': None
-               }
-        },
+        'interaction': [],  # {'shinyURL': {'path': 'pathToShinyURL', 'type': 'text/shiny'}, 'underlyingdata': '#pathToData', underlyingCode: '#pathToCode'}
         'codefiles': [],
         'inputfiles': [],
         'keywords': [],
@@ -277,7 +268,7 @@ def start(**kwargs):
         'r_comment': [],
         'r_input': [],
         'r_output': [],
-        'r_rdata': [],
+        'rdata': {'rdata_files': []},
         'recordDateCreated': None,
         'researchQuestions': [],
         'researchHypotheses': [],

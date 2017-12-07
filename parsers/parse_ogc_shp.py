@@ -14,26 +14,23 @@
     limitations under the License.
 
 """
+__all__ = ['ParseGeopackage']
 
-__all__ = ['ParseRData']
-
-import os
 from helpers.helpers import *
-from subprocess import Popen, PIPE, STDOUT
 
 
 try:
-    import rpy2.robjects as robjects
-    FORMATS = ['.rdata']
+    from fiona import *
+    FORMATS = ['.gpkg', '.shp']
 except ImportError as iexc:
     FORMATS = []
     availability_issues = str(iexc)
 
 
-ID = 'o2r meta rdata parser'
+ID = 'o2r meta ogc geopackage and shapefile parser'
 
 
-class ParseRData:
+class ParseGeopackage:
     @staticmethod
     def get_id():
         return str(ID)
@@ -45,22 +42,16 @@ class ParseRData:
         return FORMATS
 
     @staticmethod
+    def get_availability():
+        return available
+
+    @staticmethod
     def parse(**kwargs):
-        path_file = kwargs.get('p', None)
-        is_debug = kwargs.get('is_debug', None)
-        MASTER_MD_DICT = kwargs.get('md', None)
-        # skip large files, unsuitable for text preview
-        if os.stat(path_file).st_size / 1024 ** 2 > 250:
-            status_note('skipping large RData file...', d=True)
-            return None
         try:
-            rdata_dict = {path_file: {}}
-            for key in robjects.r['load'](path_file):
-                rdata_dict[path_file].update(key)
-            if 'rdata' in MASTER_MD_DICT:
-                if 'rdata_files' in MASTER_MD_DICT['rdata']:
-                    MASTER_MD_DICT['rdata']['rdata_files'].append(rdata_dict)
+            path_file = kwargs.get('p', None)
+            MASTER_MD_DICT = kwargs.get('md', None)
+            is_debug = kwargs.get('is_debug', None)
+            # todo: add extractions
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=is_debug)
-            raise
+            status_note(['! error while parsing geopackge ', str(exc)], d=is_debug)

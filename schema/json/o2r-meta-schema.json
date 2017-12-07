@@ -3,22 +3,22 @@
 	"title": "o2r-meta",
 	"description": "o2r metadata schema",
 	"definitions": {
-		"author": {
+		"creators": {
 			"type": "array",
 			"items": {
 				"properties": {
-					"authorAffiliation": {
-						"type": "array"
+					"name": {
+						"type": "string"
 					},
-					"authorId": {
-						"type": "array"
+					"orcid": {
+						"type": "string"
 					},
-					"authorName": {
+					"affiliation": {
 						"type": "string"
 					}
 				}
 			},
-			"required": ["authorAffiliation", "authorName"]
+			"required": ["name"]
 		},
 		"depends": {
 			"type": "array",
@@ -41,9 +41,12 @@
 			"required": ["identifier", "packageSystem", "version"]
 		},
 		"spatial": {
-			"type": "array",
+			"type": "object",
 			"items": {
 				"properties": {
+					"files": {
+						"type": "array"
+					},
 					"union": {
 						"type": "array"
 					}
@@ -52,24 +55,26 @@
 			"required": ["union"]
 		},
 		"temporal": {
-			"type": "array",
+			"type": "object",
 			"items": {
 				"properties": {
-					"union": {
-						"type": "array"
+					"begin": {
+						"type": "string"
+					},
+					"end": {
+						"type": "string"
 					}
 				}
-			},
-			"required": ["union"]
+			}
 		}
 	},
 	"type": "object",
 	"properties": {
-		"author": {
-			"$ref": "#/definitions/author"
+		"creators": {
+			"$ref": "#/definitions/creators"
 		},
-		"dateCreated": {
-			"type": "string"
+		"codefiles": {
+			"type": "array"
 		},
 		"depends": {
 			"$ref": "#/definitions/depends"
@@ -77,16 +82,25 @@
 		"description": {
 			"type": "string"
 		},
-		"generatedBy": {
+		"displayfile": {
+			"type": ["null", "string"]
+		},
+		"displayfile_candidates": {
+			"type": "array"
+		},
+		"interaction": {
+			"type": "array"
+		},
+		"mainfile": {
 			"type": "string"
 		},
-		"interactionMethod": {
-			"type": "string"
+		"mainfile_candidates": {
+			"type": "array"
 		},
 		"objectType": {
 			"type": "string"
 		},
-		"recordDateCreated": {
+		"publication_date": {
 			"type": "string"
 		},
 		"spatial": {
@@ -99,7 +113,7 @@
 			"type": "string"
 		},
 		"ercIdentifier": {
-			"type": "string"
+			"type": ["null", "string"]
 		},
 		"title": {
 			"type": "string"
@@ -111,17 +125,19 @@
 			"type": "array"
 		},
 		"paperLanguage": {
-			"type": "array"
+			"type": ["array", "string"]
 		}
 	},
 	"required": [
-		"author",
-		"depends",
+		"access_right",
+		"creators",
 		"description",
-		"generatedBy",
-		"ercIdentifier",
+		"identifier",
 		"title",
 		"keywords",
-		"version"
+		"communities",
+		"license",
+		"publication_date",
+		"publication_type"
 	]
 }

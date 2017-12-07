@@ -1,0 +1,25 @@
+---
+title: "The Memory Bus Considered Harmful remixed"
+author:
+    - name: "Josiah Stinkney Carberry"
+      affiliation: "Brown University"
+      orcid: "https://orcid.org/0000-0002-1825-0097"
+      gnd: "1032212810"
+      viaf: "305206481"
+date: "2017"
+output: html_document
+abstract: |
+    The implications of flexible communication have been fareaching and pervasive. Given the current status of amphibious symmetries, researchers urgently desire the development of journaling file systems. In this position paper, we understand how von Neumann machines can be applied to the development of information retrieval systems.
+keywords:
+    - psychoceramics
+    - ionian philology
+doi: 10.5555/666655554444
+---
+
+```{r plot, echo=FALSE}
+data <- c("1" = 1, "2" = 4, "3" = 8)
+barplot(data, ylab = "Rows", sub = "of wisdom")
+```
+
+> This is the text of this interesting article. P.S. I know the gnd identifier is wrong, be the viaf for Josiah had no correspondence in gnd.
+

@@ -20,10 +20,15 @@ from helpers.helpers import *
 
 import netCDF4
 
+try:
+    from netCDF4 import *
+    FORMATS = ['.nc']
+except ImportError as iexc:
+    FORMATS = []
+    availability_issues = str(iexc)
 
 ID = 'o2r meta netcdf parser'
-FORMATS = ['.nc']
-# FORMATS = ['.nc', '.cdl']
+
 
 
 class ParseNetcdf:
@@ -33,6 +38,8 @@ class ParseNetcdf:
 
     @staticmethod
     def get_formats():
+        if not FORMATS:
+            status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
     @staticmethod

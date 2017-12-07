@@ -18,11 +18,16 @@ __all__ = ['ParseGeojson']
 
 from helpers.helpers import *
 
-import json
-import pygeoj
+#import json
+
+try:
+    import pygeoj
+    FORMATS = ['.geojson']
+except ImportError as iexc:
+    FORMATS = []
+    availability_issues = str(iexc)
 
 ID = 'o2r meta geojson parser'
-FORMATS = ['.geojson']
 
 
 class ParseGeojson:
@@ -32,6 +37,8 @@ class ParseGeojson:
 
     @staticmethod
     def get_formats():
+        if not FORMATS:
+            status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
     @staticmethod

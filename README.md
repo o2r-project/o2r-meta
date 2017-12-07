@@ -101,12 +101,17 @@ Use `python o2rmeta.py extract -f` to see supported formats.
 
 
 
-# (2) Brokering/Mapping tool
+# (2) Broker: A mapping tool
 
 The broker has two modes: In _mapping mode_, it creates fitting metadata for a given map by following a translation scheme included in that mapping file.
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
 
-The broker can be used to translate between different standards for metadata sets. For example from extracted raw metadata to schema-compliant metadata. Other target outputs might DataCite XML or Zenodo JSON.
+The broker can be used to translate between different standards for metadata sets. A typical workflow would look as follows:
+Step 1: Convert extracted raw metadata to o2r schema compliant metadata.
+Step 2: Convert o2r metadata to a 3rd party repository schema, e.g. zenodo.
+
+Each Step can be done with a single call of the broker.
+ 
 Translation instructions as well as checklists are stored in json formatted map files, documented at [schema/docs/mappings_docs.md](https://github.com/o2r-project/o2r-meta/tree/master/schema/docs/mappings_docs.md).
 
     python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
@@ -115,7 +120,7 @@ Example calls:
 	
     python o2rmeta.py -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
 
-    python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests/metadata_raw.json -o broker/tests/all
+    python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests/metadata_o2r.json -o broker/tests/all
 
 Explanation of the switches:
 
@@ -148,7 +153,7 @@ Additionally the following features will be made available in the future:
 	
 Example call:
 	
-	python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c schema/json/example1-valid.json
+	python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c broker/tests/metadata_o2r.json
 
 Explanation of the switches:
 
