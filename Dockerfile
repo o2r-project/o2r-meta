@@ -12,11 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM python:3-stretch
+FROM python:3.6-stretch
+
+## based on https://github.com/rocker-org/rocker/blob/master/r-base/Dockerfile, but use simply the available R version
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		r-base \
+		#r-base-dev \
+		#r-recommended \
+  && echo 'options(repos = c(CRAN = "https://cran.rstudio.com/"), download.file.method = "libcurl")' >> /etc/R/Rprofile.site \
+    ##&& echo 'source("/etc/R/Rprofile.site")' >> /etc/littler.r \
+	&& rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
+	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /o2r-meta
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+
+# Install potentially failing dependencies, but do not fail build if optional requirements are missing
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    libgdal-dev
+COPY requirements-opt.txt requirements-opt.txt
+#RUN pip install -r requirements-opt.txt; exit 0
+RUN pip install -r requirements-opt.txt 2>&1 > /tmp/o2r-meta-optional.log \
+  || echo "\n\nErrors installing optional dependencies\n\n" && cat /tmp/o2r-meta-optional.log
 
 COPY broker broker
 COPY extract extract
@@ -47,5 +67,7 @@ LABEL maintainer="o2r-project <https://o2r.info>" \
 
 RUN useradd o2r
 USER o2r
+
+SHELL ["sh", "-lc"]
 
 ENTRYPOINT ["python3", "/o2r-meta/o2rmeta.py"]
