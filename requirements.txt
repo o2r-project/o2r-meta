@@ -7,4 +7,3 @@ pygeoj
 python-dateutil
 requests
 netCDF4
-rpy2
