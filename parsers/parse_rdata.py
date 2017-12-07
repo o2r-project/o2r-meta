@@ -21,8 +21,16 @@ import os
 from helpers.helpers import *
 from subprocess import Popen, PIPE, STDOUT
 
+
+try:
+    import rpy2.robjects as robjects
+    FORMATS = ['.rdata']
+except ImportError as iexc:
+    FORMATS = []
+    availability_issues = str(iexc)
+
+
 ID = 'o2r meta rdata parser'
-FORMATS = ['.rdata']
 
 
 class ParseRData:
@@ -32,53 +40,27 @@ class ParseRData:
 
     @staticmethod
     def get_formats():
+        if not FORMATS:
+            status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
     @staticmethod
     def parse(**kwargs):
         path_file = kwargs.get('p', None)
         is_debug = kwargs.get('is_debug', None)
+        MASTER_MD_DICT = kwargs.get('md', None)
         # skip large files, unsuitable for text preview
         if os.stat(path_file).st_size / 1024 ** 2 > 250:
             status_note('skipping large RData file...', d=True)
             return None
-        rhome_name = 'R_HOME'
-        if rhome_name in os.environ:
-            if os.environ[rhome_name] is not None:
-                # OK try R_HOME value
-                rpath = os.environ[rhome_name].replace("\\", "/")
-                # add executable to path
-                if not rpath.endswith('R') and not rpath.endswith('R.exe'):
-                    if os.path.exists(os.path.join(rpath, 'R.exe')):
-                        rpath = os.path.join(rpath, 'R.exe')
-                    else:
-                        if os.path.exists(os.path.join(rpath, 'R')):
-                            rpath = os.path.join(rpath, 'R')
-                        else:
-                            # Cannot take path
-                            status_note('cannot parse .data file, R_HOME not configured or invalid path to R executable', d=is_debug)
-                            rpath = None
-                try:
-                    if rpath is not None:
-                        if not os.path.exists(rpath):
-                            # Cannot take path
-                            status_note('cannot parse .data file, invalid path to R installation', d=is_debug)
-                            rpath = None
-                except Exception as exc:
-                    status_note(['! error parsing rdata', str(exc)], d=is_debug)
-            else:
-                status_note(rhome_name, d=True)
-                rpath = None
-        else:
-            status_note([rhome_name, 'cannot parse .rdata file, R_HOME not configured'], d=is_debug)
-            return None
         try:
-            if rpath is None:
-                return None
-            status_note('processing RData')
-            p = Popen([rpath, '--vanilla', os.path.abspath(path_file)], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-            out = p.communicate(input=b'ls.str()')[0].decode('ISO-8859-1')[:-4].split("> ls.str()")[1]
-            return out[:40000]
+            rdata_dict = {path_file: {}}
+            for key in robjects.r['load'](path_file):
+                rdata_dict[path_file].update(key)
+            if 'rdata' in MASTER_MD_DICT:
+                if 'rdata_files' in MASTER_MD_DICT['rdata']:
+                    MASTER_MD_DICT['rdata']['rdata_files'].append(rdata_dict)
+            return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=True)
+            status_note(str(exc), d=is_debug)
             raise
