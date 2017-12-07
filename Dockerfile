@@ -65,7 +65,11 @@ RUN apt-get update \
 	&& rm -rf /tmp/downloaded_packages/ /tmp/*.rds \
 	&& rm -rf /var/lib/apt/lists/*
 
+ENV R_HOME=/usr/bin/R
+
 RUN useradd o2r
 USER o2r
+
+SHELL ["sh", "-lc"]
 
 ENTRYPOINT ["python3", "/o2r-meta/o2rmeta.py"]
