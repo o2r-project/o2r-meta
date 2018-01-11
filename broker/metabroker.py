@@ -130,7 +130,6 @@ def map_json(element, value, map_data, output_dict):
         if type(value) is list:
         # plain list, as for keywords
             if element in map_data:
-                ##print(str(value))
                 allString = False
                 for x in value:
                     # if all is plain string in that list, take whole list
@@ -146,6 +145,10 @@ def map_json(element, value, map_data, output_dict):
             # ---<key:string>----------------------------------------------
             if type(key) is str:
                 if key in map_data:
+                    # special case create new entry based on sub element:
+                    if map_data[key]['type'] == 'new':
+                        if map_data[key]['hasParent'] != key and map_data[key]['needsParent'] == "root":
+                            output_dict[map_data[key]['translatesTo']] = value[key]
                     d = 0
                     # ---<subkey:string>----------------------------------------------
                     if type(value[key]) is list:
