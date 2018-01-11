@@ -40,7 +40,7 @@ The name of each key represents the name of the metadata element that needs to b
 Meaningful subkeys are:
 
 - *translatesTo* This key indicates the string that is the target translation for the element.
-- *type* This key indicates the data type of the element.
+- *type* This key indicates the data type of the element. Additionally the *type* can have the value `new` to indicate that a new key has to be created by the broker. This is needed for sub element metadata to become top level elements.
 - *hasParent* This key indicates the name of the parent key that the metadata element belongs to.
 - *needsParent* This key indicates the target translation for the parent keys of the metadata element.
 

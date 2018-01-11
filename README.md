@@ -9,7 +9,7 @@ current development branch<br> containing latest updates | "stable" branch for<b
 This is a collection of tools for extract-map-validate workflows. 
 
 0. schema & documentation of the o2r metadata
-1. extract - collect meta information from files or session
+1. extract - collect meta information from files in a workspace
 2. broker - translate metadata from o2r to third party schemas
 3. validate - check if metadata set is valid to the schema
 4. harvest - collect metadata from external sources via OAI-PMH
@@ -53,10 +53,11 @@ Note: if the directory does not exist before mounting it, then Docker will creat
 ## Documentation
 
 + Current documentation as part of the [ERC-SPEC](http://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
-+ Current elements of raw MD [elements.md](schema/docs/elements.md)
-+ Current [structure dummy](https://github.com/o2r-project/o2r-meta/blob/master/schema/json/dummy.json)
++ Current elements of raw and o2r MD: [elements.md](schema/docs/elements.md)
++ Current o2r [metadata schema](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)
 + [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
-+ ~~[schema draft](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)~~ 
+
+
 
 ## Usage
 When calling o2r meta, you can chose from the following commands, each representing one tool of the o2r meta suite: _extract_, _validate_, _broker_ and _harvest_.
@@ -89,10 +90,6 @@ Explanation of the switches:
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
-
-### List of elements for raw MD
-
-See [elements.md](schema/docs/elements.md).
 
 
 ### Supported files and formats for the metadata extraction process:

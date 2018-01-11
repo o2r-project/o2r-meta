@@ -5,7 +5,7 @@ _Last updated: 2017-12-01, work in progress!_
 
 # Elements of the raw metadata file
 
-- `access_right`_String_. Zenodo preset. Defaults "open".
+- `access_right` _String_. Zenodo preset. Defaults "open".
 - `author` _Array of objects_. 
 - `author[0].affiliation` _String_.
 - `author[0].name` _String_.

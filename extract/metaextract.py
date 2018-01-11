@@ -268,7 +268,7 @@ def start(**kwargs):
         'r_comment': [],
         'r_input': [],
         'r_output': [],
-        'r_rdata': [],
+        'rdata': {'rdata_files': []},
         'recordDateCreated': None,
         'researchQuestions': [],
         'researchHypotheses': [],

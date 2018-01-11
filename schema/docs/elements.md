@@ -11,7 +11,8 @@ This is a documentation on the metadata elements provided by the o2r meta extrac
 # Simplified MD workflow
 
 
-**workspace** --{extract}--> **raw MD** --{broker}--> **o2r MD**
 
 
-**o2r MD** --{user update}--> **o2r MD** --{broker}--> **3rd party repo. MD**
+![workflow img](o2r-meta_workflow.png)
+
+
