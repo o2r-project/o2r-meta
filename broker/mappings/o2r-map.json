@@ -1,7 +1,6 @@
 {
 	"Settings": {
 		"name": "o2r",
-		"outputfile": "metadata_o2r.json",
 		"version": "1",
 		"output_file_prefix": "metadata",
 		"output_file_extension": ".json",
