@@ -1,7 +1,9 @@
 {
 	"Settings": {
 		"name": "zenodo_sandbox",
-		"outputfile": "metadata_zenodo_sandbox.json",
+		"version": "1",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".json",
 		"map_description": "maps o2r schema compliant MD to Zenodo Sandbox for deposition creation",
 		"mode": "json",
 		"root": "metadata"

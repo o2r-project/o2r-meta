@@ -1,7 +1,9 @@
 {
 	"Settings": {
-		"name": "BagIt-14",
-		"outputfile": "metadata_bagit.txt",
+		"name": "BagIt",
+		"version": "14",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".txt",
 		"map_description": "maps to bagit",
 		"mode": "txt",
 		"root": ""

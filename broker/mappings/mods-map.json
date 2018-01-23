@@ -1,7 +1,9 @@
 {
 	"Settings": {
-		"name": "MODS 3.6",
-		"outputfile": "metadata_mods.json",
+		"name": "MODS",
+		"version": "3.6",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".json",
 		"map_description": "maps to loc mods",
 		"mode": "xml",
 		"root": "modsCollection",
