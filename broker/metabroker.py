@@ -28,7 +28,7 @@ from helpers.helpers import *
 
 def check(checklist_pathfile, input_json):
     # checks which required fields are already fulfilled by a given set of metadata
-    status_note(''.join(('processing ', input_json)))
+    status_note(['processing ', input_json], d=is_debug)
     # prepare input filepath
     try:
         if os.path.isfile(input_json):
@@ -70,7 +70,7 @@ def do_outputs(output_data, out_mode, out_name):
                 outfile.write(str(output_data))
                 # for xml:
                 # todo: xml
-            status_note([str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename)], d=False)
+            status_note([str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename)], d=is_debug)
             # update meta meta for archival:
             update_archival(out_mode)
         except Exception as exc:
@@ -101,9 +101,9 @@ def update_archival(outpath):
             # for json:
             output_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
             outfile.write(str(output_data))
-            status_note([str(os.stat(infofile).st_size), ' bytes written to ', os.path.abspath(infofile)], d=False)
+            status_note([str(os.stat(infofile).st_size), ' bytes written to ', os.path.abspath(infofile)], d=is_debug)
     except Exception as exc:
-        #status_note(str(exc), d=is_debug)
+        status_note(str(exc), d=is_debug)
         raise
 
 
@@ -211,7 +211,7 @@ def map_xml(element, value, map_data, xml_root):
     a = None
     try:
         if type(value) is list or type(value) is dict:
-            status_note(''.join(('unfolding key <', str(element),'>')))
+            status_note(['unfolding key <', str(element), '>'], d=False)
             if str(element) in map_data:
                 fields = map_data[element]
                 fieldslist = fields.split(seperator)
@@ -232,7 +232,7 @@ def map_xml(element, value, map_data, xml_root):
                                     status_note('unfolding subkey list')
                                     c = ElT.SubElement(a, field)
                                     for subkey in key:
-                                        if ''.join(subkey) in map_data:
+                                        if subkey in map_data:
                                             d = ElT.SubElement(c, map_data[subkey])
                                             d.text = key[subkey]
                                 elif type(key) is str:
@@ -256,27 +256,25 @@ def map_xml(element, value, map_data, xml_root):
                 # nestification along pseudo xpath from map data
                 for field in fieldslist:
                     if len(fieldslist) == 1:
-                        a = ElT.SubElement(xml_root, field)
-                        a.text = value
+                        sub_field = ElT.SubElement(xml_root, field)
+                        sub_field.text = value
                         break
-                    if a is not None:  # do not change to "if a:". needs safe test for xml element class
-                        a = ElT.SubElement(a, field)
+                    if sub_field is not None:  # do not change to "if a:". needs safe test for xml element class
+                        sub_field = ElT.SubElement(sub_field, field)
                         #insert content in innermost node, i.e. last in mapping pseudo xpath
                         if field == fieldslist[-1]:
-                            a.text = value
+                            sub_field.text = value
                     else:
                         #attach to given super element
-                        a = ElT.SubElement(xml_root, field)
+                        sub_field = ElT.SubElement(xml_root, field)
                 return xml_root
             else:
-                status_note(['skipping key <', element, '> (not in map)'], d=False)
+                status_note(['skipping key <', element, '> (not in map)'], d=is_debug)
         else:
-            status_note('unknown data type in key', d=False)
-    except:
-        status_note('! error while mapping xml', d=False)
+            status_note('unknown data type in key', d=is_debug)
+    except Exception as exc:
+        status_note(['! error while mapping xml', str(exc)], d=is_debug)
         raise
-
-
 
 
 # Main
@@ -300,7 +298,7 @@ def start(**kwargs):
     elif output_dir:
         output_mode = output_dir
         if not os.path.isdir(output_dir):
-            status_note(['directory at <', output_dir, '> will be created during extraction...'], d=False)
+            status_note(['directory at <', output_dir, '> will be created during extraction...'], d=is_debug)
     else:
         # not possible currently because output arg group is on mutual exclusive
         output_mode = '@none'
@@ -317,6 +315,12 @@ def start(**kwargs):
                     my_mode = settings_data['mode']
                     if 'name' in map_file['Settings']:
                         archival_info['standards_used'].append({map_file['Settings']['name']: map_file['Settings']})
+                        if 'output_file_prefix' in settings_data:
+                            if 'version' in settings_data:
+                                if 'output_file_extension' in settings_data:
+                                    output_file_name = ''.join((settings_data['output_file_prefix'], '_', settings_data['name'], '_', settings_data['version'], settings_data['output_file_extension']))
+            if output_file_name is None:
+                status_note(['! error: malformed mapping file <', my_map, '>'], d=is_debug)
         except Exception as exc:
             status_note(str(exc), d=is_debug)
             raise
@@ -324,17 +328,17 @@ def start(**kwargs):
         if my_mode == 'json':
             # parse target file # try parse all possible metadata files:
             if not os.path.basename(input_file).startswith('metadata_'):
-                status_note('Warning: inputfile does not look like a metadata file object', d=False)
+                status_note('Warning: inputfile does not look like a metadata file object', d=is_debug)
             json_output = {}
             with open(os.path.join(input_file), encoding='utf-8') as data_file:
                 test_data = json.load(data_file)
             for element in test_data:
                 try:
                     map_json(element, test_data[element], map_data, json_output)
-                except Exception as erc:
-                    status_note(str(erc), d=is_debug)
+                except Exception as exc:
+                    status_note(str(exc), d=is_debug)
                     raise
-            do_outputs(json_output, output_mode, settings_data['outputfile'])
+            do_outputs(json_output, output_mode, output_file_name)
         elif my_mode == 'txt':
             # to do: handle txt based maps like bagit
             txt_output = ''
@@ -355,4 +359,4 @@ def start(**kwargs):
             output = ElT.tostring(root, encoding='utf8', method='xml')
             do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
         else:
-            status_note(['! error: cannot process map mode of <', my_map, '>'], d=False)
+            status_note(['! error: cannot process map mode of <', my_map, '>'], d=is_debug)

@@ -1,7 +1,9 @@
 {
 	"Settings": {
 		"name": "b2share_sandbox",
-		"outputfile": "metadata_b2share_sandbox.json",
+		"version": "1",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".json",
 		"map_description": "maps o2r schema compliant MD to Eudat b2share Sandbox for deposition creation",
 		"mode": "json",
 		"root": "metadata"

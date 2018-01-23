@@ -1,7 +1,9 @@
 {
 	"Settings": {
-		"name": "DataCite 4.0",
-		"outputfile": "metadata_datacite.json",
+		"name": "DataCite",
+		"version": "4",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".json",
 		"map_description": "maps to datacite",
 		"mode": "xml",
 		"root": "resource",
