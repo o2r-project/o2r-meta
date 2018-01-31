@@ -70,6 +70,7 @@ def do_outputs(output_data, out_mode, out_name):
                 outfile.write(str(output_data))
                 # for xml:
                 # todo: xml
+
             status_note([str(os.stat(output_filename).st_size), ' bytes written to ', os.path.abspath(output_filename)], d=is_debug)
             # update meta meta for archival:
             update_archival(out_mode)
@@ -95,7 +96,6 @@ def update_archival(outpath):
         else:
             # file does not exist, needs to be created
             data = archival_info
-            #todo: add info about present md files
         # in any case: write current data back to info file
         with open(infofile, 'w', encoding='utf-8') as outfile:
             # for json:
@@ -206,7 +206,8 @@ def map_json(element, value, map_data, output_dict):
     return output_dict
 
 
-def map_xml(element, value, map_data, xml_root):
+def map_xml(element, value, map_data):
+    global root
     seperator = '#'
     a = None
     try:
@@ -219,7 +220,7 @@ def map_xml(element, value, map_data, xml_root):
                 for field in fieldslist:
                     # pseudo xpath has no divisions:
                     if len(fieldslist) == 1:
-                        a = ElT.SubElement(xml_root, field)
+                        a = ElT.SubElement(root, field)
                         a.text = value
                         break
                     # element has been created in former loop circle because pseudo xpath has divisions:
@@ -229,7 +230,7 @@ def map_xml(element, value, map_data, xml_root):
                             # in case the elements features is a list of lists:
                             for key in value:
                                 if type(key) is list or type(key) is dict:
-                                    status_note('unfolding subkey list')
+                                    status_note('unfolding subkey list', d=is_debug)
                                     c = ElT.SubElement(a, field)
                                     for subkey in key:
                                         if subkey in map_data:
@@ -243,8 +244,8 @@ def map_xml(element, value, map_data, xml_root):
                                     continue
                     # all other cases (no element with this name created yet)
                     else:
-                        a = ElT.SubElement(xml_root, field)
-                return xml_root
+                        a = ElT.SubElement(root, field)
+                return root
             # element is not in map data:
             else:
                 status_note(['skipping nested key <', str(element), '> (not in map)'], d=False)
@@ -254,9 +255,10 @@ def map_xml(element, value, map_data, xml_root):
                 fields = map_data[element]
                 fieldslist = fields.split(seperator)
                 # nestification along pseudo xpath from map data
+                sub_field = None
                 for field in fieldslist:
                     if len(fieldslist) == 1:
-                        sub_field = ElT.SubElement(xml_root, field)
+                        sub_field = ElT.SubElement(root, field)
                         sub_field.text = value
                         break
                     if sub_field is not None:  # do not change to "if a:". needs safe test for xml element class
@@ -266,15 +268,15 @@ def map_xml(element, value, map_data, xml_root):
                             sub_field.text = value
                     else:
                         #attach to given super element
-                        sub_field = ElT.SubElement(xml_root, field)
-                return xml_root
+                        sub_field = ElT.SubElement(root, field)
+                return root
             else:
                 status_note(['skipping key <', element, '> (not in map)'], d=is_debug)
         else:
             status_note('unknown data type in key', d=is_debug)
     except Exception as exc:
-        status_note(['! error while mapping xml', str(exc)], d=is_debug)
         raise
+        status_note(['! error while mapping xml', str(exc)], d=is_debug)
 
 
 # Main
@@ -292,6 +294,7 @@ def start(**kwargs):
     my_map = kwargs.get('m', None)
     global archival_info
     archival_info = {'standards_used': []}
+    global root
     # output mode
     if output_to_console:
         output_mode = '@s'
@@ -323,11 +326,12 @@ def start(**kwargs):
                     if 'const' in settings_data:
                         for item in settings_data['const']:
                             add_constant_values['const_list'].append(item)
-            if output_file_name is None:
-                status_note(['! error: malformed mapping file <', my_map, '>'], d=is_debug)
         except Exception as exc:
             status_note(str(exc), d=is_debug)
             raise
+        if output_file_name is None:
+            status_note(['! error: malformed mapping file <', my_map, '>'], d=is_debug)
+            exit(1)
         # distinguish format for output
         if my_mode == 'json':
             # parse target file # try parse all possible metadata files:
@@ -337,10 +341,10 @@ def start(**kwargs):
             for item in add_constant_values['const_list']:
                 json_output.update(item)
             with open(os.path.join(input_file), encoding='utf-8') as data_file:
-                test_data = json.load(data_file)
-            for element in test_data:
+                input_data = json.load(data_file)
+            for element in input_data:
                 try:
-                    map_json(element, test_data[element], map_data, json_output)
+                    map_json(element, input_data[element], map_data, json_output)
                 except Exception as exc:
                     status_note(str(exc), d=is_debug)
                     raise
@@ -353,16 +357,18 @@ def start(**kwargs):
             root = ElT.Element(settings_data['root'])
             # to do: generify for complex xml maps
             root.set('xmlns', settings_data['root@xmlns'])
-            root.set('xmlns:xsi', settings_data['root@xmlns:xsi'])
+            root.set('xmlns:xs', settings_data['root@xmlns:xs'])
             root.set('xsi:schemaLocation', settings_data['root@xsi:schemaLocation'])
-            with open(os.path.join('tests', 'meta_test1.json'), encoding='utf-8') as data_file:
-                test_data = json.load(data_file)
-            for element in test_data:
+            with open(os.path.join(input_file), encoding='utf-8') as data_file:
+                input_data = json.load(data_file)
+            for element in input_data:
                 try:
-                    map_xml(element, test_data[element], map_data, root)
+                    if element is not None:
+                        if input_data[element] is not None:
+                            map_xml(element, input_data[element], map_data)
                 except:
                     raise
             output = ElT.tostring(root, encoding='utf8', method='xml')
-            do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, '.xml')
+            do_outputs(minidom.parseString(output).toprettyxml(indent='\t'), output_mode, output_file_name)
         else:
             status_note(['! error: cannot process map mode of <', my_map, '>'], d=is_debug)
