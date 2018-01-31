@@ -1,23 +1,98 @@
 {
 	"Settings": {
 		"name": "codemeta",
-		"version": "1",
+		"version": "20",
 		"output_file_prefix": "metadata",
 		"output_file_extension": ".json",
-		"map_description": "maps o2r to codemeta",
+		"map_description": "maps o2r to codemeta 2.0-rc",
 		"mode": "json",
 		"root": "",
 		"root_ns": "",
-		"@context": "https:\/\/raw.githubusercontent.com\/codemeta\/codemeta\/master\/codemeta.jsonld"
+		"const": [
+			{"@context": "http:\/\/schema.org"},
+			{"@type": "Code"}
+		]
 	},
 	"Map": {
-		"author": "agents",
-		"authorId": "@id",
-		"authorAffiliation": "affiliation",
-		"authorName": "name",
-		"description": "description",
-		"keywords": "tags",
-		"depends": "depends",
-		"dateCreated": "dateCreated"
+		"creators": {
+			"translatesTo": "author",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"@type":  {
+			"translatesTo": "@type",
+			"type": "new",
+			"hasParent": "root",
+			"needsParent": "author"
+		},
+		"name": {
+			"translatesTo": "name",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "author"
+		},
+		"affiliation": {
+			"translatesTo": "affiliation",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "author"
+		},
+		"orcid": {
+			"translatesTo": "@id",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "author"
+		},
+		"doiurl":  {
+			"translatesTo": "codeRepository",
+			"type": "new",
+			"hasParent": "identifier",
+			"needsParent": "root"
+		},
+		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"keywords":  {
+			"translatesTo": "keywords",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publication_date":  {
+			"translatesTo": "dateCreated",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"text":  {
+			"translatesTo": "license",
+			"type": "new",
+			"hasParent": "license",
+			"needsParent": "root"
+		},
+		"title":  {
+			"translatesTo": "name",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
+	},
+	"Map_disabled": {
+		"doiurl":  {
+			"translatesTo": "citation",
+			"type": "new",
+			"hasParent": "identifier",
+			"needsParent": "root"
+		},
+		"publication_type":  {
+			"translatesTo": "@type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		}
 	}
 }

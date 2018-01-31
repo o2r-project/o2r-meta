@@ -1,5 +1,5 @@
 """
-    Copyright (c) 2016, 2017 - o2r project
+    Copyright (c) 2016-2018 - o2r project
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -307,18 +307,22 @@ def start(**kwargs):
     if my_map is not None:
         # open map file and find out mode
         try:
+            add_constant_values = {'const_list': []}
             with open(my_map, encoding='utf-8') as data_file:
                 map_file = json.load(data_file)
                 if 'Settings' in map_file:
                     settings_data = map_file['Settings']
                     map_data = map_file['Map']
                     my_mode = settings_data['mode']
-                    if 'name' in map_file['Settings']:
+                    if 'name' in settings_data:
                         archival_info['standards_used'].append({map_file['Settings']['name']: map_file['Settings']})
                         if 'output_file_prefix' in settings_data:
                             if 'version' in settings_data:
                                 if 'output_file_extension' in settings_data:
                                     output_file_name = ''.join((settings_data['output_file_prefix'], '_', settings_data['name'], '_', settings_data['version'], settings_data['output_file_extension']))
+                    if 'const' in settings_data:
+                        for item in settings_data['const']:
+                            add_constant_values['const_list'].append(item)
             if output_file_name is None:
                 status_note(['! error: malformed mapping file <', my_map, '>'], d=is_debug)
         except Exception as exc:
@@ -330,6 +334,8 @@ def start(**kwargs):
             if not os.path.basename(input_file).startswith('metadata_'):
                 status_note('Warning: inputfile does not look like a metadata file object', d=is_debug)
             json_output = {}
+            for item in add_constant_values['const_list']:
+                json_output.update(item)
             with open(os.path.join(input_file), encoding='utf-8') as data_file:
                 test_data = json.load(data_file)
             for element in test_data:
