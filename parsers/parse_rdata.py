@@ -56,11 +56,14 @@ class ParseRData:
         try:
             rdata_dict = {path_file: {}}
             for key in robjects.r['load'](path_file):
-                rdata_dict[path_file].update(key)
+                if key is not None and len(key) > 1:
+                    rdata_dict[path_file].update(key)
             if 'rdata' in MASTER_MD_DICT:
                 if 'rdata_files' in MASTER_MD_DICT['rdata']:
                     MASTER_MD_DICT['rdata']['rdata_files'].append(rdata_dict)
             return MASTER_MD_DICT
         except Exception as exc:
             status_note(str(exc), d=is_debug)
-            raise
+            status_note(['could not complete parsing ', str(path_file)], d=is_debug)
+            return MASTER_MD_DICT
+            #raise
