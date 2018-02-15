@@ -1,4 +1,4 @@
-This is a documentation on the minimal language used in the o2r-meta mappings that provide instructions for   metadata translation as used by the broker tool.
+This is a documentation on the minimal language used in the o2r-meta mappings that provide instructions for metadata translation as used by the broker tool.
 
 
 # Format
@@ -19,6 +19,7 @@ The mapping file may contain additional keys on the top level, e.g. "Map_disable
 - *name* This key indicates the name of the mapping file.
 - *outputfile* This key determines name of the output file, created by the broker tool.
 - *map_description* This key contains a description of the purpose of the mapping file.
+- *const* This key contains a list of json objects that will be added to the translated file at top level regardless of the input file
 - *mode* This key determines the translation mode for the map, e.g. json or xml.
 - *root* This key indicates the root element that will be created for the metadata translation.
 - *root@xmlns* This key indicates the xml namespace for the source metadata file, if mode is xml.

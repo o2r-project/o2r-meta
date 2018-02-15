@@ -4,24 +4,138 @@
 		"version": "1",
 		"output_file_prefix": "metadata",
 		"output_file_extension": ".json",
-		"map_description": "maps o2r schema compliant MD to Eudat b2share for deposition creation",
+		"map_description": "keeps the elements of o2r schema as Eudat b2share community schema",
 		"mode": "json",
-		"root": "metadata"
+		"root": ""
 	},
 	"Map": {
-		"publicationDate": {
+		"access_right":  {
+			"translatesTo": "access_right",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"creators": {
+			"translatesTo": "creators",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"name": {
+			"translatesTo": "name",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "creators"
+		},
+		"affiliation": {
+			"translatesTo": "affiliation",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "creators"
+		},
+		"orcid": {
+			"translatesTo": "orcid",
+			"type": "string",
+			"hasParent": "creators",
+			"needsParent": "creators"
+		},
+		"codefiles": {
+			"translatesTo": "codefiles",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"displayfile": {
+			"translatesTo": "displayfile",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"displayfile_candidates": {
+			"translatesTo": "displayfile_candidates",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"depends": {
+			"translatesTo": "depends",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"ercIdentifier": {
+			"translatesTo": "ercIdentifier",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"inputfiles": {
+			"translatesTo": "inputfiles",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"identifier": {
+			"translatesTo": "identifier",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"interaction": {
+			"translatesTo": "interaction",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"mainfile": {
+			"translatesTo": "mainfile",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"mainfile_candidates": {
+			"translatesTo": "mainfile_candidates",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"paperLanguage": {
+			"translatesTo": "paperLanguage",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"publication_date": {
 			"translatesTo": "publication_date",
 			"type": "string",
 			"hasParent": "root",
 			"needsParent": "root"
 		},
 		"publication_type":  {
-			"translatesTo": "description_type",
+			"translatesTo": "publication_type",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"spatial":  {
+			"translatesTo": "spatial",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"temporal":  {
+			"translatesTo": "temporal",
 			"type": "string",
 			"hasParent": "root",
 			"needsParent": "root"
 		},
 		"description":  {
+			"translatesTo": "description",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"description": {
 			"translatesTo": "description",
 			"type": "string",
 			"hasParent": "root",
@@ -33,9 +147,27 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"open_access":  {
-			"translatesTo": "open_access",
-			"type": "boolean",
+		"license":  {
+			"translatesTo": "license",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"keywords":  {
+			"translatesTo": "keywords",
+			"type": "array",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"communities":  {
+			"translatesTo": "communities",
+			"type": "string",
+			"hasParent": "root",
+			"needsParent": "root"
+		},
+		"upload_type": {
+			"translatesTo": "upload_type",
+			"type": "string",
 			"hasParent": "root",
 			"needsParent": "root"
 		}

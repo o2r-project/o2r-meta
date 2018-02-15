@@ -1,15 +1,15 @@
 {
 	"Settings": {
 		"name": "DataCite",
-		"version": "4",
+		"version": "41",
 		"output_file_prefix": "metadata",
-		"output_file_extension": ".json",
-		"map_description": "maps to datacite",
+		"output_file_extension": ".xml",
+		"map_description": "maps o2r to datacite 4.1",
 		"mode": "xml",
 		"root": "resource",
 		"root@xmlns": "http:\/\/datacite.org\/schema\/kernel-4",
-		"root@xmlns:xsi": "http:\/\/www.w3.org\/2001\/XMLSchema-instance",
-		"root@xsi:schemaLocation": "http:\/\/datacite.org\/schema\/kernel-4 http:\/\/schema.datacite.org\/meta\/kernel-4\/metadata.xsd"
+		"root@xmlns:xs": "http:\/\/www.w3.org\/2001\/XMLSchema",
+		"root@xsi:schemaLocation": "https:\/\/schema.datacite.org\/meta\/kernel-4.1\/metadata.xsd"
 	},
 	"Map": {
 		"identifier": "identifier",

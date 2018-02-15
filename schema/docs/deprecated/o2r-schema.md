@@ -9,8 +9,8 @@ license: CC-BY 4.0 International
 
 **Please refer to the ERC-Specification documents, instead.**
 
-
 ## 0. Schema location
+
 Current schema draft for descriptive metadata of the asset, e.g. software:
 
 - <https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json>
@@ -56,7 +56,8 @@ The required information for a complete set of o2r metadata according to this sc
 - ```version``` (mandatory, 1)
 
 ### UI Schema Draft
-The following meta information are used to control widgets for interaction with ERCs on our platform.
+
+The following meta information are used to control widgets for interaction with ERCs.
 
 - ```ercIdentifier``` (mandatory, 1)
 - ```checkboxes``` (optional, 0-n)
@@ -156,4 +157,3 @@ The following meta information are used to control widgets for interaction with 
 
 - version
 > A unique string indicating a specific state of the software, i.e. an initial public release, an update or bug fix release, etc. No version format or schema is enforced for this value.
-

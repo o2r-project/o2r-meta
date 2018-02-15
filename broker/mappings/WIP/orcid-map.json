@@ -1,0 +1,17 @@
+{
+	"Settings": {
+		"name": "ORCID",
+		"version": "20",
+		"output_file_prefix": "metadata",
+		"output_file_extension": ".xml",
+		"map_description": "maps o2r to orcid 2.0",
+		"mode": "xml",
+		"root": "resource",
+		"root@xmlns": "http://www.orcid.org/ns/common",
+		"root@xmlns:xsi": "http://www.w3.org/2001/XMLSchema",
+		"root@xsi:schemaLocation": "https://github.com/ORCID/ORCID-Source/blob/master/orcid-model/src/main/resources/record_2.0/work-2.0.xsd"
+	},
+	"Map": {
+		"work": "work",
+	}
+}
