@@ -21,7 +21,7 @@ _Last updated: 2017-12-01, work in progress!_
 - `description` _String_. A text representation conveying the purpose and scope of the asset (the abstract).
 - `displayfile` _String_. The suggested file for viewing the text of the workspace, i.e. a rendering of the suggested mainfile.
 - `displayfile_candidates` _Array of strings_. An unsorted list of candidates for displayfiles.
-- `ercIdentifier` _String_. A universally unique character string associated with the asset as executable research compendium, provided by the o2r service.
+- ~~`ercIdentifier` _String_. A universally unique character string associated with the asset as executable research compendium, provided by the o2r service.~~ _Deprecated_.
 - `file`_Object_. _Deprecated_.
 - `file.filename` _String_. _Deprecated_.
 - `file.filepath` _String_. _Deprecated_.
