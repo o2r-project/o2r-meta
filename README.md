@@ -183,18 +183,25 @@ Explanation of the switches:
 
 The extractor tool uses python classes as parser modules that can process specific formats as described above.
 
-In order to add a new custom parser, you have to write a parser class and add it to the directory in the following location: `o2r-meta\parsers`.
+In order to add a new custom parser, you have to write a parser class and add it to the parser directory.
 
-Note that future versions of o2r-meta might be able to register all parsers based on the files in the `parsers` directory. Until then it is necessary to register a new parser in the function `register_parsers` of `o2r-meta\extract\metaextract.py`.
+Note that [future versions](https://github.com/o2r-project/o2r-meta/issues/95) of o2r-meta might be able to register all parsers based on the files in the `parsers` directory. Until then it is necessary to register a new parser in the extractor script
 
-The use of classes as parsers is currently still implemented in a rather naïve way. However, in order to be able to take advantage of non static methods, all parsers are designed as classes already. Also a governing class that provides inheritance features should be the goal of a better extractor.
+The use of classes as parsers is currently still implemented in a rather naïve way. However, in order to be able to take advantage of non static methods, all parsers are designed as classes already.
+
+The general process of a parser for the extractor is the following:
+
+1. the parses accesses a target file, which was encountered by the extractor during a recursive scan of the target directory and identified based on file extension
+2. the target file is read and processed by the parser
+3. the results of the processing are written to a dictionary data structure that is globally known to the program
+4. the structure of the data dictionary can be found in metaextract.py or dummy.json
 
 
 ## Structure of your parser Python class
 
 _In this example we will call your new parser file `parse_abc.py` and the class in that file `ParseAbc`._
 
-Here is a extensively commented template for your parser file:
+Here is a commented template for your parser file:
 
 ```python
 # Class name keyword to signal availability to importing files
@@ -220,25 +227,25 @@ ID = 'o2r meta abc parser'
 
 # Declare your class
 class ParseAbc:
-	# Required method to return the ID
+    # Required method to return the ID
     @staticmethod
     def get_id():
         return str(ID)
 
-	# Required method to return the available formats of this parser
+    # Required method to return the available formats of this parser
     @staticmethod
     def get_formats():
         if not FORMATS:
-        	# Status notes are available via the helpers module
+            # Status notes are available via the helpers module
             status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
-	# Required method. This is the place for your actual parsing code
+    # Required method. This is the place for your actual parsing code
     @staticmethod
     def parse(**kwargs):
         is_debug = False
         try:
-        	# The extractor provides the path of your target file
+            # The extractor provides the path of your target file
             path_file = kwargs.get('p', None)
             # And the metadata dictionary to which you want to write
             MASTER_MD_DICT = kwargs.get('md', None)
@@ -261,7 +268,7 @@ class ParseAbc:
 
 ## Steps to integrate your own parser
 
- 
+
 + save a copy of your parser file `parse_abc.py` at `o2r-meta\parsers`
 + open `o2r-meta\extract\metaextract.py` and find the function `register_parsers`
 + add the following to that function using your own filename and class name:
@@ -273,7 +280,7 @@ from parsers.parse_abc.py import ParseAbc
 PARSERS_CLASS_LIST.append(ParseAbc())
 ```
 
-+ test if your new parser is working by calling
++ test if the extractor recognizes your new parser by calling
 
 ```bash
 python o2rmeta.py -debug extract -f

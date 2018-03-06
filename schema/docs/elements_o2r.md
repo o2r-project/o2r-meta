@@ -1,7 +1,7 @@
 This is a documentation on the metadata elements provided by the o2r meta extract.
 
 
-_Last updated: 2017-12-01, work in progress!_ 
+_Last updated: 2018-03-06, work in progress!_ 
 
 # Elements of the o2r metadata file
 
@@ -17,11 +17,9 @@ _Last updated: 2017-12-01, work in progress!_
 - `depends.operatingSystem` _String_.
 - `depends.identifier` _String_.
 - `depends.packageSystem` _String_. URL
-- ~~`depends.version` _String_~~ _Deprecated_.
 - `description` _String_. A text representation conveying the purpose and scope of the asset (the abstract).
 - `displayfile` _String_. The suggested file for viewing the text of the workspace, i.e. a rendering of the suggested mainfile.
 - `displayfile_candidates` _Array of strings_. An unsorted list of candidates for displayfiles.
-- ~~`ercIdentifier` _String_. A universally unique character string associated with the asset as executable research compendium, provided by the o2r service.~~ _Deprecated_.
 - `identifier` _Object_.
 - `inputfiles` _Array of strings_. A compiled list of files from the extracted workspace that is called or used in the extracted code of the workspace.
 - `interaction` TBD
