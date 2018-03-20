@@ -113,6 +113,7 @@ class ParseYaml:
                 #if 'runtime' in yaml_data_dict:
                 #    if yaml_data_dict['runtime'] == 'shiny' and 'interaction' in MASTER_MD_DICT:
                 #        MASTER_MD_DICT['interaction']['interactive'] = True
+                # licenses:
                 if 'licenses' in yaml_data_dict:
                     if yaml_data_dict['licenses'] is not None:
                         MASTER_MD_DICT['licenses'] = yaml_data_dict['licenses']
