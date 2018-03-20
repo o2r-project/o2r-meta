@@ -1,0 +1,7 @@
+---
+licenses:
+    metadata: CC0-1.0
+    code: Apache-2.0
+---
+
+...

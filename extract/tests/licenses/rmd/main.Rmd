@@ -1,0 +1,11 @@
+---
+title: "Capacity of container ships in seaborne trade from 1980 to 2016 (in million dwt)*"
+licenses:
+    code: Apache-2.0
+    data: CC0-1.0
+    text: ODbL-1.0
+    ui_bindings: "good boy license"
+    metadata: license-md.txt
+---
+
+no content
