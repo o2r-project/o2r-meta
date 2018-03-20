@@ -342,6 +342,9 @@ def start(**kwargs):
                 else:
                     nr += 1
                     status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+            else:
+                    nr_skips += 1
+    
     status_note(['total files processed: ', nr], d=False)
     status_note(['total extraction errors: ', nr_errs], d=False)
     status_note(['total skipped files: ', nr_skips], d=False)
