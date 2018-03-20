@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=dev)](https://travis-ci.org/o2r-project/o2r-meta) |[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
 current development branch<br> containing latest updates | "stable" branch for<br> o2r ref. implementation |
 
-
 # o2r meta
 
 This is a collection of tools for extract-map-validate workflows. 
@@ -13,14 +12,12 @@ This is a collection of tools for extract-map-validate workflows.
 2. broker - translate metadata from o2r to third party schemas
 3. validate - check if metadata set is valid to the schema
 4. harvest - collect metadata from external sources via OAI-PMH
- 
 
 For their role within o2r, please refer to [o2r-architecture](https://github.com/o2r-project/architecture).
 
 ## License
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016, 2017 - o2r project.
-
 
 ## Installation
 
@@ -57,9 +54,8 @@ Note: if the directory does not exist before mounting it, then Docker will creat
 + Current o2r [metadata schema](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)
 + [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
 
-
-
 ## Usage
+
 When calling o2r meta, you can chose from the following commands, each representing one tool of the o2r meta suite: _extract_, _validate_, _broker_ and _harvest_.
 
     python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>
@@ -69,7 +65,6 @@ Options:
 + `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
 Each tool then has a number of arguments:
-
 
 # (1) Extractor tool:
 
@@ -91,12 +86,9 @@ Explanation of the switches:
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
 
-
 ### Supported files and formats for the metadata extraction process:
 
 Use `python o2rmeta.py extract -f` to see supported formats.
-
-
 
 # (2) Broker: A mapping tool
 
@@ -121,7 +113,6 @@ Example calls:
 
 Explanation of the switches:
 
-
 + `-c` <CHECKLIST_FILE> : required path to a json checklist file that holds checking instructions for the metadata. This switch is mutually exclusive with `-m`. At least one of them must be given.
 + `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. This switch is mutually exclusive with `-c`. At least one of them must be given.
 + `-i` <INPUT_FILE> : path to input json file.
@@ -130,19 +121,15 @@ Explanation of the switches:
 
 Supported checks/maps
 
-
 **service** | **checklist file** | **mapping file** | **status** | **comment**
 ------ | ------ | ------ | ------ | ------ |
 zenodo| zenodo-check.json | zenodo-map.json | _WIP_ | _zenodo will register MD @ datacite.org_
 eudat b2share| eudat-b2share-check.json | eudat-b2share-map.json | _WIP_ | b2share supports custom MD schemas
 ... | ... | ... | ... | ...
 
-
 Additionally the following features will be made available in the future:
 + Documentation of the formal map-file "minimal language" (create your own map-files).
 + Governing JSON-Schema for the map files (validate map-files against the map-file-schema).
-
-
 
 # (3) Validator tool:
 
@@ -157,12 +144,10 @@ Explanation of the switches:
 + `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml.
 + `-c` <CANDIDATE> : required path to candidate that shall be validated.
 
-
 # (4) Harvester tool:
 
 Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set.
 _Note, that this tool is currently only a demo._ 
-
 
 	python o2rmeta.py harvest -e <ELEMENT> -q <QUERY>
 	
