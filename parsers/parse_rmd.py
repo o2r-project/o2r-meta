@@ -43,7 +43,8 @@ rule_set_r = ['\t'.join(('r_comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')
               '\t'.join(('r_input', 'data input', r'.*readGDAL[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*readOGR\(dsn\=[\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*readLines[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
-              '\t'.join(('r_output', 'file', r'.*write\..*\((.*)\)')),
+              '\t'.join(('r_input', 'data input', r'.*read[r\.\:\_].*file[\s]{0,1}\=[\s]{0,1}[\"\']{0,1}([0-9A-Za-z\,\.\:\/\\]*)[\"\']{1,1}')),
+              '\t'.join(('r_input', 'data output', r'.*write.csv\(.*[\,\s]{0,2}[\'\"]{1}([a-zA-Z\d\.]*)[\'\"]{1}\)')),
               '\t'.join(('r_output', 'result', r'.*(ggplot|plot|print)\((.*)\)')),
               '\t'.join(('r_output', 'setseed', r'.*set\.seed\((.*)\)'))]
 # rule set for rmd #
@@ -99,7 +100,6 @@ class ParseRmd:
                     else:
                         # parse entire file as one code block
                         data_dict.update(r_codeblock=parse_r(content, data_dict))
-                        #data_dict = parse_r(content, data_dict)
             except UnicodeDecodeError:
                 status_note(['! error, failed to decode <', md_file, '>'], d=is_debug)
                 return 'error'
