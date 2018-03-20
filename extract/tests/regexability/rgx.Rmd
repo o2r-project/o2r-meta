@@ -1,0 +1,44 @@
+---
+title: "The Memory Bus Considered Harmful remixed once more"
+author:
+    - name: "Josiah Stinkney Carberry"
+      affiliation: "Brown University"
+      orcid: "https://orcid.org/0000-0002-1825-0097"
+      gnd: "1032212810"
+      viaf: "305206481"
+date: "2017"
+output: html_document
+abstract: |
+    The implications of flexible communication have been fareaching and pervasive. Given the current status of amphibious symmetries, researchers urgently desire the development of journaling file systems. In this position paper, we understand how von Neumann machines can be applied to the development of information retrieval systems.
+keywords:
+    - psychoceramics
+    - ionian philology
+doi: 10.5555/666655554444
+---
+
+```{r}
+a1 <- read.csv(header=TRUE, file="c:/myData.csv", sep=",")
+b1 <- read.csv(header=TRUE, file = "d:/myData2.csv", sep=",")
+b2 <- read.csv('myDataB3.csv')
+u1 <-read.csv(header=TRUE, file = "данные.csv", sep=",")
+u2 <-read.csv(header=TRUE, file="drømmehus.txt", sep=",")
+a2 <- read.csv2(file="f:\file.xy", header=TRUE, sep = ";", quote = "\"",
+          dec = ",", fill = T)
+a3 <- read.delim(sep="$", header=FALSE", file="K:/sup/values/foo.txt")
+a4 <- read.delim2(file="stuff.tsv", header = T, sep = "\t", quote = "\"",
+          dec = ",", fill = TRUE, comment.char = "")
+a5 <- readr::read_csv(file="mt,cars.csv.zip")
+a6 <- read.table(file="abcde.csv", header = FALSE, sep = "", quote = "\"'",
+           dec = ".", numerals = c("allow.loss", "warn.loss", "no.loss"),
+           row.names, col.names, as.is = !stringsAsFactors,
+           na.strings = "NA", colClasses = NA, nrows = -1,
+           skip = 0, check.names = TRUE, fill = !blank.lines.skip,
+           strip.white = FALSE, blank.lines.skip = TRUE,
+           comment.char = "#",
+           allowEscapes = FALSE, flush = FALSE,
+           stringsAsFactors = default.stringsAsFactors(),
+           fileEncoding = "", encoding = "unknown", text, skipNul = FALSE)
+```
+
+> This is the text of this interesting article. P.S. I know the gnd identifier is wrong, but the viaf for Josiah had no correspondence in gnd.
+

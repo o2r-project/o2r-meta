@@ -38,7 +38,7 @@
 					}
 				}
 			},
-			"required": ["identifier", "packageSystem", "version"]
+			"required": ["identifier", "packageSystem"]
 		},
 		"spatial": {
 			"type": "object",
@@ -112,9 +112,6 @@
 		"version": {
 			"type": "string"
 		},
-		"ercIdentifier": {
-			"type": ["null", "string"]
-		},
 		"title": {
 			"type": "string"
 		},
@@ -132,9 +129,11 @@
 		"access_right",
 		"creators",
 		"description",
+		"displayfile",
 		"identifier",
 		"title",
 		"keywords",
+		"mainfile",
 		"communities",
 		"license",
 		"publication_date",
