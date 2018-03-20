@@ -167,6 +167,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseRData())
     from parsers.parse_yaml import ParseYaml
     PARSERS_CLASS_LIST.append(ParseYaml())
+    from parsers.parse_erc_config import ParseErcConfig
+    PARSERS_CLASS_LIST.append(ParseErcConfig())
     if dbg:
         for x in PARSERS_CLASS_LIST:
             status_note(str(x), d=True)

@@ -165,20 +165,22 @@ Explanation of the switches:
 
 ## Introduction
 
-The extractor tool uses python classes as parser modules that can process specific formats as described above.
+The extractor tool uses Python classes as parser modules.
+Each parser can process specific formats and the full list of supported file formats can be retrieved via CLI (see above).
 
 In order to add a new custom parser, you have to write a parser class and add it to the parser directory.
 
-Note that [future versions](https://github.com/o2r-project/o2r-meta/issues/95) of o2r-meta might be able to register all parsers based on the files in the `parsers` directory. Until then it is necessary to register a new parser in the extractor script
+Note that [future versions](https://github.com/o2r-project/o2r-meta/issues/95) of o2r-meta might be able to register all parsers based on the files in the `parsers` directory.
+Until then it is necessary to register a new parser in the extractor script
 
-The use of classes as parsers is currently still implemented in a rather naïve way. However, in order to be able to take advantage of non static methods, all parsers are designed as classes already.
+The use of classes as parsers is currently implemented in a rather naïve way.
+However, in order to be able to take advantage of non static methods, all parsers are designed as classes already.
 
-The general process of a parser for the extractor is the following:
+The general process of parsing is the following:
 
-1. the parses accesses a target file, which was encountered by the extractor during a recursive scan of the target directory and identified based on file extension
-2. the target file is read and processed by the parser
-3. the results of the processing are written to a dictionary data structure that is globally known to the program
-4. the structure of the data dictionary can be found in metaextract.py or dummy.json
+1. the parser accesses a target file, which was encountered by the extractor during a recursive scan of the target directory and identified based on the file extension
+2. the target file is read and processed by a specific parser
+3. the results of the processing are written to a dictionary data structure that is globally known to the program; the structure of the data dictionary is implicitly defined in `metaextract.py` and can be seen in `dummy.json`
 
 ## Structure of your parser Python class
 
@@ -196,7 +198,7 @@ from helpers.helpers import *
 # Import further external modules you would need and also add them to the requirements.txt file!
 import myABC
 
-# If the formats you want to parse depend on a successful import of external modules, use this
+# If (some of) the formats you want to parse depend on a successful import of external modules, which might be missing, use the following structure to support as much formats as possible
 try:
     from myABC import *
     FORMATS = ['.abc']
@@ -243,7 +245,6 @@ class ParseAbc:
         except Exception as exc:
             status_note(str(exc), d=is_debug)
             return 'error'
-
 ```
 
 ## Steps to integrate your own parser
