@@ -153,8 +153,8 @@ def register_parsers(**kwargs):
     # todo: generify, autoimport from dir /parsers
     from parsers.parse_bagittxt import ParseBagitTxt
     PARSERS_CLASS_LIST.append(ParseBagitTxt())
-    from parsers.parse_displayfiles import ParseDisplayFiles
-    PARSERS_CLASS_LIST.append(ParseDisplayFiles())
+    from parsers.parse_candidatefiles import ParseCandidateFiles
+    PARSERS_CLASS_LIST.append(ParseCandidateFiles())
     from parsers.parse_geojson import ParseGeojson
     PARSERS_CLASS_LIST.append(ParseGeojson())
     from parsers.parse_netcdf import ParseNetcdf
