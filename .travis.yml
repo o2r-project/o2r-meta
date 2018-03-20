@@ -7,7 +7,6 @@ install:
   - pip install pytest
   - pip install pytest-console-scripts
 script:
-  #- python o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
   - pytest -vv
 notifications:
   email: false

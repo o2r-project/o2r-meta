@@ -9,8 +9,6 @@ metadata_b2share*.json
 metadata_b2share_sandbox*.json
 metadata_mods*.json
 package_slip.json
-testerc.yml
-erc.yml
 erc_raw.yml
 erc_spec.zip
 erc_spec.pdf
