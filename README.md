@@ -159,3 +159,37 @@ Explanation of the switches:
 
 + `-e` <ELEMENT> : MD element type for search, e.g. _doi_ or _creator_
 + `-q` <QUERY> : MD content to start the search
+
+# Testing
+
+Tests are implemented using [pytest](https://pytest.org) following [its conventions for test discovery](https://docs.pytest.org/en/latest/goodpractices.html#test-discovery).
+The configuration file is `pytest.ini`.
+
+The tests work 
+
+```bash
+pip install -U pytest
+
+pytest
+
+# run specific file and verbose output
+pytest -vv --tb=long extract/tests/test_extract_offline.py
+```
+
+A working launch configuration for vscode to debug the tests is
+
+´´´json
+{
+	"name": "Python: Tests (integrated terminal)",
+	"type": "python",
+	"request": "launch",
+	"stopOnEntry": true,
+	"pythonPath": "/usr/bin/python3",
+	"program": "/usr/local/bin/pytest",
+	"cwd": "${workspaceFolder}",
+	"console": "integratedTerminal",
+	"env": {},
+	"debugOptions": [],
+	"internalConsoleOptions": "neverOpen"
+}
+```
