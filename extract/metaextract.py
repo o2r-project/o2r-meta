@@ -225,8 +225,8 @@ def start(**kwargs):
         output_mode = '@none'
     if input_dir:
         if not os.path.isdir(input_dir):
-            status_note(['! error, input dir <', input_dir, '> does not exist'])
-            sys.exit(0)
+            status_note(['! error, input dir <', input_dir, '> does not exist'], e=True)
+            sys.exit(1)
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
     register_parsers(dbg=is_debug)
