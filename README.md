@@ -174,6 +174,10 @@ pytest
 
 # run specific file and verbose output
 pytest -vv --tb=long extract/tests/test_extract_offline.py
+
+# re-run failed tests (--lf) or failed first (--ff)
+pytest --last-failed
+pytest --failed-first
 ```
 
 A working launch configuration for vscode to debug the tests is
