@@ -3,10 +3,13 @@ import os
 import json
 
 def test_rmd_header(script_runner, tmpdir):    
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
         '-i', 'extract/tests/licenses/rmd',
         '-o', str(tmpdir),
         '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
     assert ret.success, "process should return success"
     assert ret.stderr == '', "stderr should be empty"
     
@@ -22,10 +25,13 @@ def test_rmd_header(script_runner, tmpdir):
     assert metadata['licenses']['metadata'] == "license-md.txt"
 
 def test_rmd_header_incomplete(script_runner, tmpdir):    
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
         '-i', 'extract/tests/licenses/rmd_incomplete',
         '-o', str(tmpdir),
         '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
     assert ret.success, "process should return success"
     assert ret.stderr == '', "stderr should be empty"
     
@@ -39,10 +45,13 @@ def test_rmd_header_incomplete(script_runner, tmpdir):
     assert metadata['licenses']['metadata'] == "CC0-1.0"
 
 def test_erc_yml(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
         '-i', 'extract/tests/licenses/erc_yml',
         '-o', str(tmpdir),
         '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
     assert ret.success, "process should return success"
     assert ret.stderr == '', "stderr should be empty"
     

@@ -12,7 +12,9 @@ def test_logging_of_skipped_files(script_runner, tmpdir):
         '-i', 'extract/tests/compendium',
         '-o', str(tmpdir),
         '-xo', '-m')
-    #print(ret.stdout)
+    print(ret.stdout)
+    print(ret.stderr)
+    
     assert ret.success, "process should return success"
     assert ret.stderr == '', "stderr should be empty"
 
