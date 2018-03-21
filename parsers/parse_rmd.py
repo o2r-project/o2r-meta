@@ -128,7 +128,7 @@ def parse_r(input_text, parser_dict):
                         # r dependency
                         if this_rule[0] == 'depends':
                             segment = {'packageSystem': 'https://cloud.r-project.org/',
-                                       'version': None,
+                                       #'version': None,
                                        'category': get_r_package_class(m.group(1)),
                                        'identifier': m.group(1)}
                             parser_dict.setdefault('depends', []).append(segment)
