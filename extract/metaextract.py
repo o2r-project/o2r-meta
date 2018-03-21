@@ -153,8 +153,8 @@ def register_parsers(**kwargs):
     # todo: generify, autoimport from dir /parsers
     from parsers.parse_bagittxt import ParseBagitTxt
     PARSERS_CLASS_LIST.append(ParseBagitTxt())
-    from parsers.parse_displayfiles import ParseDisplayFiles
-    PARSERS_CLASS_LIST.append(ParseDisplayFiles())
+    from parsers.parse_candidatefiles import ParseCandidateFiles
+    PARSERS_CLASS_LIST.append(ParseCandidateFiles())
     from parsers.parse_geojson import ParseGeojson
     PARSERS_CLASS_LIST.append(ParseGeojson())
     from parsers.parse_netcdf import ParseNetcdf
@@ -167,6 +167,8 @@ def register_parsers(**kwargs):
     PARSERS_CLASS_LIST.append(ParseRData())
     from parsers.parse_yaml import ParseYaml
     PARSERS_CLASS_LIST.append(ParseYaml())
+    from parsers.parse_erc_config import ParseErcConfig
+    PARSERS_CLASS_LIST.append(ParseErcConfig())
     if dbg:
         for x in PARSERS_CLASS_LIST:
             status_note(str(x), d=True)
@@ -225,8 +227,8 @@ def start(**kwargs):
         output_mode = '@none'
     if input_dir:
         if not os.path.isdir(input_dir):
-            status_note(['! error, input dir <', input_dir, '> does not exist'])
-            sys.exit(0)
+            status_note(['! error, input dir <', input_dir, '> does not exist'], e=True)
+            sys.exit(1)
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
     register_parsers(dbg=is_debug)
@@ -340,6 +342,9 @@ def start(**kwargs):
                 else:
                     nr += 1
                     status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+            else:
+                    nr_skips += 1
+    
     status_note(['total files processed: ', nr], d=False)
     status_note(['total extraction errors: ', nr_errs], d=False)
     status_note(['total skipped files: ', nr_skips], d=False)

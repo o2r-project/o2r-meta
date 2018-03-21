@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=dev)](https://travis-ci.org/o2r-project/o2r-meta) |[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
 current development branch<br> containing latest updates | "stable" branch for<br> o2r ref. implementation |
 
-
 # o2r meta
 
 This is a collection of tools for extract-map-validate workflows. 
@@ -14,14 +13,12 @@ This is a collection of tools for extract-map-validate workflows.
 3. validate - check if metadata set is valid to the schema
 4. harvest - collect metadata from external sources via OAI-PMH
 5. adding new parsers to the program
- 
 
 For their role within o2r, please refer to [o2r-architecture](https://github.com/o2r-project/architecture).
 
 ## License
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016, 2017 - o2r project.
-
 
 ## Installation
 
@@ -58,9 +55,8 @@ Note: if the directory does not exist before mounting it, then Docker will creat
 + Current o2r [metadata schema](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)
 + [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
 
-
-
 ## Usage
+
 When calling o2r meta, you can chose from the following commands, each representing one tool of the o2r meta suite: _extract_, _validate_, _broker_ and _harvest_.
 
     python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>
@@ -70,7 +66,6 @@ Options:
 + `-debug` : option to enable raise error and provide verbose debug info where applicable	
 
 Each tool then has a number of arguments:
-
 
 # (1) Extractor tool:
 
@@ -92,12 +87,9 @@ Explanation of the switches:
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
 
-
 ### Supported files and formats for the metadata extraction process:
 
 Use `python o2rmeta.py extract -f` to see supported formats.
-
-
 
 # (2) Broker: A mapping tool
 
@@ -122,7 +114,6 @@ Example calls:
 
 Explanation of the switches:
 
-
 + `-c` <CHECKLIST_FILE> : required path to a json checklist file that holds checking instructions for the metadata. This switch is mutually exclusive with `-m`. At least one of them must be given.
 + `-m` <MAPPING_FILE> : required path to a json mapping file that holds translation instructions for the metadata mappings. This switch is mutually exclusive with `-c`. At least one of them must be given.
 + `-i` <INPUT_FILE> : path to input json file.
@@ -131,19 +122,15 @@ Explanation of the switches:
 
 Supported checks/maps
 
-
 **service** | **checklist file** | **mapping file** | **status** | **comment**
 ------ | ------ | ------ | ------ | ------ |
 zenodo| zenodo-check.json | zenodo-map.json | _WIP_ | _zenodo will register MD @ datacite.org_
 eudat b2share| eudat-b2share-check.json | eudat-b2share-map.json | _WIP_ | b2share supports custom MD schemas
 ... | ... | ... | ... | ...
 
-
 Additionally the following features will be made available in the future:
 + Documentation of the formal map-file "minimal language" (create your own map-files).
 + Governing JSON-Schema for the map files (validate map-files against the map-file-schema).
-
-
 
 # (3) Validator tool:
 
@@ -158,12 +145,10 @@ Explanation of the switches:
 + `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml.
 + `-c` <CANDIDATE> : required path to candidate that shall be validated.
 
-
 # (4) Harvester tool:
 
 Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set.
 _Note, that this tool is currently only a demo._ 
-
 
 	python o2rmeta.py harvest -e <ELEMENT> -q <QUERY>
 	
@@ -176,26 +161,26 @@ Explanation of the switches:
 + `-e` <ELEMENT> : MD element type for search, e.g. _doi_ or _creator_
 + `-q` <QUERY> : MD content to start the search
 
-
 # Adding new parsers
 
 ## Introduction
 
-The extractor tool uses python classes as parser modules that can process specific formats as described above.
+The extractor tool uses Python classes as parser modules.
+Each parser can process specific formats and the full list of supported file formats can be retrieved via CLI (see above).
 
 In order to add a new custom parser, you have to write a parser class and add it to the parser directory.
 
-Note that [future versions](https://github.com/o2r-project/o2r-meta/issues/95) of o2r-meta might be able to register all parsers based on the files in the `parsers` directory. Until then it is necessary to register a new parser in the extractor script
+Note that [future versions](https://github.com/o2r-project/o2r-meta/issues/95) of o2r-meta might be able to register all parsers based on the files in the `parsers` directory.
+Until then it is necessary to register a new parser in the extractor script
 
-The use of classes as parsers is currently still implemented in a rather naïve way. However, in order to be able to take advantage of non static methods, all parsers are designed as classes already.
+The use of classes as parsers is currently implemented in a rather naïve way.
+However, in order to be able to take advantage of non static methods, all parsers are designed as classes already.
 
-The general process of a parser for the extractor is the following:
+The general process of parsing is the following:
 
-1. the parses accesses a target file, which was encountered by the extractor during a recursive scan of the target directory and identified based on file extension
-2. the target file is read and processed by the parser
-3. the results of the processing are written to a dictionary data structure that is globally known to the program
-4. the structure of the data dictionary can be found in metaextract.py or dummy.json
-
+1. the parser accesses a target file, which was encountered by the extractor during a recursive scan of the target directory and identified based on the file extension
+2. the target file is read and processed by a specific parser
+3. the results of the processing are written to a dictionary data structure that is globally known to the program; the structure of the data dictionary is implicitly defined in `metaextract.py` and can be seen in `dummy.json`
 
 ## Structure of your parser Python class
 
@@ -213,7 +198,7 @@ from helpers.helpers import *
 # Import further external modules you would need and also add them to the requirements.txt file!
 import myABC
 
-# If the formats you want to parse depend on a successful import of external modules, use this
+# If (some of) the formats you want to parse depend on a successful import of external modules, which might be missing, use the following structure to support as much formats as possible
 try:
     from myABC import *
     FORMATS = ['.abc']
@@ -223,7 +208,6 @@ except ImportError as iexc:
 
 # The identifying name of your parser
 ID = 'o2r meta abc parser'
-
 
 # Declare your class
 class ParseAbc:
@@ -261,13 +245,9 @@ class ParseAbc:
         except Exception as exc:
             status_note(str(exc), d=is_debug)
             return 'error'
-
 ```
 
-
-
 ## Steps to integrate your own parser
-
 
 + save a copy of your parser file `parse_abc.py` at `o2r-meta\parsers`
 + open `o2r-meta\extract\metaextract.py` and find the function `register_parsers`
@@ -286,4 +266,43 @@ PARSERS_CLASS_LIST.append(ParseAbc())
 python o2rmeta.py -debug extract -f
 ```
 
-That's it, well done! Now make a pull request and add your parser to o2r-meta, if you want to.
+That's it, well done!
+Now make a pull request and add your parser to o2r-meta, if you want to.
+
+# Testing
+
+Tests are implemented using [pytest](https://pytest.org) following [its conventions for test discovery](https://docs.pytest.org/en/latest/goodpractices.html#test-discovery).
+The configuration file is `pytest.ini`.
+
+The tests work 
+
+```bash
+pip install -U pytest
+
+pytest
+
+# run specific file and verbose output
+pytest -vv --tb=long extract/tests/test_extract_offline.py
+
+# re-run failed tests (--lf) or failed first (--ff)
+pytest --last-failed
+pytest --failed-first
+```
+
+A working launch configuration for vscode to debug the tests is
+
+´´´json
+{
+	"name": "Python: Tests (integrated terminal)",
+	"type": "python",
+	"request": "launch",
+	"stopOnEntry": true,
+	"pythonPath": "/usr/bin/python3",
+	"program": "/usr/local/bin/pytest",
+	"cwd": "${workspaceFolder}",
+	"console": "integratedTerminal",
+	"env": {},
+	"debugOptions": [],
+	"internalConsoleOptions": "neverOpen"
+}
+```
