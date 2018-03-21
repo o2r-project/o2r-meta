@@ -26,3 +26,15 @@ def test_dummy_invalid(script_runner, tmpdir):
     assert "against o2r-meta-schema.json" in ret.stdout, "should log used schema"
     assert "checking dummy.json" in ret.stdout, "should log validated file"
     assert "!invalid" in ret.stdout, "should result in invalid"
+
+def test_spacetime(script_runner, tmpdir):
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+        '-s', 'schema/json/o2r-meta-schema.json',
+        '-c', 'validate/tests/spacetime.json')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    assert "checking spacetime.json" in ret.stdout, "should log validated file"
+    assert "invalid" not in ret.stdout, "should result in valid"

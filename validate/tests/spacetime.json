@@ -1,0 +1,188 @@
+{
+    "upload_type": "publication",
+    "title": "spacetime: Spatio-Temporal Data in R",
+    "temporal": {
+        "end": "2013-11-13T00:00:00",
+        "begin": "2013-11-13T00:00:00"
+    },
+    "spatial": {
+        "union": {
+            "bbox": [
+                [
+                    181,
+                    181
+                ],
+                [
+                    -181,
+                    181
+                ],
+                [
+                    -181,
+                    -181
+                ],
+                [
+                    181,
+                    -181
+                ]
+            ]
+        },
+        "files": []
+    },
+    "publication_type": "other",
+    "publication_date": "2018-03-21",
+    "paperLanguage": [],
+    "mainfile_candidates": [
+        "v51i07.R",
+        "figure4.Rmd",
+        "main.Rmd"
+    ],
+    "mainfile": "figure4.Rmd",
+    "license": {
+        "uibindings": null,
+        "text": null,
+        "md": null,
+        "data": null,
+        "code": null
+    },
+    "keywords": [],
+    "interaction": [],
+    "inputfiles": [
+        "windSubset.csv",
+        "producSubset.csv"
+    ],
+    "identifier": {
+        "reserveddoi": null,
+        "doiurl": null,
+        "doi": null
+    },
+    "displayfile_candidates": [
+        "display.html"
+    ],
+    "displayfile": "display.html",
+    "description": "This document describes classes and methods designed to deal with different types of spatio-temporal data in \\proglang{R} implemented in the \\proglang{R} package \\pkg{spacetime}, and provides examples for analyzing them. It builds upon the classes and methods for spatial data from package \\pkg{sp}, and for time series data from package \\pkg{xts}.  The goal is to cover a number of useful representations for spatio-temporal sensor data, and results from predicting (spatial and/or temporal interpolation or smoothing), aggregating, or subsetting them, and to represent trajectories. The goals of this paper are to explore how spatio-temporal data can be sensibly represented in classes, and to find out which analysis and visualisation methods are useful and feasible. We discuss the time series convention of representing time intervals by their starting time only. This vignette is the main reference for the \\proglang{R} package \\code{spacetime}; it has been published as Pebesma (2012), but is kept up-to-date with the software.\n",
+    "depends": [
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "foreign",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "plm",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "sp",
+            "category": "geo sciences,CRAN Top100"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "spacetime",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "gstat",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "mapdata",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "rgdal",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "lattice",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "RColorBrewer",
+            "category": "geo sciences,CRAN Top100"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "xts",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "maptools",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "maps",
+            "category": "geo sciences,CRAN Top100"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "maptools",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "RColorBrewer",
+            "category": "geo sciences,CRAN Top100"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "maptools",
+            "category": "geo sciences"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "lattice",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "RColorBrewer",
+            "category": "geo sciences,CRAN Top100"
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "diveMove",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "trip",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "adehabitatLT",
+            "category": null
+        },
+        {
+            "packageSystem": "https://cloud.r-project.org/",
+            "identifier": "cshapes",
+            "category": null
+        }
+    ],
+    "creators": [
+        {
+            "orcid": "0000-0001-9861-215X",
+            "name": "Edzer Pebesma",
+            "affiliation": "University of Muenster, Institute for Geoiformatics, 52North"
+        }
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "codefiles": [
+        "v51i07.R",
+        "figure4.Rmd",
+        "main.Rmd"
+    ],
+    "access_right": "open"
+}
