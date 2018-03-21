@@ -116,7 +116,7 @@ class ParseYaml:
                 # licenses:
                 if 'licenses' in yaml_data_dict:
                     if yaml_data_dict['licenses'] is not None:
-                        MASTER_MD_DICT['licenses'] = yaml_data_dict['licenses']
+                        MASTER_MD_DICT['license'] = yaml_data_dict['licenses']
             return yaml_data_dict
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):

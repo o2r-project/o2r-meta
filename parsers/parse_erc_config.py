@@ -91,7 +91,7 @@ class ParseErcConfig:
                 # licenses:
                 if 'licenses' in erc_config:
                     if erc_config['licenses'] is not None:
-                        MASTER_MD_DICT['licenses'] = erc_config['licenses']
+                        MASTER_MD_DICT['license'] = erc_config['licenses']
                 # convention:
                 if 'convention' in erc_config:
                     if erc_config['convention'] is not None:
