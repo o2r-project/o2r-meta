@@ -51,7 +51,7 @@ def best_candidate(all_candidates_dict):
                 try:
                     # first find most complex candidate for 'mainfile' suggestion:
                     k_max = 0
-                    k_max_filename = ''
+                    k_max_filename = None
                     for k in all_candidates_dict:
                         if k is None:
                             continue
@@ -104,9 +104,10 @@ def best_candidate(all_candidates_dict):
                                                                 break
                     result.update({'inputfiles': inputfiles})
                     #todo: catch if inputdir is deeper than outputdir
-                    if basedir is not None:
+                    status_note(['Setting mainfile using most complex candidate ', k_max_filename, ' and basedir', basedir], d=is_debug)
+                    if basedir is not None and k_max_filename is not None:
                         result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
-                    else:
+                    elif k_max_filename is not None:
                         result.update({'mainfile': os.path.basename(k_max_filename)})
                     return result
                 except Exception as exc:
@@ -357,6 +358,7 @@ def start(**kwargs):
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, CONFIG['output_md_filename']))
         sys.exit(0)
     else:
+        status_note(['Found extractable content: ', best], d=is_debug)
         for key in best:
             #if key == 'author':
             #    continue
