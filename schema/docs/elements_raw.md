@@ -1,7 +1,7 @@
 This is a documentation on the metadata elements provided by the o2r meta extract.
 
 
-_Last updated: 2017-12-01, work in progress!_ 
+_Last updated: 2018-03-06, work in progress!_ 
 
 # Elements of the raw metadata file
 
@@ -21,7 +21,6 @@ _Last updated: 2017-12-01, work in progress!_
 - `description` _String_. A text representation conveying the purpose and scope of the asset (the abstract).
 - `displayfile` _String_. The suggested file for viewing the text of the workspace, i.e. a rendering of the suggested mainfile.
 - `displayfile_candidates` _Array of strings_. An unsorted list of candidates for displayfiles.
-- `ercIdentifier` _String_. A universally unique character string associated with the asset as executable research compendium, provided by the o2r service.
 - `file`_Object_. _Deprecated_.
 - `file.filename` _String_. _Deprecated_.
 - `file.filepath` _String_. _Deprecated_.
@@ -43,7 +42,6 @@ _Last updated: 2017-12-01, work in progress!_
 - `mainfile` _String_. The suggested main file of workspace
 - `mainfile_candidates` _Array_. Unsorted list of mainfile candidates of the workspace.
 - `paperLanguage` _Array of strings_. List of guessed languages for the workspace.
-- ~~`paperSource` _String_.~~ _Deprecated_.
 - `provenance`  _Array of objects_. More information of where the MD came from.
 - `publicationDate` _String_. The publication date of the paper publication as ISO8601 string.
 - `publication_type` _String_. Zenodo preset. Defaults to "other".

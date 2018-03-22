@@ -15,17 +15,17 @@
 
 """
 
-__all__ = ['ParseDisplayFiles']
+__all__ = ['ParseCandidateFiles']
 
 import os
 from helpers.helpers import *
 
-ID = 'o2r meta display file parser'
+ID = 'o2r meta candidate file parser'
 # formats includes displayfile extensions and codefile extensions, seperation will take place in parse func.
 FORMATS = ['.html', '.htm', '.png', '.pdf', '.r', '.rmd', '.js', '.py']
 
 
-class ParseDisplayFiles:
+class ParseCandidateFiles:
     @staticmethod
     def get_id():
         return str(ID)
@@ -49,7 +49,6 @@ class ParseDisplayFiles:
         except Exception as exc:
             status_note('! error while listing display files', d=is_debug)
             return 'error'
-
 
 def add_candidates(key_name, extension, extensions_list, master_dict, path_file, basedir):
     if key_name in master_dict:

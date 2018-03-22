@@ -20,6 +20,7 @@ def status_note(msg, **kwargs):
         msg = str(msg)
     log_buffer = kwargs.get('b', None)
     debug_arg = kwargs.get('d', None)
+    error_arg = kwargs.get('e', None)
     #date_txt = str(' {:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now()))
     date_txt = str(' {:%Y%m%d.%H%M%S}'.format(datetime.datetime.now()))
     if debug_arg:
@@ -27,6 +28,9 @@ def status_note(msg, **kwargs):
     else:
         debug_txt = ''
     if not log_buffer:
+        if error_arg:
+            print(''.join(('[o2rmeta][error]', debug_txt, date_txt, ' ', msg)), file=sys.stderr)
+        # always log to stdout, too
         print(''.join(('[o2rmeta]', debug_txt, date_txt, ' ', msg)))
 
 

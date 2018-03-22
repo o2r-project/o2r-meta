@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "o2r-meta map schema",
-	"description": "broker mapping file schema",
+	"description": "broker mapping file schema used to validate metadata map files",
 	"definitions": {
 		"Map": {
 			"type": "array"

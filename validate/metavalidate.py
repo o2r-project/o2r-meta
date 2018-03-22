@@ -98,5 +98,5 @@ def start(**kwargs):
     elif candidate_path.endswith('.xml'):
         xml_validate(candidate_path, schema_path, candidate_path.startswith('http'), schema_path.startswith('http'))
     else:
-        status_note('! warning, could not process this type of file')
-        sys.exit(0)
+        status_note('! warning, could not process this type of file', e=True)
+        sys.exit(1)
