@@ -85,6 +85,7 @@ def update_archival(outpath):
         infofile = os.path.join(outpath, "package_slip.json")
         if os.path.isfile(infofile):
             # file exists, needs update
+            status_note(['Going to update ', infofile], d=is_debug)
             with open(infofile, encoding='utf-8') as data_file:
                 data = json.load(data_file)
                 found = False
@@ -96,7 +97,9 @@ def update_archival(outpath):
         else:
             # file does not exist, needs to be created
             data = archival_info
+        
         # in any case: write current data back to info file
+        status_note(['Write info to ', infofile], d=is_debug)
         with open(infofile, 'w', encoding='utf-8') as outfile:
             # for json:
             output_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
