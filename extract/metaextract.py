@@ -22,7 +22,7 @@ import re
 import sys
 import uuid
 from xml.dom import minidom
-
+import stringdist
 import dicttoxml
 
 from helpers.helpers import *
@@ -104,7 +104,7 @@ def best_candidate(all_candidates_dict):
                                                                 break
                     result.update({'inputfiles': inputfiles})
                     #todo: catch if inputdir is deeper than outputdir
-                    status_note(['Setting mainfile using most complex candidate ', k_max_filename, ' and basedir', basedir], d=is_debug)
+                    status_note(['Setting mainfile using most complex candidate ', k_max_filename, ' and basedir ', basedir], d=is_debug)
                     if basedir is not None and k_max_filename is not None:
                         result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
                     elif k_max_filename is not None:
@@ -194,6 +194,26 @@ def get_formats(**kwargs):
         status_note(['! error while retrieving supported formats', exc])
         raise
 
+
+global DISPLAYFILE_PROTOTYPE_NAME
+DISPLAYFILE_PROTOTYPE_NAME = 'display'
+global DISPLAYFILE_PROTOTYPE_EXT
+DISPLAYFILE_PROTOTYPE_EXT = 'html'
+global MAINFILE_PROTOTYPE_NAME
+MAINFILE_PROTOTYPE_NAME = 'main'
+global MAINFILE_PROTOTYPE_EXT
+MAINFILE_PROTOTYPE_EXT = 'Rmd'
+
+def sort_displayfile(filename):
+    dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], DISPLAYFILE_PROTOTYPE_NAME)
+    dist_ext = stringdist.levenshtein(os.path.splitext(filename)[1][1:], DISPLAYFILE_PROTOTYPE_EXT)
+    return dist_name + dist_ext
+
+def sort_mainfile(filename):
+    dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], MAINFILE_PROTOTYPE_NAME)
+    padded_ext = os.path.splitext(filename)[1][1:].zfill(len(MAINFILE_PROTOTYPE_EXT))
+    dist_ext = stringdist.levenshtein(padded_ext, MAINFILE_PROTOTYPE_EXT)
+    return dist_name + dist_ext
 
 def start(**kwargs):
     global is_debug
@@ -349,6 +369,7 @@ def start(**kwargs):
     status_note(['total files processed: ', nr], d=False)
     status_note(['total extraction errors: ', nr_errs], d=False)
     status_note(['total skipped files: ', nr_skips], d=False)
+
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
@@ -359,12 +380,15 @@ def start(**kwargs):
         sys.exit(0)
     else:
         status_note(['Found extractable content: ', best], d=is_debug)
+        # copy best over to MASTER_MD_DICT
         for key in best:
             #if key == 'author':
             #    continue
             if key in MASTER_MD_DICT:
                 MASTER_MD_DICT[key] = best[key]
+        
         # Make final adjustments on the master dict before output:
+        
         # \ Add spatial from candidates:
         if 'spatial' in MASTER_MD_DICT:
             if 'files' in MASTER_MD_DICT['spatial']:
@@ -373,35 +397,40 @@ def start(**kwargs):
                     if 'bbox' in key:
                         coorlist.append(key['bbox'])
                 MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
-        # Identifier
+        
+        # \ Update identifier
         if MASTER_MD_DICT['identifier']['doi'] is not None:
             MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
+        
         # \ Fix and default publication date if none
         if 'publicationDate' in MASTER_MD_DICT:
             if MASTER_MD_DICT['publicationDate'] is None:
                 MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-        # \ Add display file if mainfile rmd exists
+        
+        # \ Sort displayfile candidates and use best
         if 'displayfile_candidates' in MASTER_MD_DICT:
+            # prefer files containing 'display' and the extension 'html'
+            MASTER_MD_DICT['displayfile_candidates'] = sorted(MASTER_MD_DICT['displayfile_candidates'], key = sort_displayfile) 
+            status_note(['sorted displayfile candidates: ', MASTER_MD_DICT['displayfile_candidates']], d=is_debug)
+
+            # set the best candidate
             if 'displayfile' in MASTER_MD_DICT:
                 if not MASTER_MD_DICT['displayfile']:
-                    # take next best candidate
                     if len(MASTER_MD_DICT['displayfile_candidates']) >= 1:
                         MASTER_MD_DICT['displayfile'] = MASTER_MD_DICT['displayfile_candidates'][0]
-                # refine candidate if matching mainfile
-                if 'mainfile' in MASTER_MD_DICT:
-                    if MASTER_MD_DICT['mainfile'] is not None:
-                        if os.path.isfile(MASTER_MD_DICT['mainfile']):
-                            main_pathfile_name, file_extension = os.path.splitext(MASTER_MD_DICT['mainfile'])
-                            # check if display file candidate with same name as mainfile but a display file extension exists, add it in displayfile element
-                            main_basefile_name = os.path.basename(main_pathfile_name)
-                            if 'displayfile_candidates' in MASTER_MD_DICT:
-                                match = None
-                                for x in MASTER_MD_DICT['displayfile_candidates']:
-                                    x_main, x_extension = os.path.splitext(os.path.basename(x))
-                                    if x_main == main_basefile_name:
-                                        match = x
-                            if match is not None:
-                                MASTER_MD_DICT['displayfile'] = match
+                        status_note(['Using first candidate as displayfile: ', MASTER_MD_DICT['displayfile_candidates'][0]], d=is_debug)
+        
+        # \ Sort mainfile candidates and use best
+        if 'mainfile_candidates' in MASTER_MD_DICT:
+            # prefer files containing 'display' and the extension 'html'
+            MASTER_MD_DICT['mainfile_candidates'] = sorted(MASTER_MD_DICT['mainfile_candidates'], key = sort_mainfile) 
+            status_note(['sorted mainfile candidates: ', MASTER_MD_DICT['mainfile_candidates']], d=is_debug)
+
+            # overwrite using the sorted candidates
+            if len(MASTER_MD_DICT['mainfile_candidates']) >= 1:
+                MASTER_MD_DICT['mainfile'] = MASTER_MD_DICT['mainfile_candidates'][0]
+                status_note(['Using first candidate as mainfile: ', MASTER_MD_DICT['mainfile_candidates'][0]], d=is_debug)
+        
         # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen

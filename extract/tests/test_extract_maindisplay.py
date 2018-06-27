@@ -67,3 +67,39 @@ def test_minimal_basedir(script_runner, tmpdir):
     metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
     assert metadata['displayfile'] == "display.html", "displayfile path should be relative to basedir"
     assert metadata['mainfile'] == "main.Rmd", "mainfile path should be relative to basedir"
+
+def test_best_displayfile_candidate(script_runner, tmpdir):
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
+        '-i', 'extract/tests/displayfiles/best_by_name',
+        '-o', str(tmpdir),
+        '-b', 'extract/tests/displayfiles/best_by_name',
+        '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    
+    metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
+    assert metadata['displayfile'] == "display.html", "best matching file should be displayfile"
+    assert len(metadata['displayfile_candidates']) == 7, "should have 7 candidates"
+    assert "display.pdf" not in metadata['displayfile_candidates'], "should not list pdf as displayfile candidate"
+    assert metadata['displayfile_candidates'][0] == "display.html", "best matching displayfile should be first in candidate list"
+
+def test_best_mainfile_candidate(script_runner, tmpdir):
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
+        '-i', 'extract/tests/displayfiles/best_by_name',
+        '-o', str(tmpdir),
+        '-b', 'extract/tests/displayfiles/best_by_name',
+        '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    
+    metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
+    assert metadata['mainfile'] == "main.Rmd", "best matching file should be displayfile"
+    assert len(metadata['mainfile_candidates']) == 4, "should have 4 candidates"
+    assert metadata['mainfile_candidates'][0] == "main.Rmd", "best matching displayfile should be first in candidate list"
+    
