@@ -207,12 +207,20 @@ MAINFILE_PROTOTYPE_EXT = 'Rmd'
 def sort_displayfile(filename):
     dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], DISPLAYFILE_PROTOTYPE_NAME)
     dist_ext = stringdist.levenshtein(os.path.splitext(filename)[1][1:], DISPLAYFILE_PROTOTYPE_EXT)
+    status_note(['[displayfile] Distance between names ', DISPLAYFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
+    status_note(['[displayfile] Distance between extensions ', DISPLAYFILE_PROTOTYPE_EXT, ' and ', os.path.splitext(filename)[1][1:], ' is ', dist_ext], d=is_debug)
+    status_note(['[displayfile] Combined distance: ', dist_name + dist_ext])
+    
     return dist_name + dist_ext
 
 def sort_mainfile(filename):
     dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], MAINFILE_PROTOTYPE_NAME)
     padded_ext = os.path.splitext(filename)[1][1:].zfill(len(MAINFILE_PROTOTYPE_EXT))
     dist_ext = stringdist.levenshtein(padded_ext, MAINFILE_PROTOTYPE_EXT)
+    status_note(['[mainfile] Distance between names ', MAINFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
+    status_note(['[mainfile] Distance between extensions ', MAINFILE_PROTOTYPE_EXT, ' and ', padded_ext, ' is ', dist_ext], d=is_debug)
+    status_note(['[mainfile] Combined distance: ', dist_name + dist_ext])
+
     return dist_name + dist_ext
 
 def start(**kwargs):
@@ -248,7 +256,7 @@ def start(**kwargs):
         output_mode = '@none'
     if input_dir:
         if not os.path.isdir(input_dir):
-            status_note(['! error, input dir <', input_dir, '> does not exist'], e=True)
+            status_note(['! error, input dir <', input_dir, '> does not exist'], e=True, d=is_debug)
             sys.exit(1)
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
