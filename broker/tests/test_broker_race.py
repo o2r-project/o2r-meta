@@ -13,6 +13,7 @@ mappings = ['/test/broker/mappings/zenodo-map.json',
     #'/test/broker/mappings/o2r-map.json',
     '/test/broker/mappings/zenodo_sandbox-map.json']
 
+# Don't forget to rebuild the image!
 # TEST_RACE=yes pytest -vvvvvvv -s broker/tests/test_broker_race.py
 # use docker stats to observe progress
 
@@ -31,6 +32,9 @@ def start_process(script_runner, tmpdir, number):
 
 @pytest.mark.skipif(os.environ.get('TEST_RACE', 'no') == 'no', reason = 'requires Docker and for specific use case, see #104, which does not always happen')
 def test_race(script_runner, tmpdir):
+    builder = subprocess.Popen(['docker', 'build', '--tag', 'meta', '.'], stdout=subprocess.PIPE)
+    builder.wait()
+
     num_procs = 99
     for i in range(0, num_procs):
         start_process(script_runner, tmpdir, i)

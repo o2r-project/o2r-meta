@@ -24,6 +24,7 @@ import datetime
 import xml.etree.ElementTree as ElT
 from xml.dom import minidom
 from helpers.helpers import *
+from filelock import Timeout, SoftFileLock
 
 
 def check(checklist_pathfile, input_json):
@@ -81,33 +82,45 @@ def do_outputs(output_data, out_mode, out_name):
 
 def update_archival(outpath):
     #add information to "package slip" meta meta data
+
+    infofile = os.path.join(outpath, "package_slip.json")
+    infofile_lock = os.path.join(outpath, "package_slip.json.lock")
+    lock_timeout = 5
+    lock = SoftFileLock(infofile_lock)
+
     try:
-        infofile = os.path.join(outpath, "package_slip.json")
-        if os.path.isfile(infofile):
-            # file exists, needs update
-            status_note(['Going to update ', infofile], d=is_debug)
-            with open(infofile, encoding='utf-8') as data_file:
-                data = json.load(data_file)
-                found = False
-                for key in data['standards_used']:
-                    if key == archival_info['standards_used'][0]:
-                        found = True
-                if not found:
-                    data['standards_used'].append(archival_info['standards_used'][0])
-        else:
-            # file does not exist, needs to be created
-            data = archival_info
-        
-        # in any case: write current data back to info file
-        status_note(['Write info to ', infofile], d=is_debug)
-        with open(infofile, 'w', encoding='utf-8') as outfile:
-            # for json:
-            output_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
-            outfile.write(str(output_data))
-            status_note([str(os.stat(infofile).st_size), ' bytes written to ', os.path.abspath(infofile)], d=is_debug)
+        with lock.acquire(timeout=lock_timeout):
+            if os.path.isfile(infofile):
+                # file exists, needs update
+                status_note(['Going to update ', infofile], d=is_debug)
+                with open(infofile, encoding='utf-8') as data_file:
+                    data = json.load(data_file)
+                    found = False
+                    for key in data['standards_used']:
+                        if key == archival_info['standards_used'][0]:
+                            found = True
+                    if not found:
+                        data['standards_used'].append(archival_info['standards_used'][0])
+            else:
+                # file does not exist, needs to be created
+                data = archival_info
+            
+            # in any case: write current data back to info file
+            status_note(['Write info to ', infofile], d=is_debug)
+            with open(infofile, 'w', encoding='utf-8') as outfile:
+                # for json:
+                output_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+                outfile.write(str(output_data))
+                status_note([str(os.stat(infofile).st_size), ' bytes written to ', os.path.abspath(infofile)], d=is_debug)
+    except Timeout:
+        status_note(['Cannot acquire lock within ', lock_timeout, ' seconds, raising exception!'], d=is_debug)
+        raise
     except Exception as exc:
         status_note(str(exc), d=is_debug)
         raise
+    finally:
+        lock.release()
+
 
 
 def map_json(element, value, map_data, output_dict):
