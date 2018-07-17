@@ -1,7 +1,6 @@
 # specific
 extract/tests/all
 broker/tests/all
-metadata_raw.json
 metadata_o2r*.json
 metadata_zenodo*.json
 metadata_zenodo_sandbox*.json

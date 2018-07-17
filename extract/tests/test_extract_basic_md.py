@@ -18,7 +18,7 @@ def test_rmd(script_runner, tmpdir):
     metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
     assert metadata['identifier']['doi'] == "10.5555/666655554444"
     assert metadata['keywords'] == ["psychoceramics", "ionian philology"]
-    assert metadata['mainfile'] == "jc.Rmd"
+    assert metadata['mainfile'] == "extract/tests/carberry/jc.Rmd"
     
     assert len(metadata['author']) == 1, "author list has 1 author"
     assert metadata['author'][0]['name'] == "Josiah Stinkney Carberry"

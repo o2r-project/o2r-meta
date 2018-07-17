@@ -284,6 +284,9 @@ pytest
 # run specific file and verbose output
 pytest -vv --tb=long extract/tests/test_extract_offline.py
 
+# show logging output live
+pytest -s
+
 # re-run failed tests (--lf) or failed first (--ff)
 pytest --last-failed
 pytest --failed-first

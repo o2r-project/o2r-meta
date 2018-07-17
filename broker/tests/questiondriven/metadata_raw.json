@@ -1,0 +1,230 @@
+{
+    "access_right": "open",
+    "author": [
+        {
+            "affiliation": "Civil & Environmental Engineering Department, Tufts University",
+            "name": "Garcia, M.",
+            "orcid": "0000-0001-6270-6306"
+        },
+        {
+            "affiliation": "Bush School of Government & Public Service, Texas A&M University",
+            "name": "Portney, K",
+            "orcid": "0000-0001-9683-885X"
+        },
+        {
+            "affiliation": "The Fletcher School of Law and Diplomacy, Tufts University",
+            "name": "Islam, S.",
+            "orcid": "0000-0002-0651-1181"
+        }
+    ],
+    "bagit": {
+        "bagittxt_files": []
+    },
+    "codefiles": [
+        "shFun.R",
+        "multiplot.R",
+        "Ui.R",
+        "LaunchModel.R",
+        "main.Rmd",
+        "server.R"
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "depends": [
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "ggplot2",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "plyr",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "CRAN Top100",
+            "identifier": "reshape2",
+            "packageSystem": "https://cloud.r-project.org/"
+        }
+    ],
+    "description": "Human and hydrological systems are coupled: human activity impacts the hydrological cycle and hydrological conditions can, but do not always, trigger changes in human systems. Traditional modeling approaches with no feedback between hydrological and human systems typically cannot offer insight into how different patterns of natural variability or human-induced changes may propagate through this coupled system. Modeling of coupled human\u2013hydrological systems, also called socio-hydrological systems, recognizes the potential for humans to transform hydrological systems and for hydrological conditions to influence human behavior. However, this coupling introduces new challenges and existing literature does not offer clear guidance regarding model conceptualization. There are no universally accepted laws of human behavior as there are for the physical systems; furthermore, a shared understanding of important processes within the field is often used to develop hydrological models, but there is no such consensus on the relevant processes in socio-hydrological systems. Here we present a question driven process to address these challenges. Such an approach allows modeling structure, scope and detail to remain contingent on and adaptive to the question context. We demonstrate the utility of this process by revisiting a classic question in water resources engineering on reservoir operation rules: what is the impact of reservoir operation policy on the reliability of water supply for a growing city? Our example model couples hydrological and human systems by linking the rate of demand decreases to the past reliability to compare standard operating policy (SOP) with hedging policy (HP). The model shows that reservoir storage acts both as a buffer for variability and as a delay triggering oscillations around a sustainable level of demand. HP reduces the threshold for action thereby decreasing the delay and the oscillation effect. As a result, per capita demand decreases during periods of water stress are more frequent but less drastic and the additive effect of small adjustments decreases the tendency of the system to overshoot available supplies. This distinction between the two policies was not apparent using a traditional noncoupled model.",
+    "displayfile": "display.html",
+    "displayfile_candidates": [
+        "display.html",
+        "main.html",
+        "figure2.png",
+        "figure3.png",
+        "table1.png",
+        "figure4.png",
+        "figure6.png",
+        "figure5.png",
+        "table4.png",
+        "table2.png",
+        "table5.png",
+        "figure1.png",
+        "table3.png",
+        "figure89.png"
+    ],
+    "file": {
+        "filename": null,
+        "filepath": null,
+        "mimetype": null
+    },
+    "generatedBy": "o2r-meta metaextract.py",
+    "identifier": {
+        "doi": "doi:10.5194/hess-20-73-2016",
+        "doiurl": "https://doi.org/doi:10.5194/hess-20-73-2016",
+        "reserveddoi": null
+    },
+    "inputfiles": [
+        "SyntheticStreamflow.csv"
+    ],
+    "interaction": [],
+    "keywords": [],
+    "license": {
+        "code": null,
+        "data": null,
+        "md": null,
+        "text": null,
+        "uibindings": null
+    },
+    "mainfile": "main.Rmd",
+    "mainfile_candidates": [
+        "main.Rmd",
+        "Ui.R",
+        "shFun.R",
+        "server.R",
+        "multiplot.R",
+        "LaunchModel.R"
+    ],
+    "ncdf": {
+        "ncdf_files": []
+    },
+    "paperLanguage": [
+        "en"
+    ],
+    "provenance": [],
+    "publicationDate": "2018-06-27",
+    "publication_type": "other",
+    "r_comment": [
+        {
+            "feature": "comment",
+            "line": 5,
+            "text": "1 Introduction"
+        },
+        {
+            "feature": "comment",
+            "line": 92,
+            "text": "Set simulation time period"
+        },
+        {
+            "feature": "comment",
+            "line": 96,
+            "text": "Demand Parameters"
+        },
+        {
+            "feature": "comment",
+            "line": 101,
+            "text": "Shortage Memory Parameters"
+        },
+        {
+            "feature": "comment",
+            "line": 105,
+            "text": "Population Parameters"
+        },
+        {
+            "feature": "comment",
+            "line": 111,
+            "text": "Hydrologic Parameters"
+        },
+        {
+            "feature": "comment",
+            "line": 120,
+            "text": "Intial Conditions"
+        }
+    ],
+    "r_input": [
+        {
+            "feature": "data input",
+            "line": 88,
+            "text": "SyntheticStreamflow.csv"
+        }
+    ],
+    "r_output": [
+        {
+            "feature": "result",
+            "line": 143,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 152,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 162,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 173,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 184,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 193,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 200,
+            "text": "plot"
+        }
+    ],
+    "rdata": {
+        "rdata_files": []
+    },
+    "recordDateCreated": null,
+    "researchHypotheses": [],
+    "researchQuestions": [],
+    "softwarePaperCitation": null,
+    "spatial": {
+        "files": [],
+        "union": {
+            "bbox": [
+                [
+                    181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    -181.0
+                ],
+                [
+                    181.0,
+                    -181.0
+                ]
+            ]
+        }
+    },
+    "temporal": {
+        "begin": "2016-01-15T00:00:00",
+        "end": "2016-01-15T00:00:00"
+    },
+    "title": "A question driven socio-hydrological modeling process",
+    "upload_type": "publication",
+    "version": null
+}

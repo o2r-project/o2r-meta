@@ -7,6 +7,6 @@ install:
   - pip install pytest
   - pip install pytest-console-scripts
 script:
-  - pytest -vv
+  - pytest -vvvvv --tb=long 
 notifications:
   email: false
