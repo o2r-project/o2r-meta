@@ -55,14 +55,23 @@ class ParseYaml:
                         if ',' in yaml_data_dict['author']:
                             for author_name in yaml_data_dict['author'].split(', '):
                                 id_found = get_orcid_http(author_name, False, stay_offline)
-                                yaml_data_dict['orcid'] = id_found
-                                MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
+                                if id_found is not None:
+                                    status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
+                                    yaml_data_dict['orcid'] = id_found
+                                    MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
+                                else:
+                                    status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
+                                    MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name})
                         else:
                             # author tag is present and string, but no concatenation
                             id_found = get_orcid_http(yaml_data_dict['author'], False, stay_offline)
-                            yaml_data_dict['orcid'] = id_found
-                            MASTER_MD_DICT['author'].append(
-                                {'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
+                            if id_found is not None:
+                                status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
+                                yaml_data_dict['orcid'] = id_found
+                                MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
+                            else:
+                                status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
+                                MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author']})
                         if 'affiliation' not in yaml_data_dict:
                             # we have author but miss affiliation, so add empty list
                             yaml_data_dict['affiliation'] = []
@@ -77,7 +86,10 @@ class ParseYaml:
                         for anyone in yaml_data_dict['author']:
                             if 'name' in anyone:
                                 if not 'orcid' in anyone:
-                                    anyone['orcid'] = get_orcid_http(anyone['name'], False, stay_offline)
+                                    id_found = get_orcid_http(anyone['name'], False, stay_offline)
+                                    if id_found is not None:
+                                        status_note(['orcid found for ', anyone['name'], ': ', id_found], d=is_debug)
+                                        anyone['orcid'] = id_found
                 # model date:
                 if 'date' in yaml_data_dict:
                     try:

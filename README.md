@@ -284,7 +284,7 @@ pytest
 # run specific file and verbose output
 pytest -vv --tb=long extract/tests/test_extract_offline.py
 
-# show logging output live
+# show logging output live (not to be combined with -vv)
 pytest -s
 
 # re-run failed tests (--lf) or failed first (--ff)

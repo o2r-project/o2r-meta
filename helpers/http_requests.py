@@ -112,10 +112,13 @@ def get_orcid_http(txt_input, bln_sandbox, stay_offline):
                                     return str(r.json()['result'][0]['orcid-identifier']['path'])
         except requests.exceptions.Timeout:
             status_note('http orcid request: timeout')
+            return None
         except requests.exceptions.TooManyRedirects:
             status_note('http orcid request: too many redirects')
+            return None
         except requests.exceptions.RequestException as e:
             status_note(['http orcid request: ', e])
+            return None
         except Exception as exc:
             status_note('! error while requesting orcid', d=True)
             raise

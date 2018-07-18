@@ -1,0 +1,81 @@
+{
+    "upload_type": "publication",
+    "title": "Capacity of container ships in seaborne trade from 1980 to 2016 (in million dwt)*",
+    "temporal": {
+        "end": "2017-07-18T00:00:00",
+        "begin": "2017-07-18T00:00:00"
+    },
+    "spatial": {
+        "union": {
+            "bbox": [
+                [
+                    181,
+                    181
+                ],
+                [
+                    -181,
+                    181
+                ],
+                [
+                    -181,
+                    -181
+                ],
+                [
+                    181,
+                    -181
+                ]
+            ]
+        },
+        "files": []
+    },
+    "publication_type": "other",
+    "publication_date": "2018-07-18",
+    "paperLanguage": [],
+    "mainfile_candidates": [
+        "main.Rmd"
+    ],
+    "mainfile": "main.Rmd",
+    "license": {
+        "uibindings": null,
+        "text": null,
+        "md": null,
+        "data": null,
+        "code": null
+    },
+    "keywords": [
+        "container",
+        "ship",
+        "trade",
+        "statistic"
+    ],
+    "interaction": [],
+    "inputfiles": [
+        "data.csv"
+    ],
+    "identifier": {
+        "reserveddoi": null,
+        "doiurl": "https://doi.org/10.5555/666655554444",
+        "doi": "10.5555/666655554444"
+    },
+    "displayfile_candidates": [
+        "display.html"
+    ],
+    "displayfile": "display.html",
+    "description": "Capacity of container ships in seaborne trade of the world container ship fleet.\n",
+    "creators": [
+        {
+            "orcid": "1234-1234-1234-1234",
+            "name": "Daniel Nüst",
+            "affiliation": "o2r team"
+        }
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "codefiles": [
+        "main.Rmd"
+    ],
+    "access_right": "open"
+}

@@ -38,3 +38,15 @@ def test_spacetime(script_runner, tmpdir):
     assert ret.stderr == '', "stderr should be empty"
     assert "checking spacetime.json" in ret.stdout, "should log validated file"
     assert "invalid" not in ret.stdout, "should result in valid"
+
+def test_minimal_rmd(script_runner, tmpdir):
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+        '-s', 'schema/json/o2r-meta-schema.json',
+        '-c', 'validate/tests/minimal-rmd.json')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    assert "checking minimal-rmd.json" in ret.stdout, "should log validated file"
+    assert "invalid" not in ret.stdout, "should result in valid"
