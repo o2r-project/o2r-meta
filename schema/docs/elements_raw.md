@@ -98,7 +98,6 @@ Example dummy file:
     "description": null,
     "displayfile": null,
     "displayfile_candidates": [],
-    "ercIdentifier": null,
     "file": {
         "filename": null,
         "filepath": null,

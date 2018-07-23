@@ -116,9 +116,6 @@ The following meta information are used to control widgets for interaction with 
 - description
 > A text representation conveying the purpose and scope of the asset.
 
-- ercIdentifier
-> A universally unique character string associated with the asset as _executable research compendium_.
-
 - generatedBy
 > The entity, person or tool, that created the software.
 

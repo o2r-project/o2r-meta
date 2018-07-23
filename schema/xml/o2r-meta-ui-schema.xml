@@ -4,9 +4,6 @@
 		<checkboxes>
 			<key name="$ref">#/definitions/checkboxes</key>
 		</checkboxes>
-		<ercIdentifier>
-			<type>string</type>
-		</ercIdentifier>
 		<sliders>
 			<key name="$ref">#/definitions/sliders</key>
 		</sliders>
@@ -111,7 +108,4 @@
 		</radiobuttons>
 	</definitions>
 	<type>object</type>
-	<required>
-		<item>ercIdentifier</item>
-	</required>
 </root>

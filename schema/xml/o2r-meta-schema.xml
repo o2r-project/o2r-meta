@@ -10,7 +10,6 @@
 		<item>recordDateCreated</item>
 		<item>softwarePaperCitation</item>
 		<item>version</item>
-		<item>ercIdentifier</item>
 		<item>title</item>
 		<item>keywords</item>
 		<item>paperLanguage</item>
@@ -63,9 +62,6 @@
 		</author>
 	</definitions>
 	<properties>
-		<ercIdentifier>
-			<type>string</type>
-		</ercIdentifier>
 		<author>
 			<key name="$ref">#/definitions/author</key>
 		</author>

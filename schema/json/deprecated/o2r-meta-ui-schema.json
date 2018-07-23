@@ -78,9 +78,6 @@
 	},
 	"type": "object",
 	"properties": {
-		"ercIdentifier": {
-			"type": "string"
-		},
 		"radiobuttons": {
 			"$ref": "#/definitions/radiobuttons"
 		},
@@ -91,7 +88,5 @@
 			"$ref": "#/definitions/sliders"
 		}
 	},
-	"required": [
-		"ercIdentifier"
-	]
+	"required": []
 }

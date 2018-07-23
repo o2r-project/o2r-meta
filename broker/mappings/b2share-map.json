@@ -63,12 +63,6 @@
 			"hasParent": "root",
 			"needsParent": "root"
 		},
-		"ercIdentifier": {
-			"translatesTo": "ercIdentifier",
-			"type": "string",
-			"hasParent": "root",
-			"needsParent": "root"
-		},
 		"inputfiles": {
 			"translatesTo": "inputfiles",
 			"type": "array",

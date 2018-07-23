@@ -276,7 +276,6 @@ def start(**kwargs):
         'communities': [{'identifier': 'o2r'}],
         'depends': [],
         'description': None,
-        # 'ercIdentifier': md_erc_id, # deprecated
         'file': {'filename': None, 'filepath': None, 'mimetype': None},
         'generatedBy': ' '.join(('o2r-meta', os.path.basename(__file__))),
         'identifier': {'doi': None, 'doiurl': None, 'reserveddoi': None},
