@@ -286,7 +286,6 @@ def start(**kwargs):
         'license': {'text': None,
                     'data': None,
                     'code': None,
-                    'uibindings': None,
                     'md': None
                     },
         'ncdf': {'ncdf_files': []},

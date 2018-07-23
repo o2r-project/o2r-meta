@@ -88,8 +88,7 @@
         "code": null,
         "data": null,
         "md": null,
-        "text": null,
-        "uibindings": null
+        "text": null
     },
     "mainfile": "main.Rmd",
     "mainfile_candidates": [

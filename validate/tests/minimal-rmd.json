@@ -36,7 +36,6 @@
     ],
     "mainfile": "main.Rmd",
     "license": {
-        "uibindings": null,
         "text": null,
         "md": null,
         "data": null,

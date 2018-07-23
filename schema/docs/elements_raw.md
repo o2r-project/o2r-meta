@@ -38,7 +38,6 @@ _Last updated: 2018-03-06, work in progress!_
 - `license.data `_String_. License information for the data included.
 - `license.md` _String_. License information for the metadata included. Should be cc0 to include in catalogues.
 - `license.text`_String_. License information for the text included.
-- `license.uibindings` _String_. License information for the UI-bindings included.
 - `mainfile` _String_. The suggested main file of workspace
 - `mainfile_candidates` _Array_. Unsorted list of mainfile candidates of the workspace.
 - `paperLanguage` _Array of strings_. List of guessed languages for the workspace.
@@ -130,8 +129,7 @@ Example dummy file:
         "code": null,
         "data": null,
         "md": null,
-        "text": null,
-        "uibindings": null
+        "text": null
     },
     "mainfile": null,
     "mainfile_candidates": [],
