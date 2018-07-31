@@ -13,7 +13,7 @@ abstract: |
 keywords:
     - psychoceramics
     - ionian philology
-doi: 10.5555/666655554444
+doi: '10.5555/666655554444'
 ---
 
 ```{r plot, echo=FALSE}
