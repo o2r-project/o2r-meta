@@ -56,7 +56,7 @@ ARG BUILD_DATE
 # Metadata http://label-schema.org/rc1/
 LABEL maintainer="o2r-project <https://o2r.info>" \
   org.label-schema.vendor="o2r project" \
-  org.label-schema.url="http://o2r.info" \
+  org.label-schema.url="https://o2r.info" \
   org.label-schema.name="o2r meta" \
   org.label-schema.description="Metadata toolsuite for an extract-map-validate workflow supporting ERC" \    
   org.label-schema.version=$VERSION \

@@ -50,10 +50,10 @@ Note: if the directory does not exist before mounting it, then Docker will creat
 
 ## Documentation
 
-+ Current documentation as part of the [ERC-SPEC](http://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
++ Current documentation as part of the [ERC-SPEC](https://o2r.info/erc-spec/spec/schema/) ([GitHub](https://github.com/o2r-project/erc-spec/blob/master/docs/spec/schema.md))
 + Current elements of raw and o2r MD: [elements.md](schema/docs/elements.md)
 + Current o2r [metadata schema](https://raw.githubusercontent.com/o2r-project/o2r-meta/master/schema/json/o2r-meta-schema.json)
-+ [MD of the erc configuration file](http://o2r.info/erc-spec/spec/#erc-configuration-file)
++ [MD of the erc configuration file](https://o2r.info/erc-spec/spec/#erc-configuration-file)
 
 ## Usage
 
