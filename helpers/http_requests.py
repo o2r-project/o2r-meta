@@ -26,7 +26,7 @@ from helpers.helpers import *
 ID = 'o2r meta http requester'
 timeout = 3
 user_agent = 'o2r-meta'
-spec_url = 'http://o2r.info/erc-spec/erc-spec.pdf'
+spec_url = 'https://o2r.info/erc-spec/erc-spec.pdf'
 
 
 def get_id():
