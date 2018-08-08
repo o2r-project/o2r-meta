@@ -128,7 +128,19 @@ class ParseYaml:
                 # licenses:
                 if 'licenses' in yaml_data_dict:
                     if yaml_data_dict['licenses'] is not None:
-                        MASTER_MD_DICT['license'] = yaml_data_dict['licenses']
+                        extracted_licenses = yaml_data_dict['licenses']
+                        status_note(['Found licenses: ', str(extracted_licenses)], d=is_debug)
+                        if 'code' in extracted_licenses and extracted_licenses['code'] is not None:
+                            MASTER_MD_DICT['license']['code'] = extracted_licenses['code']
+                        if 'data' in extracted_licenses and extracted_licenses['data'] is not None:
+                            MASTER_MD_DICT['license']['data'] = extracted_licenses['data']
+                        if 'text' in extracted_licenses and extracted_licenses['text'] is not None:
+                            MASTER_MD_DICT['license']['text'] = extracted_licenses['text']
+                        if 'metadata' in extracted_licenses and extracted_licenses['metadata'] is not None:
+                            MASTER_MD_DICT['license']['metadata'] = extracted_licenses['metadata']
+                        
+                        MASTER_MD_DICT['license'] = {k:v for k,v in MASTER_MD_DICT['license'].items() if v is not None}    
+                        status_note(['Final extracted licenses: ', str(MASTER_MD_DICT['license'])], d=is_debug)
             return yaml_data_dict
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):

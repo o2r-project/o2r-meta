@@ -103,7 +103,7 @@ class ParseRmd:
             except UnicodeDecodeError:
                 status_note(['! error, failed to decode <', md_file, '>'], d=is_debug)
                 return 'error'
-            # save to list of extracted md:
+            # save to list of extracted metadata:
             data_dict['provenance'] = get_prov(path_file)
             return data_dict
             # save or output results

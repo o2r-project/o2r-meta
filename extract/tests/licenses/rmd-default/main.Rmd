@@ -4,7 +4,6 @@ licenses:
     code: Apache-2.0
     data: CC0-1.0
     text: ODbL-1.0
-    metadata: license-md.txt
 ---
 
 no content

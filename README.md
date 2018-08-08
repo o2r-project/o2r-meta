@@ -83,6 +83,7 @@ Explanation of the switches:
 + `-o` <OUTPUT_DIR> : output path, where data should be saved. If the directory does not exist, it will be created on runtime. This switch is mutually exclusive with `-s`. At least one of them must be given.
 + `-xo` : option to disable http requests (the extractor will stay offline. This disables orcid retrieval, erc spec download, doi retrieval, ...)
 + `-m` : option to additionally enable individual output of all processed files.
++ `-lic` : option to configure the default metadata license.
 + `-xml` : option to change output format from json (default) to xml.
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output

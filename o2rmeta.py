@@ -44,6 +44,7 @@ if __name__ == "__main__":
         extractor.add_argument('-xml', '--modexml', help='output xml', action='store_true', default=False, required=False)
         extractor.add_argument('-xo', '--stayoffline', help='skip all http requests', action='store_true', default=False)
         extractor.add_argument('-m', '--metafiles', help='output all metafiles', action='store_true', default=False)
+        extractor.add_argument('-lic', '--default-metadata-license', help='the license to use for metadata if none is found', type=str)
         # - - - - - - - - - - - - - - - - - -
         # the broker has two modes:
         # 1.) mapping mode creates fitting metadata for a given map
@@ -75,7 +76,17 @@ if __name__ == "__main__":
                 sys.exit(0)
             else:
                 status_note('launching extractor')
-                metaextract.start(dbg=argsd['debug'], i=argsd['inputdir'], o=argsd['outputdir'], s=argsd['outputtostdout'], xo=argsd['stayoffline'], e=argsd['ercid'], f=argsd['formats'], b=argsd['basedir'], m=argsd['metafiles'], xml=argsd['modexml'])
+                metaextract.start(dbg=argsd['debug'],
+                    i=argsd['inputdir'],
+                    o=argsd['outputdir'],
+                    s=argsd['outputtostdout'],
+                    xo=argsd['stayoffline'],
+                    e=argsd['ercid'],
+                    f=argsd['formats'],
+                    b=argsd['basedir'],
+                    m=argsd['metafiles'],
+                    xml=argsd['modexml'],
+                    lic=argsd['default_metadata_license'])
         elif argsd['tool'] == "broker":
             status_note('launching broker')
             metabroker.start(dbg=argsd['debug'], c=argsd['check'], m=argsd['map'], i=argsd['inputfile'], o=argsd['outputdir'], s=argsd['outputtostdout'])

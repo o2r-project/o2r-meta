@@ -14,8 +14,6 @@ def test_rmd_header(script_runner, tmpdir):
     assert ret.stderr == '', "stderr should be empty"
     
     metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
-    assert "title" in metadata, "should have title entry"
-    assert "container ships" in metadata['title']
     assert "license" in metadata, "should have license entry"
     assert len(metadata['license']) == 4, "should have 4 licenses"
     assert metadata['license']['code'] == "Apache-2.0"
@@ -60,3 +58,36 @@ def test_erc_yml(script_runner, tmpdir):
     assert metadata['license']['data'] == "ODbL-1.0"
     assert metadata['license']['text'] == "CC0-1.0"
     assert metadata['license']['metadata'] == "license-md.txt"
+
+def test_rmd_header_default_license(script_runner, tmpdir):    
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
+        '-i', 'extract/tests/licenses/rmd-default',
+        '-o', str(tmpdir),
+        '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    
+    metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
+    assert "license" in metadata, "should have license entry"
+    assert len(metadata['license']) == 4, "should have 4 licenses"
+    assert metadata['license']['metadata'] == "CC-BY-4.0"
+
+def test_cli_define_default_license(script_runner, tmpdir):    
+    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
+        '-i', 'extract/tests/licenses/rmd-default',
+        '-o', str(tmpdir),
+        '-lic', 'my own license',
+        '-xo', '-m')
+    print(ret.stdout)
+    print(ret.stderr)
+
+    assert ret.success, "process should return success"
+    assert ret.stderr == '', "stderr should be empty"
+    
+    metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
+    assert "license" in metadata, "should have license entry"
+    assert len(metadata['license']) == 4, "should have 4 licenses"
+    assert metadata['license']['metadata'] == "my own license", "should override the hard-coded default"

@@ -203,6 +203,8 @@ global MAINFILE_PROTOTYPE_NAME
 MAINFILE_PROTOTYPE_NAME = 'main'
 global MAINFILE_PROTOTYPE_EXT
 MAINFILE_PROTOTYPE_EXT = 'Rmd'
+global DEFAULT_METADATA_LICENSE
+DEFAULT_METADATA_LICENSE = 'CC-BY-4.0'
 
 def sort_displayfile(filename):
     dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], DISPLAYFILE_PROTOTYPE_NAME)
@@ -223,7 +225,7 @@ def sort_mainfile(filename):
 
     return dist_name + dist_ext
 
-def start(**kwargs):
+def start(**kwargs): 
     global is_debug
     is_debug = kwargs.get('dbg', None)
     global input_dir
@@ -236,6 +238,13 @@ def start(**kwargs):
     stay_offline = kwargs.get('xo', None)
     global metafiles_all
     metafiles_all = kwargs.get('m', None)
+    
+    global metadata_license_default
+    metadata_license_default = kwargs.get('lic', None)
+    if metadata_license_default is None:
+        metadata_license_default = DEFAULT_METADATA_LICENSE
+    status_note(['Using ', metadata_license_default, ' as default license for metadata'], d=is_debug)
+
     output_xml = kwargs.get('xml', None)
     output_dir = kwargs.get('o', None)
     output_to_console = kwargs.get('s', None)
@@ -286,7 +295,7 @@ def start(**kwargs):
         'license': {'text': None,
                     'data': None,
                     'code': None,
-                    'md': None
+                    'metadata': metadata_license_default
                     },
         'ncdf': {'ncdf_files': []},
         'access_right': 'open',
