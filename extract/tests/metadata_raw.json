@@ -1,0 +1,537 @@
+{
+    "access_right": "open",
+    "author": [
+        {
+            "affiliation": "University of Muenster, Institute for Geoiformatics, 52North",
+            "email": "edzer.pebesma@uni-muenster.de",
+            "name": "Edzer Pebesma",
+            "url": "http://ifgi.uni-muenster.de/"
+        }
+    ],
+    "bagit": {
+        "bagittxt_files": []
+    },
+    "codefiles": [
+        "extract/tests/test_extract_licenses.py",
+        "extract/tests/test_extract_supported_formats.py",
+        "extract/tests/test_extract_invalid.py",
+        "extract/tests/test_extract_maindisplay.py",
+        "extract/tests/test_extract_basic_md.py",
+        "extract/tests/test_extract_wrongparams.py",
+        "extract/tests/test_extract_rmd.py",
+        "extract/tests/test_extract_offline.py",
+        "extract/tests/minimal/main.Rmd",
+        "extract/tests/spacetime/main.Rmd",
+        "extract/tests/regexability/rgx.Rmd",
+        "extract/tests/unicode/testcase_extract_unicode_md_broken.Rmd",
+        "extract/tests/unicode/testcase_extract_unicode_md.Rmd",
+        "extract/tests/carberry/jc.Rmd",
+        "extract/tests/displayfiles/best_by_name/main.Rmd",
+        "extract/tests/displayfiles/best_by_name/main.R",
+        "extract/tests/displayfiles/best_by_name/script.R",
+        "extract/tests/displayfiles/best_by_name/aaa.R",
+        "extract/tests/licenses/rmd_incomplete/main.Rmd",
+        "extract/tests/licenses/rmd/main.Rmd",
+        "extract/tests/licenses/rmd-default/main.Rmd"
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "convention": "https://github.com/ropensci/rrrpkg",
+    "depends": [
+        {
+            "category": null,
+            "identifier": "foreign",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "plm",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "sp",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "spacetime",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "gstat",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "mapdata",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "rgdal",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "lattice",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "RColorBrewer",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "xts",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "maptools",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "maps",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "maptools",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "RColorBrewer",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences",
+            "identifier": "maptools",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "lattice",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "RColorBrewer",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "diveMove",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "trip",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "adehabitatLT",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "cshapes",
+            "packageSystem": "https://cloud.r-project.org/"
+        }
+    ],
+    "description": "The implications of flexible communication have been fareaching and pervasive. Given the current status of amphibious symmetries, researchers urgently desire the development of journaling file systems. In this position paper, we understand how von Neumann machines can be applied to the development of information retrieval systems.\n",
+    "displayfile": "paper.html",
+    "displayfile_candidates": [
+        "extract/tests/minimal/display.html",
+        "extract/tests/displayfiles/best_by_name/_.html",
+        "extract/tests/displayfiles/best_by_name/main.html",
+        "extract/tests/displayfiles/best_by_name/a.png",
+        "extract/tests/displayfiles/best_by_name/display.html",
+        "extract/tests/displayfiles/best_by_name/display2.html",
+        "extract/tests/displayfiles/best_by_name/display.png",
+        "extract/tests/displayfiles/best_by_name/not-the-display-file.html"
+    ],
+    "file": {
+        "filename": null,
+        "filepath": null,
+        "mimetype": null
+    },
+    "generatedBy": "o2r-meta metaextract.py",
+    "id": "1234",
+    "identifier": {
+        "doi": "10.5555/666655554444",
+        "doiurl": "https://doi.org/10.5555/666655554444",
+        "reserveddoi": null
+    },
+    "inputfiles": [],
+    "interaction": [],
+    "keywords": {
+        "formatted": [
+            "Time series analysis",
+            "spatial data",
+            "spatio-temporal statistics",
+            "Geographic Information Systems"
+        ]
+    },
+    "license": {
+        "code": "Apache-2.0",
+        "data": "ODbL-1.0",
+        "metadata": "license-md.txt",
+        "text": "CC0-1.0"
+    },
+    "mainfile": "extract/tests/minimal/main.Rmd",
+    "mainfile_candidates": [
+        "extract/tests/minimal/main.Rmd",
+        "extract/tests/spacetime/main.Rmd",
+        "extract/tests/carberry/jc.Rmd",
+        "extract/tests/licenses/rmd/main.Rmd",
+        "extract/tests/regexability/rgx.Rmd",
+        "extract/tests/licenses/rmd-default/main.Rmd",
+        "extract/tests/licenses/rmd_incomplete/main.Rmd",
+        "extract/tests/displayfiles/best_by_name/main.Rmd",
+        "extract/tests/displayfiles/best_by_name/main.R",
+        "extract/tests/displayfiles/best_by_name/aaa.R",
+        "extract/tests/unicode/testcase_extract_unicode_md.Rmd",
+        "extract/tests/displayfiles/best_by_name/script.R",
+        "extract/tests/unicode/testcase_extract_unicode_md_broken.Rmd"
+    ],
+    "ncdf": {
+        "ncdf_files": []
+    },
+    "paperLanguage": [
+        "en"
+    ],
+    "provenance": [],
+    "publicationDate": "2019-11-19",
+    "publication_type": "other",
+    "r_comment": [
+        {
+            "feature": "comment",
+            "line": 2,
+            "text": "install"
+        },
+        {
+            "feature": "comment",
+            "line": 28,
+            "text": "1:"
+        },
+        {
+            "feature": "comment",
+            "line": 44,
+            "text": "2:"
+        },
+        {
+            "feature": "comment",
+            "line": 59,
+            "text": "3:"
+        },
+        {
+            "feature": "comment",
+            "line": 66,
+            "text": "abline"
+        },
+        {
+            "feature": "codefragment",
+            "line": 66,
+            "text": "abline(h=s, col = grey(.8))"
+        },
+        {
+            "feature": "comment",
+            "line": 67,
+            "text": "abline"
+        },
+        {
+            "feature": "codefragment",
+            "line": 67,
+            "text": "abline(v=t, col = grey(.8))"
+        },
+        {
+            "feature": "comment",
+            "line": 75,
+            "text": "4: traj"
+        },
+        {
+            "feature": "comment",
+            "line": 89,
+            "text": "abline"
+        },
+        {
+            "feature": "codefragment",
+            "line": 89,
+            "text": "abline(h=s, col = grey(.8))"
+        },
+        {
+            "feature": "comment",
+            "line": 90,
+            "text": "abline"
+        },
+        {
+            "feature": "codefragment",
+            "line": 90,
+            "text": "abline(v=t, col = grey(.8))"
+        },
+        {
+            "feature": "comment",
+            "line": 91,
+            "text": "arrows"
+        },
+        {
+            "feature": "comment",
+            "line": 92,
+            "text": "arrows"
+        },
+        {
+            "feature": "comment",
+            "line": 95,
+            "text": "text"
+        },
+        {
+            "feature": "comment",
+            "line": 125,
+            "text": "air_quality"
+        },
+        {
+            "feature": "comment",
+            "line": 129,
+            "text": "air_quality"
+        },
+        {
+            "feature": "comment",
+            "line": 208,
+            "text": "code to create figure 5"
+        },
+        {
+            "feature": "comment",
+            "line": 271,
+            "text": "deselect District of Columbia"
+        },
+        {
+            "feature": "comment",
+            "line": 419,
+            "text": "foo "
+        },
+        {
+            "feature": "codefragment",
+            "line": 419,
+            "text": "foo = function(dt)"
+        },
+        {
+            "feature": "comment",
+            "line": 420,
+            "text": "l2 "
+        },
+        {
+            "feature": "codefragment",
+            "line": 420,
+            "text": "l2 = cutltraj(ltr, \"foo(dt)\", nextr = TRUE)"
+        },
+        {
+            "feature": "comment",
+            "line": 424,
+            "text": "sttdf "
+        },
+        {
+            "feature": "codefragment",
+            "line": 424,
+            "text": "sttdf = as(l2, \"STTDF\")"
+        },
+        {
+            "feature": "comment",
+            "line": 425,
+            "text": "stplot"
+        },
+        {
+            "feature": "comment",
+            "line": 429,
+            "text": "sttdf "
+        },
+        {
+            "feature": "codefragment",
+            "line": 429,
+            "text": "sttdf = as(l2, \"STTDF\")"
+        },
+        {
+            "feature": "comment",
+            "line": 430,
+            "text": "print"
+        }
+    ],
+    "r_input": [
+        {
+            "feature": "data input",
+            "line": 14,
+            "text": "wind"
+        },
+        {
+            "feature": "data output",
+            "line": 16,
+            "text": "windSubset.csv"
+        },
+        {
+            "feature": "data input",
+            "line": 20,
+            "text": "Produc"
+        },
+        {
+            "feature": "data output",
+            "line": 22,
+            "text": "producSubset.csv"
+        },
+        {
+            "feature": "data input",
+            "line": 23,
+            "text": "producSubset.csv"
+        },
+        {
+            "feature": "data input",
+            "line": 24,
+            "text": "windSubset.csv"
+        },
+        {
+            "feature": "data input",
+            "line": 150,
+            "text": "wind"
+        },
+        {
+            "feature": "data input",
+            "line": 267,
+            "text": "Produc"
+        },
+        {
+            "feature": "data input",
+            "line": 413,
+            "text": "puechabonsp"
+        }
+    ],
+    "r_output": [
+        {
+            "feature": "setseed",
+            "line": 6,
+            "text": "1331"
+        },
+        {
+            "feature": "result",
+            "line": 159,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 204,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 215,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 277,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 319,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 328,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 342,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 369,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 402,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 407,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 425,
+            "text": "plot"
+        },
+        {
+            "feature": "result",
+            "line": 430,
+            "text": "plot"
+        }
+    ],
+    "rdata": {
+        "rdata_files": []
+    },
+    "recordDateCreated": null,
+    "researchHypotheses": [],
+    "researchQuestions": [],
+    "softwarePaperCitation": null,
+    "spatial": {
+        "files": [
+            {
+                "bbox": [
+                    12.04195976257324,
+                    50.07708274998269,
+                    12.042903900146483,
+                    50.077633570782616
+                ],
+                "name": "extract/tests/geojson/testcase_extract_map2.geojson"
+            },
+            {
+                "bbox": [
+                    7.606143951416016,
+                    51.961509706685675,
+                    7.612967491149902,
+                    51.965872760333085
+                ],
+                "name": "extract/tests/geojson/testcase_extract_map.geojson"
+            }
+        ],
+        "union": {
+            "bbox": [
+                [
+                    7.606143951416016,
+                    50.07708274998269
+                ],
+                [
+                    12.04195976257324,
+                    50.07708274998269
+                ],
+                [
+                    12.04195976257324,
+                    51.961509706685675
+                ],
+                [
+                    7.606143951416016,
+                    51.961509706685675
+                ]
+            ]
+        }
+    },
+    "temporal": {
+        "begin": "2013-11-13T00:00:00",
+        "end": "2017-11-19T00:00:00"
+    },
+    "title": "Investigating the renderability of unicoded supplemental mathematical operator signs in erc metadata",
+    "upload_type": "publication",
+    "version": null
+}
