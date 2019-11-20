@@ -38,6 +38,7 @@ rule_set_r = ['\t'.join(('r_comment', 'comment', r'#{1,3}\s{0,3}([\w\s\:]{1,})')
               '\t'.join(('depends', '', r'.*require\(\'?\"?([a-zA-Z\d\.]*)[\"\'\)]')),
               '\t'.join(('r_input', 'data input', r'.*data[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*read\.table[\(\'\"]{2}([a-zA-Z\d_\./\\]*)\"')),
+              '\t'.join(('r_input', 'data input', r'.*read\.fwf2[\(\'\"]{2}([a-zA-Z\d_\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*load[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*read[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
               '\t'.join(('r_input', 'data input', r'.*read\.csv[\(\'\"]{2}([a-zA-Z\d\./\\]*)\"')),
