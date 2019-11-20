@@ -39,7 +39,7 @@ class ParseYaml:
     def internal_parse(input_text, MASTER_MD_DICT, stay_offline, is_debug):
         # This is for R markdown files with yaml headers
         try:
-            yaml_data_dict = yaml.load(input_text)
+            yaml_data_dict = yaml.load(input_text, Loader=yaml.FullLoader)
             if yaml_data_dict is not None:
                 # model description / abstract:
                 if 'description' in yaml_data_dict:

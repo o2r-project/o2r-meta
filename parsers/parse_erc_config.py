@@ -50,7 +50,7 @@ class ParseErcConfig:
             global basedir
             basedir = kwargs.get('bd', None)
 
-            erc_config = yaml.load(open(path_file))
+            erc_config = yaml.load(open(path_file), Loader=yaml.FullLoader)
 
             if erc_config is not None:
                 # id and spec_version:
