@@ -1,0 +1,41 @@
+parameter_name,uiWidget,options,identifiedParameterFrom,identifiedOptionsFrom,parameterType,paper
+period,radio,hindcast/forecast,paper,paper,method,A Bayesian posterior predictive framework for weighting ensemble regional climate models
+Kp,radio,1-3,paper,paper,assumption,A question driven socio-hydrological modeling process
+Int,slider,1-40,paper,lookIntoData,filter,A spacetime statistical climate model for hurricane intensification
+funParameter,radio,"min, max, mean",paper,r_doc,method,
+model,radio,besag. besagproper,r_doc,r_doc,method,
+minmax = 24,slider,1-43.8,code,code,assumption,
+G <- 7,slider,1-10,paper,paper,assumption,Assembly processes of gastropod community change
+conflevel,radio,0.50-0.999,paper,inherent,method,Automatic landslide length and width estimation based on the geometric processing
+skip=2,slider,2-139,own,lookIntoData,filter,Development_of_a_new_gasflaring_emission_dataset_for_southern_West_Africa
+smooth,slider,0.1-0.5,paper,paper,assumption,Geochronological database and classification system
+nref,slider,1-30,paper,paper,assumption,Have precipitation extremes and annual totals been increasing
+repitions,slider,1-100,code,code,assumption,
+v (velocity),slider,0.1-2.0,paper,paper,assumption,"INSYDE: a synthetic, probabilistic flood damage model based on explicit cost analysis"
+upper,slider,1-100,paper,lookIntoData,assumption,Interactions among temperature moisture and oxygen conventrations
+pick,radio,"1, 2",paper,code,method,
+K_O,slider,1-20,paper,paper,assumption,
+K_M,slider,1-90,paper,paper,assumption,
+method,radio,"Pseudo, Port...",r_doc,r_doc,method,
+datasubset LU1,radio,"LU1, LU2",paper,paper,filter,Technical note: A bootstrapped LOESS regression approach for comparing soil depth profiles
+confidence intervals,radio,0.8-0.99,paper,inherent,method,
+span = 0.1,slider,0.05-1,paper,paper,assumption,Technical note: Estimating unbiased transfer-function performances in spatially structured environments
+"model2 = ""Mat""",radio,"Mat, Cir, Gau, Exp...",paper,r_doc,method,
+threshold,slider,0.05-1.0,paper,paper,assumption,Technical note: Fourier approach for estimating the thermal attributes of streams
+subset,radio,"hod, mod, yod",paper,paper,filter,Tidy data
+filter,slider,1-50,paper,lookIntoData,filter,
+constrain,slider,1-350,paper,lookIntoData,filter,
+playerID,radio,"baberuth, orourji01",paper,lookIntoData,filter,The Split-Apply-Combine Strategy for Data Analysis
+binwidth,slider,0.01-0.05,paper,code,method,
+geom,radio,"line, smooth, point",r_doc,r_doc,method,
+month,radio,"Jan, Feb, Jun, Jul...",paper,paper,filter,
+etypeCategory,radio,"shot, rebound, turnover",own,lookIntoData,filter,Dates and Times Made Easy with lubridate
+graphtype,radio,"line, point, smooth",own,lookIntoData,method,
+method,radio,"REML, FE, HS",paper,paper,method,Conducting Meta-Analyses in R with the metafor package
+iterations,slider,1000-10000,paper,paper,assumption,
+model,radio,"""<A,M,Z>, <N,A,M,Z>, <N,A,M,Z>""",r_doc,r_doc,method,Automatic Time Series Forecasting The forecast package for R
+approx,radio,"true, false",r_doc,r_doc,assumption,
+maxit,slider,5-20,paper,r_doc,assumption,mice: Multivariate Imputation by Chained Equations in R
+T <- 20,slider,3-30,paper,paper,assumption,
+kernel,radio,"laplacedot, besseldot. anovadot",paper,paper,method,Support Vector Machines in R (JStatSoft)
+kernel,radio,"radial, linear, polynomial",paper,paper,method,

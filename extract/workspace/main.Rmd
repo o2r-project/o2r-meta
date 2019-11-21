@@ -1,0 +1,201 @@
+---
+title: "Creating Interactive Scientific Publications using Bindings"
+author: 
+- affiliation:  "University of Münster, Institute for Geoinformatics, Germany"
+  name: "Markus Konkol"
+- affiliation:  "University of Münster, Institute for Geoinformatics, Germany"
+  name: "Christian Kray"
+- affiliation:  "University of Münster, Institute for Geoinformatics, Germany"
+  name: "Jan Suleiman"
+licenses:
+  code: Apache License 2.0
+  data: ODC-By 1.0
+  text: CC-BY-4.0
+date: "June 2019"
+output:
+  html_document: default
+  pdf_document: default
+doi: 10.1145/3331158
+abstract: "Many scientific publications report on computational results based on code and data, but even when code and data are published, the main text is usually provided in a separate, traditional format such as PDF. Since code, data, and text are not linked on a deep level, it is difficult for readers and reviewers to understand and retrace how the authors achieved a specific result that is reported in the main text, e.g. a figure, table, or number. In addition, to make use of new the opportunities afforded by data and code availability, such as re-running analyses with changed parameters, considerable effort is required. In order to overcome this issue and to enable more interactive publications that support scientists in more deeply exploring the reported results, we present the concept, implementation, and initial evaluation of bindings. A binding describes which data subsets, code lines, and parameters produce a specific result that is reported in the main text (e.g. a figure or number). Based on a prototypical implementation of these bindings, we propose a toolkit for authors to easily create interactive figures by connecting specific UI widgets (e.g. a slider) to parameters. In addition to inspecting code and data, readers can then manipulate the parameter and see how the results change. We evaluated the approach by applying it to a set of existing articles. The results provide initial evidence that the concept is feasible and applicable to many papers with moderate effort."  
+---
+
+# License
+
+This document is licensed under a [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+
+All contained code is licensed under the [Apache License 2.0](https://choosealicense.com/licenses/apache-2.0/).
+
+The data used is licensed under a [Open Data Commons Attribution License](https://opendatacommons.org/licenses/by/).
+
+# Metadata
+Required libraries and runtime environment description.
+```{r warning=FALSE, message=FALSE, echo=FALSE}
+#install.packages("sessioninfo", repos = "http://cran.us.r-project.org")
+#install.packages("here", repos = "http://cran.us.r-project.org")
+#install.packages("dplyr", repos = "http://cran.us.r-project.org")
+#install.packages("rjson", repos = "http://cran.us.r-project.org")
+library(knitr)
+library(sessioninfo)
+library(here)
+library(dplyr)
+library("rjson")
+sessioninfo::session_info()
+
+data=read.csv("data.csv", sep = ",")
+```
+
+# Sample
+```{r, echo=FALSE}
+sample=select(data, papertitle, figure, why_excluded)
+kable(sample)
+```
+
+Why we excluded some of the papers and figures:
+```{r, echo=FALSE}
+summary(na.omit(data$why_excluded))
+```
+
+
+# Results
+
+## Rmarkdown 
+Codelines:
+```{r, echo=FALSE}
+summary(na.omit(data$rmd_codelines))
+```
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$rmd_codelines))
+```
+
+Execution time:
+First run
+```{r, echo=FALSE}
+summary(na.omit(data$runall1))
+```
+
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$runall1))
+```
+
+Second run:
+```{r, echo=FALSE}
+summary(na.omit(data$runall2))
+```
+
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$runall2))
+```
+
+## Data
+Format:
+```{r, echo=FALSE}
+summary(na.omit(data$data))
+```
+
+Open/binary
+```{r, echo=FALSE}
+summary(na.omit(data$format))
+```
+
+## Figures 
+
+Codelines:
+```{r, echo=FALSE}
+summary(na.omit(data$codelines))
+```
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$codelines))
+```
+
+Execution time:
+First run:
+```{r, echo=FALSE}
+summary(na.omit(data$runfigure1))
+```
+
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$runfigure1))
+```
+
+Figures that take more than 60 seconds:
+```{r, echo=FALSE}
+nrow(data[which(data$runfigure1<6),])
+```
+
+Figures that take more than 60 seconds:
+```{r, echo=FALSE}
+nrow(data[which(data$runfigure1>60),])
+```
+
+
+Second run:
+```{r, echo=FALSE}
+summary(na.omit(data$runfigure2))
+```
+
+Standard deviation:
+```{r, echo=FALSE}
+sd(na.omit(data$runfigure2))
+```
+
+Required changes:
+```{r, echo=FALSE}
+summary(na.omit(data$required_changes))
+```
+
+Code blocks:
+```{r, echo=FALSE}
+  codelines <- fromJSON(file="codelines.json")
+codeblocks=c()
+for(i in 1:length(codelines)) {
+  codeblocks[i]=length(codelines[[i]]$lines)
+}
+summary(codeblocks)
+```
+
+Standard deviation:
+```{r, echo=FALSE}
+sd(codeblocks)
+```
+
+## Parameters
+How we identified the parameters:
+```{r, echo=FALSE}
+parameterData=read.csv("parameters.csv", sep = ",")
+summary(na.omit(parameterData$identifiedParameterFrom))
+```
+
+How we identified the options:
+```{r, echo=FALSE}
+summary(na.omit(parameterData$identifiedOptionsFrom))
+```
+
+Reasons for why we excluded parameters (plus 9 that we could not reproduce):
+```{r, echo=FALSE}
+summary(na.omit(data$why_excluded))
+```
+
+Widgets:
+```{r, echo=FALSE}
+summary(na.omit(parameterData$uiWidget))
+```
+Parameter type:
+```{r, echo=FALSE}
+summary(na.omit(parameterData$parameterType))
+```
+
+## Data
+Format:
+```{r, echo=FALSE}
+summary(na.omit(data$data))
+```
+
+Binaray/open:
+```{r, echo=FALSE}
+summary(na.omit(data$format))
+```

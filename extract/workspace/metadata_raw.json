@@ -1,0 +1,211 @@
+{
+    "access_right": "open",
+    "author": [
+        {
+            "affiliation": "University of M\u00fcnster, Institute for Geoinformatics, Germany",
+            "name": "Markus Konkol"
+        },
+        {
+            "affiliation": "University of M\u00fcnster, Institute for Geoinformatics, Germany",
+            "name": "Christian Kray"
+        },
+        {
+            "affiliation": "University of M\u00fcnster, Institute for Geoinformatics, Germany",
+            "name": "Jan Suleiman"
+        }
+    ],
+    "bagit": {
+        "bagittxt_files": []
+    },
+    "codefiles": [
+        "extract/workspace/main.Rmd",
+        "extract/workspace/code.R"
+    ],
+    "communities": [
+        {
+            "identifier": "o2r"
+        }
+    ],
+    "depends": [
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "knitr",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "sessioninfo",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "here",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": "geo sciences,CRAN Top100",
+            "identifier": "dplyr",
+            "packageSystem": "https://cloud.r-project.org/"
+        },
+        {
+            "category": null,
+            "identifier": "rjson",
+            "packageSystem": "https://cloud.r-project.org/"
+        }
+    ],
+    "description": "Many scientific publications report on computational results based on code and data, but even when code and data are published, the main text is usually provided in a separate, traditional format such as PDF. Since code, data, and text are not linked on a deep level, it is difficult for readers and reviewers to understand and retrace how the authors achieved a specific result that is reported in the main text, e.g. a figure, table, or number. In addition, to make use of new the opportunities afforded by data and code availability, such as re-running analyses with changed parameters, considerable effort is required. In order to overcome this issue and to enable more interactive publications that support scientists in more deeply exploring the reported results, we present the concept, implementation, and initial evaluation of bindings. A binding describes which data subsets, code lines, and parameters produce a specific result that is reported in the main text (e.g. a figure or number). Based on a prototypical implementation of these bindings, we propose a toolkit for authors to easily create interactive figures by connecting specific UI widgets (e.g. a slider) to parameters. In addition to inspecting code and data, readers can then manipulate the parameter and see how the results change. We evaluated the approach by applying it to a set of existing articles. The results provide initial evidence that the concept is feasible and applicable to many papers with moderate effort.",
+    "displayfile": "extract/workspace/display.html",
+    "displayfile_candidates": [
+        "extract/workspace/display.html"
+    ],
+    "file": {
+        "filename": null,
+        "filepath": null,
+        "mimetype": null
+    },
+    "generatedBy": "o2r-meta metaextract.py",
+    "identifier": {
+        "doi": "10.1145/3331158",
+        "doiurl": "https://doi.org/10.1145/3331158",
+        "reserveddoi": null
+    },
+    "inputfiles": [
+        "extract/workspace/data.csv",
+        "extract/workspace/codelines.json",
+        "extract/workspace/parameters.csv"
+    ],
+    "interaction": [],
+    "keywords": [],
+    "license": {
+        "code": "Apache License 2.0",
+        "data": "ODC-By 1.0",
+        "metadata": "CC-BY-4.0",
+        "text": "CC-BY-4.0"
+    },
+    "mainfile": "extract/workspace/main.Rmd",
+    "mainfile_candidates": [
+        "extract/workspace/main.Rmd",
+        "extract/workspace/code.R"
+    ],
+    "ncdf": {
+        "ncdf_files": []
+    },
+    "paperLanguage": [
+        "en"
+    ],
+    "provenance": [],
+    "publicationDate": "2019-11-20",
+    "publication_type": "other",
+    "r_comment": [
+        {
+            "feature": "comment",
+            "line": 2,
+            "text": "install"
+        },
+        {
+            "feature": "comment",
+            "line": 3,
+            "text": "install"
+        },
+        {
+            "feature": "comment",
+            "line": 4,
+            "text": "install"
+        },
+        {
+            "feature": "comment",
+            "line": 5,
+            "text": "install"
+        },
+        {
+            "feature": "comment",
+            "line": 16,
+            "text": "Sample"
+        },
+        {
+            "feature": "comment",
+            "line": 28,
+            "text": "Results"
+        },
+        {
+            "feature": "comment",
+            "line": 30,
+            "text": "Rmarkdown "
+        },
+        {
+            "feature": "comment",
+            "line": 61,
+            "text": "Data"
+        },
+        {
+            "feature": "comment",
+            "line": 72,
+            "text": "Figures "
+        },
+        {
+            "feature": "comment",
+            "line": 135,
+            "text": "Parameters"
+        },
+        {
+            "feature": "comment",
+            "line": 161,
+            "text": "Data"
+        }
+    ],
+    "r_input": [
+        {
+            "feature": "data input",
+            "line": 13,
+            "text": "data.csv"
+        },
+        {
+            "feature": "data input",
+            "line": 122,
+            "text": "codelines.json"
+        },
+        {
+            "feature": "data input",
+            "line": 138,
+            "text": "parameters.csv"
+        }
+    ],
+    "r_output": [],
+    "rdata": {
+        "rdata_files": []
+    },
+    "recordDateCreated": null,
+    "researchHypotheses": [],
+    "researchQuestions": [],
+    "softwarePaperCitation": null,
+    "spatial": {
+        "files": [],
+        "union": {
+            "bbox": [
+                [
+                    181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    181.0
+                ],
+                [
+                    -181.0,
+                    -181.0
+                ],
+                [
+                    181.0,
+                    -181.0
+                ]
+            ]
+        }
+    },
+    "temporal": {
+        "begin": "2019-06-20T00:00:00",
+        "end": "2019-06-20T00:00:00"
+    },
+    "title": "Creating Interactive Scientific Publications using Bindings",
+    "upload_type": "publication",
+    "version": null
+}
