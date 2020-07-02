@@ -28,4 +28,4 @@ abstract: "Python library for extracting, mapping, and validating metadata for r
 repository-code: https://github.com/o2r-project/o2r-meta/releases/tag/v0.1.0
 identifiers:
   - type: "swh"
-    value: "swh:1:rel:TODO"
+    value: "swh:1:rev:fb1a32f9819aef9ff37af4984048ab5b0a85e81f"

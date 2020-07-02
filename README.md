@@ -1,6 +1,6 @@
 # o2r meta
 
-|[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2203843.svg)](https://doi.org/10.5281/zenodo.2203843)
+|[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2203843.svg)](https://doi.org/10.5281/zenodo.2203843) [![SWH](https://archive.softwareheritage.org/badge/swh:1:dir:e2528f972e275208b6259a70f514b6bd83da2c87/)](https://archive.softwareheritage.org/swh:1:dir:e2528f972e275208b6259a70f514b6bd83da2c87;origin=https://github.com/o2r-project/o2r-meta.git;visit=swh:1:snp:2046e0128947faa0309da908e24d70eab898d6db;anchor=swh:1:rev:fb1a32f9819aef9ff37af4984048ab5b0a85e81f;path=//)
 
 This is a collection of tools for extract-map-validate workflows as part of the o2r
 
