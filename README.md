@@ -16,6 +16,12 @@ This is a collection of tools for extract-map-validate workflows.
 
 For their role within o2r, please refer to [o2r-architecture](https://github.com/o2r-project/architecture).
 
+## How to cite
+
+To cite this software please use
+
+> _Nüst, Daniel, 2018. Reproducibility Service for Executable Research Compendia: Technical Specifications and Reference Implementation. Zenodo. doi:[10.5281/zenodo.2203843](https://doi.org/10.5281/zenodo.2203843)_
+
 ## License
 
 o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016, 2017 - o2r project.
