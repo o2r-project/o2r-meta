@@ -1,11 +1,8 @@
-**DEV** | **MASTER** 
------- | ------ |
-[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=dev)](https://travis-ci.org/o2r-project/o2r-meta) |[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta)
-current development branch<br> containing latest updates | "stable" branch for<br> o2r ref. implementation |
-
 # o2r meta
 
-This is a collection of tools for extract-map-validate workflows. 
+|[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=master)](https://travis-ci.org/o2r-project/o2r-meta) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2203843.svg)](https://doi.org/10.5281/zenodo.2203843)
+
+This is a collection of tools for extract-map-validate workflows as part of the o2r
 
 0. schema & documentation of the o2r metadata
 1. extract - collect meta information from files in a workspace
@@ -24,11 +21,11 @@ To cite this software please use
 
 ## License
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016, 2017 - o2r project.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016-2020 - o2r project.
 
 ## Installation
 
-(1) Acquire python 3.6
+(1) Acquire Python 3.6 or higher
 
 (2) Install the required modules:
 
@@ -73,7 +70,7 @@ Options:
 
 Each tool then has a number of arguments:
 
-# (1) Extractor tool:
+### (1) Extractor tool:
 
 	python o2rmeta.py extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
 	
@@ -94,11 +91,11 @@ Explanation of the switches:
 + `-ercid` <ERC_ID>: option to provide an ERC identifier.
 + `-b` <BASE_DIR>: option to provide starting point directory for relative paths output
 
-### Supported files and formats for the metadata extraction process:
+#### Supported files and formats for the metadata extraction process:
 
 Use `python o2rmeta.py extract -f` to see supported formats.
 
-# (2) Broker: A mapping tool
+### (2) Broker: A mapping tool
 
 The broker has two modes: In _mapping mode_, it creates fitting metadata for a given map by following a translation scheme included in that mapping file.
 In _checking mode_ it returns missing metadata information for a target service or plattform, e.g. zenodo publication metadata, for a given checklist and input data.
@@ -139,7 +136,7 @@ Additionally the following features will be made available in the future:
 + Documentation of the formal map-file "minimal language" (create your own map-files).
 + Governing JSON-Schema for the map files (validate map-files against the map-file-schema).
 
-# (3) Validator tool:
+### (3) Validator tool:
 
 	python o2rmeta.py validate -s <SCHEMA> -c <CANDIDATE>
 	
@@ -152,7 +149,7 @@ Explanation of the switches:
 + `-s` <SCHEMA> : required path or URL to the schema file, can be json or xml.
 + `-c` <CANDIDATE> : required path to candidate that shall be validated.
 
-# (4) Harvester tool:
+### (4) Harvester tool:
 
 Collects OAI-PMH metadata from catalogues, data registries and repositories and parses them to assist the completion of a metadata set.
 _Note, that this tool is currently only a demo._ 
@@ -168,9 +165,9 @@ Explanation of the switches:
 + `-e` <ELEMENT> : MD element type for search, e.g. _doi_ or _creator_
 + `-q` <QUERY> : MD content to start the search
 
-# Adding new parsers
+## Adding new parsers to the extractor tool
 
-## Introduction
+### Introduction
 
 The extractor tool uses Python classes as parser modules.
 Each parser can process specific formats and the full list of supported file formats can be retrieved via CLI (see above).
@@ -189,7 +186,7 @@ The general process of parsing is the following:
 2. the target file is read and processed by a specific parser
 3. the results of the processing are written to a dictionary data structure that is globally known to the program; the structure of the data dictionary is implicitly defined in `metaextract.py` and can be seen in `dummy.json`
 
-## Structure of your parser Python class
+### Structure of your parser Python class
 
 _In this example we will call your new parser file `parse_abc.py` and the class in that file `ParseAbc`._
 
@@ -254,7 +251,7 @@ class ParseAbc:
             return 'error'
 ```
 
-## Steps to integrate your own parser
+### Steps to integrate your own parser
 
 + save a copy of your parser file `parse_abc.py` at `o2r-meta\parsers`
 + open `o2r-meta\extract\metaextract.py` and find the function `register_parsers`
@@ -276,15 +273,18 @@ python o2rmeta.py -debug extract -f
 That's it, well done!
 Now make a pull request and add your parser to o2r-meta, if you want to.
 
-# Testing
+# Development and testing
+
+The current development version is in the branch `dev`.
+
+[![Build Status](https://travis-ci.org/o2r-project/o2r-meta.svg?branch=dev)](https://travis-ci.org/o2r-project/o2r-meta)
 
 Tests are implemented using [pytest](https://pytest.org) following [its conventions for test discovery](https://docs.pytest.org/en/latest/goodpractices.html#test-discovery).
 The configuration file is `pytest.ini`.
 
-The tests work 
-
 ```bash
 pip install -U pytest
+pip install -U pytest-console-scripts
 
 pytest
 
