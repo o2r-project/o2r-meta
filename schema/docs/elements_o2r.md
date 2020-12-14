@@ -21,6 +21,9 @@ _Last updated: 2018-03-06, work in progress!_
 - `displayfile` _String_. The suggested file for viewing the text of the workspace, i.e. a rendering of the suggested mainfile.
 - `displayfile_candidates` _Array of strings_. An unsorted list of candidates for displayfiles.
 - `identifier` _Object_.
+- `identifier.doi` _String_. The [DOI](https://www.doi.org/index.html) of the publication
+- `identifier.doiurl` _String_.
+- `identifier.reverseddoi` _String_.
 - `inputfiles` _Array of strings_. A compiled list of files from the extracted workspace that is called or used in the extracted code of the workspace.
 - `interaction` TBD
 - `keywords` _Array of strings_. Tags associated with the asset.
