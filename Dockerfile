@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM python:3.6-stretch
+FROM python:3.9.6-buster
 
 ## based on https://github.com/rocker-org/rocker/blob/master/r-base/Dockerfile, but use simply the available R version
 RUN apt-get update \
