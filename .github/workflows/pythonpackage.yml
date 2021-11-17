@@ -58,5 +58,5 @@ jobs:
         pip install -e .
     - name: Test with pytest
       run: |
-	cd tests
+        cd tests
         pytest
