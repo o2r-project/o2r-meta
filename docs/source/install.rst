@@ -14,10 +14,11 @@ Installation from source
    git clone https://github.com/o2r-project/o2r-meta.git
    cd o2r-meta
    pip install -r requirements.txt
+   pip install -e .
 
 
-Installing using Docker
----------------------------
+Installing using Docker (WIP)
+-----------------------------
 
 Another way of installation is provided by the Dockerfile. Build it like this:
 

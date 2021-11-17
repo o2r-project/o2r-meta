@@ -8,7 +8,7 @@ When calling o2r meta, you can chose from the following commands, each represent
 
 ::
 
-   python o2rmeta [-debug] extract|validate|broker|harvest <ARGS>
+   o2r-meta [-debug] extract|validate|broker|harvest <ARGS>
 
 Options:
 
@@ -22,7 +22,7 @@ Collect meta information from files in a workspace.
 
 ::
 
-   python o2rmeta.py extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
+   o2rmeta extract -i <INPUT_DIR> -s|-o <OUTPUT_DIR> [-xo] [-m] [-xml] [-ercid <ERC_ID>]
 
 with
 
@@ -41,7 +41,7 @@ Example call:
 
 ::
 
-   python o2rmeta.py -debug extract -i extract/tests -o extract/tests -xo
+   o2r-meta -debug extract -i extract/tests -o extract/tests -xo
    
 
 Broker
@@ -56,11 +56,11 @@ The broker can be used to translate between different standards for metadata set
 
 Each Step can be done with a single call of the broker. Translation instructions as well as checklists are stored in json formatted map files, documented `here`_
 
-.. _here: https://github.com/o2r-project/o2r-meta/blob/master/schema/docs/mappings_docs.md
+.. _here: https://github.com/o2r-project/o2r-meta/blob/master/test/schema/docs/mappings_docs.md
 
 ::
 
-  python o2rmeta.py broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
+  o2r-meta broker -i <INPUT_FILE> -c <CHECKLIST_FILE>|-m <MAPPING_FILE> -s|-o <OUTPUT_DIR>
 
 whith
 
@@ -73,9 +73,9 @@ whith
 Example calls:
 ::
 
-   python o2rmeta.py -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
+   o2r-meta -debug broker -c broker/checks/zenodo-check.json -i schema/json/example_zenodo.json -o broker/tests/all
 
-   python o2rmeta.py -debug broker -m broker/mappings/zenodo-map.json -i broker/tests/metadata_o2r.json -o broker/tests/all
+   o2r-meta -debug broker -m broker/mappings/zenodo-map.json -i broker/tests/metadata_o2r.json -o broker/tests/all
 
 Supported checks/maps
 #####################
@@ -98,7 +98,7 @@ This tool check if metadata set is valid to the schema.
 
 ::
 
-   python o2rmeta.py validate -s <SCHEMA> -c <CANDIDATE>
+   o2r-meta validate -s <SCHEMA> -c <CANDIDATE>
 
 with 
 
@@ -109,7 +109,7 @@ Example call:
 
 ::
 
-    python o2rmeta.py -debug validate -s schema/json/o2r-meta-schema.json -c broker/tests/metadata_o2r.json
+    o2r-meta -debug validate -s schema/json/o2r-meta-schema.json -c broker/tests/metadata_o2r.json
 
 
 Harverst
@@ -119,7 +119,7 @@ This tool collects OAI-PMH metadata from catalogues, data registries and reposit
 
 ::
 
-  python o2rmeta.py harvest -e <ELEMENT> -q <QUERY>
+  o2r-meta harvest -e <ELEMENT> -q <QUERY>
 
 with 
 
@@ -130,6 +130,6 @@ Example call:
 
 ::
 
-   python o2rmeta.py -debug harvest -e"doi" -q"10.14457/CU.THE.1989.1"
+   o2r-meta -debug harvest -e"doi" -q"10.14457/CU.THE.1989.1"
 
 
