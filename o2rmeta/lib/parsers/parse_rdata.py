@@ -18,7 +18,7 @@
 __all__ = ['ParseRData']
 
 import os
-from ..helpers_funct import helpers
+from ..helpers_funct import helpers as help
 from subprocess import Popen, PIPE, STDOUT
 
 
@@ -41,7 +41,7 @@ class ParseRData:
     @staticmethod
     def get_formats():
         if not FORMATS:
-            status_note([__class__, ' unavailable (', str(availability_issues), ')'])
+            help.status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
     @staticmethod
@@ -63,7 +63,7 @@ class ParseRData:
                     MASTER_MD_DICT['rdata']['rdata_files'].append(rdata_dict)
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=is_debug)
-            status_note(['could not complete parsing ', str(path_file)], d=is_debug)
+            help.status_note(str(exc), d=is_debug)
+            help.status_note(['could not complete parsing ', str(path_file)], d=is_debug)
             return MASTER_MD_DICT
             #raise

@@ -16,7 +16,7 @@
 """
 __all__ = ['ParseNetcdf']
 
-from ..helpers_funct import helpers
+from ..helpers_funct import helpers as help
 
 import netCDF4
 
@@ -37,7 +37,7 @@ class ParseNetcdf:
     @staticmethod
     def get_formats():
         if not FORMATS:
-            status_note([__class__, ' unavailable (', str(availability_issues), ')'])
+            help.status_note([__class__, ' unavailable (', str(availability_issues), ')'])
         return FORMATS
 
     @staticmethod
@@ -57,7 +57,7 @@ class ParseNetcdf:
             return MASTER_MD_DICT
         except Exception as exc:
             #raise  # remove
-            status_note(str(exc), d=is_debug)
+            help.status_note(str(exc), d=is_debug)
             return 'error'
 
 

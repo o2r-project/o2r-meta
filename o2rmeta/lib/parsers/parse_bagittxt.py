@@ -18,7 +18,7 @@
 __all__ = ['ParseBagitTxt']
 
 
-from ..helpers_funct import helpers
+from ..helpers_funct import helpers as help
 
 ID = 'o2r meta bagit txt parser'
 FORMATS = ['.txt']
@@ -52,5 +52,5 @@ class ParseBagitTxt:
                 MASTER_MD_DICT['provenance'] = get_prov(path_file)
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note(str(exc), d=is_debug)
+            help.status_note(str(exc), d=is_debug)
             return 'error'

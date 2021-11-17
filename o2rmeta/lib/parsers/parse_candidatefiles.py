@@ -18,7 +18,7 @@
 __all__ = ['ParseCandidateFiles']
 
 import os
-from ..helpers_funct import helpers
+from ..helpers_funct import helpers as help
 
 ID = 'o2r meta candidate file parser'
 # formats includes displayfile extensions and codefile extensions, seperation will take place in parse func.
@@ -47,7 +47,7 @@ class ParseCandidateFiles:
             MASTER_MD_DICT = add_candidates('mainfile_candidates', extension, ['.r', '.rmd'], MASTER_MD_DICT, path_file, basedir)
             return MASTER_MD_DICT
         except Exception as exc:
-            status_note('! error while listing display files', d=is_debug)
+            hep.status_note('! error while listing display files', d=is_debug)
             return 'error'
 
 def add_candidates(key_name, extension, extensions_list, master_dict, path_file, basedir):
