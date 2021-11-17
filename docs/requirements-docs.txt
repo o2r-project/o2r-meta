@@ -1,0 +1,4 @@
+jupyter_sphinx
+sphinxcontrib.autoprogram
+pydata-sphinx-theme
+sphinx-issues
