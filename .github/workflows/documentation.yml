@@ -59,8 +59,8 @@ jobs:
         working-directory: ./docs
         make html
     - name: Replace current build version an date
+      working-directory: ./docs/build/html
       run:  |
-        working-directory: ./docs/build/html
         # Replace current build version and date
         CURRENT_VERSION=$(python -c 'from o2rmeta import __version__; print(__version__)')
         CURRENT_HASH=$(git log --pretty=format:'%h' -n 1)
