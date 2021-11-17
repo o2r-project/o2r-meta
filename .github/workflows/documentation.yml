@@ -62,7 +62,7 @@ jobs:
       working-directory: ./docs/build/html
       run:  |
         # Replace current build version and date
-        CURRENT_VERSION=$(python -c 'from o2rmeta import __version__; print(__version__)')
+        CURRENT_VERSION=$(python -c 'from o2rmeta.lib.__init__ import __version__; print(__version__)')
         CURRENT_HASH=$(git log --pretty=format:'%h' -n 1)
         CURRENT_DATE=$(git show -s --format=%ci $CURRENT_HASH)
         echo $CURRENT_VERSION "@" $CURRENT_HASH $CURRENT_DATE
