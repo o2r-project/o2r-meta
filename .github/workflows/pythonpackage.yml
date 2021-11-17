@@ -56,9 +56,11 @@ jobs:
     - name: Install o2r-meta
       run: |
         pip install -e .
-    - name: Test with pytest
-      working-directory: ./tests
+    - name: install requirements for test
       run: |
         pip install -r requirements-dev.txt
+    - name: Run test       
+      working-directory: ./tests
+      run: |
         pytest
 
