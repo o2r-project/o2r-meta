@@ -2,7 +2,7 @@
 import pytest
 
 def test_valid(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+    ret = script_runner.run('o2r-meta', '-debug', 'validate',
         '-s', 'schema/json/o2r-meta-schema.json',
         '-c', 'schema/json/example_metadata_o2r_valid.json')
     print(ret.stdout)
@@ -15,7 +15,7 @@ def test_valid(script_runner, tmpdir):
     assert "valid: schema/json/example_metadata_o2r_valid.json" in ret.stdout, "should result in valid"
 
 def test_dummy_invalid(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+    ret = script_runner.run('o2r-meta', '-debug', 'validate',
         '-s', 'schema/json/o2r-meta-schema.json',
         '-c', 'schema/json/dummy.json')
     print(ret.stdout)
@@ -28,9 +28,9 @@ def test_dummy_invalid(script_runner, tmpdir):
     assert "!invalid" in ret.stdout, "should result in invalid"
 
 def test_spacetime(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+    ret = script_runner.run('o2r-meta', '-debug', 'validate',
         '-s', 'schema/json/o2r-meta-schema.json',
-        '-c', 'validate/tests/spacetime.json')
+        '-c', 'validate/spacetime.json')
     print(ret.stdout)
     print(ret.stderr)
 
@@ -40,9 +40,9 @@ def test_spacetime(script_runner, tmpdir):
     assert "invalid" not in ret.stdout, "should result in valid"
 
 def test_minimal_rmd(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+    ret = script_runner.run('o2r-meta', '-debug', 'validate',
         '-s', 'schema/json/o2r-meta-schema.json',
-        '-c', 'validate/tests/minimal-rmd.json')
+        '-c', 'validate/minimal-rmd.json')
     print(ret.stdout)
     print(ret.stderr)
 

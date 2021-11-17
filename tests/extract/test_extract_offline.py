@@ -4,8 +4,8 @@ import json
 import os
 
 def test_offline(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
-        '-i', 'extract/tests/carberry',
+    ret = script_runner.run('o2r-meta', 'extract', 
+        '-i', 'extract/carberry',
         '-o', str(tmpdir),
         '-xo')
     assert ret.success, "process should return success"
@@ -13,8 +13,8 @@ def test_offline(script_runner, tmpdir):
     assert ret.stderr == '', "stderr should be empty"
 
 def test_online(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
-        '-i', 'extract/tests/carberry',
+    ret = script_runner.run('o2r-meta', 'extract', 
+        '-i', 'extract/carberry',
         '-o', str(tmpdir))
     assert ret.success, "process should return success"
     assert "http disabled" not in ret.stdout, "should not log staying offline"
@@ -22,8 +22,8 @@ def test_online(script_runner, tmpdir):
     assert ret.stderr == '', "stderr should be empty"
 
 def test_offline_no_orcid(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/minimal',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/minimal',
         '-o', str(tmpdir),
         '-xo')
     assert ret.success, "process should return success"
@@ -34,8 +34,8 @@ def test_offline_no_orcid(script_runner, tmpdir):
     assert "orcid" not in metadata['author'][0], "should not have orcid entry in authors"
 
 def test_online_with_orcid(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/minimal',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/minimal',
         '-o', str(tmpdir))
     assert ret.success, "process should return success"
     assert "http disabled" not in ret.stdout, "should not log staying offline"

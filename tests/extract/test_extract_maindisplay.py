@@ -3,8 +3,8 @@ import os
 import json
 
 def test_compendium(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/compendium',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/compendium',
         '-o', str(tmpdir),
         '-xo', '-m')
     print(ret.stdout)
@@ -19,16 +19,16 @@ def test_compendium(script_runner, tmpdir):
     assert metadata['mainfile'] == "paper.rmd"
 
 def test_compendium_basedir(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/compendium',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/compendium',
         '-o', str(tmpdir),
-        '-b', 'extract/tests/compendium',
+        '-b', 'extract/compendium',
         '-xo', '-m')
     print(ret.stdout)
     print(ret.stderr)
 
     assert ret.success, "process should return success"
-    assert ret.stderr == '', "stderr should be empty"
+    assert ret.stderr == '', "stderr shosuld be empty"
     assert "total files processed: 1" in ret.stdout, "should process 1 file"
     
     metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
@@ -36,8 +36,8 @@ def test_compendium_basedir(script_runner, tmpdir):
     assert metadata['mainfile'] == "paper.rmd"
 
 def test_minimal(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/minimal',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/minimal',
         '-o', str(tmpdir),
         '-xo', '-m')
     print(ret.stdout)
@@ -48,14 +48,14 @@ def test_minimal(script_runner, tmpdir):
     assert "total files processed: 2" in ret.stdout, "should process 2 files"
     
     metadata = json.load(open(os.path.join(str(tmpdir), 'metadata_raw.json')))
-    assert metadata['displayfile'] == "extract/tests/minimal/display.html"
-    assert metadata['mainfile'] == "extract/tests/minimal/main.Rmd"
+    assert metadata['displayfile'] == "extract/minimal/display.html"
+    assert metadata['mainfile'] == "extract/minimal/main.Rmd"
     
 def test_minimal_basedir(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/minimal',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/minimal',
         '-o', str(tmpdir),
-        '-b', 'extract/tests/minimal',
+        '-b', 'extract/minimal',
         '-xo', '-m')
     print(ret.stdout)
     print(ret.stderr)
@@ -69,10 +69,10 @@ def test_minimal_basedir(script_runner, tmpdir):
     assert metadata['mainfile'] == "main.Rmd", "mainfile path should be relative to basedir"
 
 def test_best_displayfile_candidate(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/displayfiles/best_by_name',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/displayfiles/best_by_name',
         '-o', str(tmpdir),
-        '-b', 'extract/tests/displayfiles/best_by_name',
+        '-b', 'extract/displayfiles/best_by_name',
         '-xo', '-m')
     print(ret.stdout)
     print(ret.stderr)
@@ -87,10 +87,10 @@ def test_best_displayfile_candidate(script_runner, tmpdir):
     assert metadata['displayfile_candidates'][0] == "display.html", "best matching displayfile should be first in candidate list"
 
 def test_best_mainfile_candidate(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/displayfiles/best_by_name',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/displayfiles/best_by_name',
         '-o', str(tmpdir),
-        '-b', 'extract/tests/displayfiles/best_by_name',
+        '-b', 'extract/displayfiles/best_by_name',
         '-xo', '-m')
     print(ret.stdout)
     print(ret.stderr)

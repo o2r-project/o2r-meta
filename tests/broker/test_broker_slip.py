@@ -5,11 +5,11 @@ import json
 def test_package_slip(script_runner, tmpdir):
     output_file = os.path.join(str(tmpdir), 'package_slip.json')
 
-    ret = script_runner.run('python3', 'o2rmeta.py',
+    ret = script_runner.run('o2r-meta',
         '-debug',
         'broker',
         '-m', 'broker/mappings/zenodo-map.json',
-        '-i', 'broker/tests/questiondriven/metadata_raw.json',
+        '-i', 'broker/questiondriven/metadata_raw.json',
         '-o', str(tmpdir))
     
     assert ret.success, "process should return success"
@@ -21,11 +21,11 @@ def test_package_slip(script_runner, tmpdir):
     assert slipdata['standards_used'][0]['zenodo']['version'] == "1"
     assert slipdata['standards_used'][0]['zenodo']['name'] == "zenodo"
 
-    ret = script_runner.run('python3', 'o2rmeta.py',
+    ret = script_runner.run('o2r-meta',
         '-debug',
         'broker',
         '-m', 'broker/mappings/o2r-map.json',
-        '-i', 'broker/tests/questiondriven/metadata_raw.json',
+        '-i', 'broker/questiondriven/metadata_raw.json',
         '-o', str(tmpdir))
     
     assert ret.success, "process should return success"

@@ -3,8 +3,8 @@ import os
 import json
 
 def test_invalid_compendium(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/compendium_invalid',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/compendium_invalid',
         '-o', str(tmpdir),
         '-xo', '-m')
     print(ret.stdout)
@@ -20,9 +20,9 @@ def test_invalid_compendium(script_runner, tmpdir):
     assert metadata['mainfile'] != "", "missing mainfile should be none not empty string"
 
 def test_invalid_compendium_basedir(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/compendium_invalid',
-        '-b', 'extract/tests/compendium_invalid',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/compendium_invalid',
+        '-b', 'extract/compendium_invalid',
         '-o', str(tmpdir),
         '-xo', '-m')
     print(ret.stdout)

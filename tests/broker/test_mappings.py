@@ -2,7 +2,7 @@
 import pytest
 
 def validate_mapping(path, script_runner):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'validate',
+    ret = script_runner.run('o2r-meta', '-debug', 'validate',
         '-s', 'schema/json/map-schema.json',
         '-c', path)
     print(ret.stdout)

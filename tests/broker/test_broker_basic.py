@@ -3,11 +3,11 @@ import os
 import json
 
 def test_zenodo(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py',
+    ret = script_runner.run('o2r-meta',
         '-debug',
         'broker',
         '-m', 'broker/mappings/zenodo-map.json',
-        '-i', 'broker/tests/questiondriven/metadata_raw.json',
+        '-i', 'broker/questiondriven/metadata_raw.json',
         '-o', str(tmpdir))
     
     assert ret.success, "process should return success"
@@ -25,11 +25,11 @@ def test_zenodo(script_runner, tmpdir):
     assert metadata['publication_type'] == "other"
 
 def test_o2r(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py',
+    ret = script_runner.run('o2r-meta',
         '-debug',
         'broker',
         '-m', 'broker/mappings/o2r-map.json',
-        '-i', 'broker/tests/questiondriven/metadata_raw.json',
+        '-i', 'broker/questiondriven/metadata_raw.json',
         '-o', str(tmpdir))
     
     assert ret.success, "process should return success"

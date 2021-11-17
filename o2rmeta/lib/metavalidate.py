@@ -23,7 +23,7 @@ import sys
 import jsonschema
 import requests
 from lxml import etree
-from helpers.helpers import *
+from .helpers_funct.helpers import *
 
 
 def json_validate(c, s, bln_c_http, bln_s_http):

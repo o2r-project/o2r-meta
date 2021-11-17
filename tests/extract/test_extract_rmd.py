@@ -3,10 +3,10 @@ import os
 import json
 
 def test_rmd(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', '-debug', 'extract', 
-        '-i', 'extract/tests/spacetime',
+    ret = script_runner.run('o2r-meta', '-debug', 'extract', 
+        '-i', 'extract/spacetime',
         '-o', str(tmpdir),
-        '-b', 'extract/tests/spacetime',
+        '-b', 'extract/spacetime',
         '-xo', '-m')
     print(ret.stdout)
     print(ret.stderr)

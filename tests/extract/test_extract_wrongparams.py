@@ -3,7 +3,7 @@ import os
 import json
 
 def test_rmd(script_runner, tmpdir):
-    ret = script_runner.run('python3', 'o2rmeta.py', 'extract', 
+    ret = script_runner.run('o2r-meta', 'extract', 
         '-i', 'dir/does/not/exist',
         '-o', str(tmpdir),
         '-xo', '-m')
