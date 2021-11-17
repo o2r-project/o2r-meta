@@ -25,9 +25,14 @@ jobs:
         sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
         gdal-config --version
     - name: Install system dependencies (macOS)
+      # GDAL 3.2.1
+      # See https://cmichel.io/how-to-install-an-old-package-version-with-brew/
       if: runner.os == 'macOS'
       run: |
-        brew install pkg-config gdal proj geos
+        brew tap-new $USER/local-gdal
+        brew extract --version=3.2.1 gdal $USER/local-gdal
+        brew install gdal@3.2.1
+        brew install pkg-config proj geos
         gdal-config --version
     - name: Install system dependencies (Windows)
       if: runner.os == 'Windows'
