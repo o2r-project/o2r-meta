@@ -18,8 +18,8 @@
 __all__ = ['ParseYaml']
 
 import yaml
-from helpers.helpers import *
-from helpers.http_requests import *
+from ..helpers_funct import helpers as help
+from ..helpers_funct import http_requests as http_help
 from dateutil import parser as dateparser
 
 ID = 'o2r meta yaml parser'
@@ -39,7 +39,7 @@ class ParseYaml:
     def internal_parse(input_text, MASTER_MD_DICT, stay_offline, is_debug):
         # This is for R markdown files with yaml headers
         try:
-            yaml_data_dict = yaml.load(input_text, Loader=yaml.FullLoader)
+            yaml_data_dict = yaml.load(input_text, Loader = yaml.FullLoader)
             if yaml_data_dict is not None:
                 # model description / abstract:
                 if 'description' in yaml_data_dict:
@@ -54,23 +54,23 @@ class ParseYaml:
                         # todo: split multi author tag at <,> and or <and>
                         if ',' in yaml_data_dict['author']:
                             for author_name in yaml_data_dict['author'].split(', '):
-                                id_found = get_orcid_http(author_name, False, stay_offline)
+                                id_found = http_help.get_orcid_http(author_name, False, stay_offline)
                                 if id_found is not None:
-                                    status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
+                                    help.status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
                                     yaml_data_dict['orcid'] = id_found
                                     MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name, 'orcid': id_found})
                                 else:
-                                    status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
+                                    help.status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
                                     MASTER_MD_DICT['author'].append({'affiliation': [], 'name': author_name})
                         else:
                             # author tag is present and string, but no concatenation
-                            id_found = get_orcid_http(yaml_data_dict['author'], False, stay_offline)
+                            id_found = http_help.get_orcid_http(yaml_data_dict['author'], False, stay_offline)
                             if id_found is not None:
-                                status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
+                                help.status_note(['orcid found for ', yaml_data_dict['author'], ': ', id_found], d=is_debug)
                                 yaml_data_dict['orcid'] = id_found
                                 MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author'], 'orcid': id_found})
                             else:
-                                status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
+                                help.status_note(['no orcid found for ', yaml_data_dict['author']], d=is_debug)
                                 MASTER_MD_DICT['author'].append({'affiliation': [], 'name': yaml_data_dict['author']})
                         if 'affiliation' not in yaml_data_dict:
                             # we have author but miss affiliation, so add empty list
@@ -86,16 +86,16 @@ class ParseYaml:
                         for anyone in yaml_data_dict['author']:
                             if 'name' in anyone:
                                 if not 'orcid' in anyone:
-                                    id_found = get_orcid_http(anyone['name'], False, stay_offline)
+                                    id_found = http_help.get_orcid_http(anyone['name'], False, stay_offline)
                                     if id_found is not None:
-                                        status_note(['orcid found for ', anyone['name'], ': ', id_found], d=is_debug)
+                                        help.status_note(['orcid found for ', anyone['name'], ': ', id_found], d=is_debug)
                                         anyone['orcid'] = id_found
                 # model date:
                 if 'date' in yaml_data_dict:
                     try:
                         extract_temporal(None, None, MASTER_MD_DICT, yaml_data_dict['date'], is_debug)
                     except Exception as exc:
-                        status_note(['! unable to parse temporal <', yaml_data_dict['date'], '> (', str(exc), ')'], d=is_debug)
+                        help.status_note(['! unable to parse temporal <', yaml_data_dict['date'], '> (', str(exc), ')'], d=is_debug)
                 # model doi:
                 this_doi = None
                 if 'doi' in yaml_data_dict:
@@ -129,7 +129,7 @@ class ParseYaml:
                 if 'licenses' in yaml_data_dict:
                     if yaml_data_dict['licenses'] is not None:
                         extracted_licenses = yaml_data_dict['licenses']
-                        status_note(['Found licenses: ', str(extracted_licenses)], d=is_debug)
+                        help.status_note(['Found licenses: ', str(extracted_licenses)], d=is_debug)
                         if 'code' in extracted_licenses and extracted_licenses['code'] is not None:
                             MASTER_MD_DICT['license']['code'] = extracted_licenses['code']
                         if 'data' in extracted_licenses and extracted_licenses['data'] is not None:
@@ -138,20 +138,20 @@ class ParseYaml:
                             MASTER_MD_DICT['license']['text'] = extracted_licenses['text']
                         if 'metadata' in extracted_licenses and extracted_licenses['metadata'] is not None:
                             MASTER_MD_DICT['license']['metadata'] = extracted_licenses['metadata']
-                        
-                        MASTER_MD_DICT['license'] = {k:v for k,v in MASTER_MD_DICT['license'].items() if v is not None}    
-                        status_note(['Final extracted licenses: ', str(MASTER_MD_DICT['license'])], d=is_debug)
+
+                        MASTER_MD_DICT['license'] = {k:v for k,v in MASTER_MD_DICT['license'].items() if v is not None}
+                        help.status_note(['Final extracted licenses: ', str(MASTER_MD_DICT['license'])], d=is_debug)
             return yaml_data_dict
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):
                 if yexc.context is not None:
-                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem), ' ', str(yexc.context)], d=True)
+                    help.status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem), ' ', str(yexc.context)], d=True)
                     return 'error'
                 else:
-                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem)], d=is_debug)
+                    help.status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem)], d=is_debug)
                 return 'error'
             else:
-                status_note(['! error: unable to parse yaml \n\t', str(yexc)], d=is_debug)
+                help.status_note(['! error: unable to parse yaml \n\t', str(yexc)], d=is_debug)
                 return 'error'
 
 
@@ -164,7 +164,7 @@ def extract_temporal(file_id, filepath, data, timestamp, is_debug):
                 # try parse from string, but input is potentially r code
                 date_new = dateparser.parse(timestamp).isoformat()
             except Exception as exc:
-                status_note(['! error while parsing date', str(exc)], d=is_debug)
+                help.status_note(['! error while parsing date', str(exc)], d=is_debug)
         else:
             if filepath is not None:
                 date_new = str(datetime.datetime.fromtimestamp(os.stat(filepath).st_mtime).isoformat())
@@ -188,4 +188,4 @@ def extract_temporal(file_id, filepath, data, timestamp, is_debug):
                         # nothing yet, so take this one
                         data['temporal'].update({'end': date_new})
     except Exception as exc:
-        status_note(str(exc), d=is_debug)
+        help.status_note(str(exc), d=is_debug)

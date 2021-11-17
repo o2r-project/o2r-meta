@@ -18,7 +18,7 @@
 __all__ = ['ParseCandidateFiles']
 
 import os
-from helpers.helpers import *
+from ..helpers_funct import helpers
 
 ID = 'o2r meta candidate file parser'
 # formats includes displayfile extensions and codefile extensions, seperation will take place in parse func.

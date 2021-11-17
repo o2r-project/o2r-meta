@@ -18,7 +18,7 @@
 __all__ = ['ParseRData']
 
 import os
-from helpers.helpers import *
+from ..helpers_funct import helpers
 from subprocess import Popen, PIPE, STDOUT
 
 

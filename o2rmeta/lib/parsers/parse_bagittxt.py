@@ -18,7 +18,7 @@
 __all__ = ['ParseBagitTxt']
 
 
-from helpers.helpers import *
+from ..helpers_funct import helpers
 
 ID = 'o2r meta bagit txt parser'
 FORMATS = ['.txt']

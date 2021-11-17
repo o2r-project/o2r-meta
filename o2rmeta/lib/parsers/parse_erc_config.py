@@ -19,7 +19,7 @@ __all__ = ['ParseErcConfig']
 
 import os
 import yaml
-from helpers.helpers import *
+from ..helpers_funct import helpers as help
 
 ID = 'o2r erc configuration file (erc.yml) parser'
 
@@ -50,7 +50,7 @@ class ParseErcConfig:
             global basedir
             basedir = kwargs.get('bd', None)
 
-            erc_config = yaml.load(open(path_file), Loader=yaml.FullLoader)
+            erc_config = yaml.load(open(path_file),Loader=yaml.FullLoader)
 
             if erc_config is not None:
                 # id and spec_version:
@@ -61,7 +61,7 @@ class ParseErcConfig:
                 if 'spec_version' in erc_config:
                     if erc_config['spec_version'] is not None:
                         erc_spec_version = erc_config['spec_version']
-                status_note(['parsing ', path_file, ' for compendium ', erc_id,
+                help.status_note(['parsing ', path_file, ' for compendium ', erc_id,
                     ' with version ', erc_spec_version, ' and basedir ', basedir, ' :\n',
                     str(erc_config)], d=is_debug)
 
@@ -76,7 +76,7 @@ class ParseErcConfig:
                         else:
                             MASTER_MD_DICT['mainfile'] = erc_config['main']
                 else:
-                    status_note('warning: no main file in erc.yml', d=is_debug)
+                    help.status_note('warning: no main file in erc.yml', d=is_debug)
                 if 'display' in erc_config:
                     if erc_config['display'] is not None:
                         if basedir:
@@ -86,7 +86,7 @@ class ParseErcConfig:
                         else:
                             MASTER_MD_DICT['displayfile'] = erc_config['display']
                 else:
-                    status_note('warning: no display file in erc.yml', d=is_debug)
+                    help.status_note('warning: no display file in erc.yml', d=is_debug)
 
                 # licenses:
                 if 'licenses' in erc_config:
@@ -97,21 +97,21 @@ class ParseErcConfig:
                     if erc_config['convention'] is not None:
                         MASTER_MD_DICT['convention'] = erc_config['convention']
             else:
-                status_note(['error parsing erc.yml from', str(path_file)], d=is_debug)
+                help.status_note(['error parsing erc.yml from', str(path_file)], d=is_debug)
 
             return MASTER_MD_DICT
         except yaml.YAMLError as yexc:
             if hasattr(yexc, 'problem_mark'):
                 if yexc.context is not None:
-                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem), ' ', str(yexc.context)], d=True)
+                    help.status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem), ' ', str(yexc.context)], d=True)
                     return 'error'
                 else:
-                    status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem)],
+                    help.status_note(['yaml error\n\t', str(yexc.problem_mark), '\n\t', str(yexc.problem)],
                         d=is_debug)
                 return 'error'
             else:
-                status_note(['! error: unable to parse yaml \n\t', str(yexc)], d=is_debug)
+                help.status_note(['! error: unable to parse yaml \n\t', str(yexc)], d=is_debug)
                 return 'error'
         except Exception as exc:
-            status_note(str(exc), d=is_debug)
+            help.status_note(str(exc), d=is_debug)
             return 'error'

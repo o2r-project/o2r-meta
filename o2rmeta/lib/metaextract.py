@@ -25,8 +25,9 @@ from xml.dom import minidom
 import stringdist
 import dicttoxml
 
-from helpers.helpers import *
-from helpers.http_requests import *
+from .helpers_funct import helpers as help
+from .helpers_funct.http_requests import *
+from geoextent.lib.helpfunctions import bbox_merge
 
 
 def best_candidate(all_candidates_dict):
@@ -34,7 +35,7 @@ def best_candidate(all_candidates_dict):
     # each feature found in each of these dicts is compared here to result in a single dict with max completeness
     global is_debug
     if all_candidates_dict is None:
-        status_note('unable to evaluate best md candidate', d=is_debug)
+        help.status_note('unable to evaluate best md candidate', d=is_debug)
         return None
     else:
         if all_candidates_dict == {}:
@@ -104,14 +105,14 @@ def best_candidate(all_candidates_dict):
                                                                 break
                     result.update({'inputfiles': inputfiles})
                     #todo: catch if inputdir is deeper than outputdir
-                    status_note(['Setting mainfile using most complex candidate ', k_max_filename, ' and basedir ', basedir], d=is_debug)
+                    help.status_note(['Setting mainfile using most complex candidate ', k_max_filename, ' and basedir ', basedir], d=is_debug)
                     if basedir is not None and k_max_filename is not None:
                         result.update({'mainfile': os.path.normpath(os.path.relpath(k_max_filename, basedir))})
                     elif k_max_filename is not None:
                         result.update({'mainfile': os.path.basename(k_max_filename)})
                     return result
                 except Exception as exc:
-                    status_note(str(exc), d=is_debug)
+                    help.status_note(str(exc), d=is_debug)
                     raise
 
 
@@ -143,36 +144,34 @@ def output_extraction(data_dict, out_format, out_mode, out_path_file):
                 os.makedirs(out_mode)
             with open(out_path_file, 'w', encoding='utf-8') as outfile:
                 outfile.write(output_data)
-            status_note([str(round(os.stat(out_path_file).st_size / 1024, 4)), ' KB written to ', os.path.normpath(os.path.relpath(out_path_file))])
+            help.status_note([str(round(os.stat(out_path_file).st_size / 1024, 4)), ' KB written to ', os.path.normpath(os.path.relpath(out_path_file))])
     except Exception as exc:
-        status_note(str(exc), d=is_debug)
+        help.status_note(str(exc), d=is_debug)
 
 
 def register_parsers(**kwargs):
     dbg = kwargs.get('dbg', None)
     global PARSERS_CLASS_LIST
     # todo: generify, autoimport from dir /parsers
-    from parsers.parse_bagittxt import ParseBagitTxt
+    from .parsers.parse_bagittxt import ParseBagitTxt
     PARSERS_CLASS_LIST.append(ParseBagitTxt())
-    from parsers.parse_candidatefiles import ParseCandidateFiles
+    from .parsers.parse_candidatefiles import ParseCandidateFiles
     PARSERS_CLASS_LIST.append(ParseCandidateFiles())
-    from parsers.parse_geojson import ParseGeojson
-    PARSERS_CLASS_LIST.append(ParseGeojson())
-    from parsers.parse_netcdf import ParseNetcdf
+    from .parsers.parse_netcdf import ParseNetcdf
     PARSERS_CLASS_LIST.append(ParseNetcdf())
-    from parsers.parse_ogc_shp import ParseGeopackage
-    PARSERS_CLASS_LIST.append(ParseGeopackage())
-    from parsers.parse_rmd import ParseRmd
+    from .parsers.parse_spatialfile import ParseSpatialFile
+    PARSERS_CLASS_LIST.append(ParseSpatialFile)
+    from .parsers.parse_rmd import ParseRmd
     PARSERS_CLASS_LIST.append(ParseRmd())
-    from parsers.parse_rdata import ParseRData
+    from .parsers.parse_rdata import ParseRData
     PARSERS_CLASS_LIST.append(ParseRData())
-    from parsers.parse_yaml import ParseYaml
+    from .parsers.parse_yaml import ParseYaml
     PARSERS_CLASS_LIST.append(ParseYaml())
-    from parsers.parse_erc_config import ParseErcConfig
+    from .parsers.parse_erc_config import ParseErcConfig
     PARSERS_CLASS_LIST.append(ParseErcConfig())
     if dbg:
         for x in PARSERS_CLASS_LIST:
-            status_note(str(x), d=True)
+            help.status_note(str(x), d=True)
 
 
 def get_formats(**kwargs):
@@ -181,17 +180,18 @@ def get_formats(**kwargs):
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
     register_parsers(dbg=dbg)
+
     try:
         formatslist = []
         for cl in PARSERS_CLASS_LIST:
-            #status_note(str(type(cl)), d=True)
+            #help.status_note(str(type(cl)), d=True)
             for f in cl.get_formats():
                 formatslist.append(f)
-        status_note('returning list of supported formats:', d=False)
+        help.status_note('returning list of supported formats:', d=False)
         for ff in set(formatslist):
             print(str(ff))
     except Exception as exc:
-        status_note(['! error while retrieving supported formats', exc])
+        help.status_note(['! error while retrieving supported formats', exc])
         raise
 
 
@@ -209,23 +209,23 @@ DEFAULT_METADATA_LICENSE = 'CC-BY-4.0'
 def sort_displayfile(filename):
     dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], DISPLAYFILE_PROTOTYPE_NAME)
     dist_ext = stringdist.levenshtein(os.path.splitext(filename)[1][1:], DISPLAYFILE_PROTOTYPE_EXT)
-    status_note(['[displayfile] Distance between names ', DISPLAYFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
-    status_note(['[displayfile] Distance between extensions ', DISPLAYFILE_PROTOTYPE_EXT, ' and ', os.path.splitext(filename)[1][1:], ' is ', dist_ext], d=is_debug)
-    status_note(['[displayfile] Combined distance: ', dist_name + dist_ext])
-    
+    help.status_note(['[displayfile] Distance between names ', DISPLAYFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
+    help.status_note(['[displayfile] Distance between extensions ', DISPLAYFILE_PROTOTYPE_EXT, ' and ', os.path.splitext(filename)[1][1:], ' is ', dist_ext], d=is_debug)
+    help.status_note(['[displayfile] Combined distance: ', dist_name + dist_ext])
+
     return dist_name + dist_ext
 
 def sort_mainfile(filename):
     dist_name = stringdist.levenshtein(os.path.splitext(filename)[0], MAINFILE_PROTOTYPE_NAME)
     padded_ext = os.path.splitext(filename)[1][1:].zfill(len(MAINFILE_PROTOTYPE_EXT))
     dist_ext = stringdist.levenshtein(padded_ext, MAINFILE_PROTOTYPE_EXT)
-    status_note(['[mainfile] Distance between names ', MAINFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
-    status_note(['[mainfile] Distance between extensions ', MAINFILE_PROTOTYPE_EXT, ' and ', padded_ext, ' is ', dist_ext], d=is_debug)
-    status_note(['[mainfile] Combined distance: ', dist_name + dist_ext])
+    help.status_note(['[mainfile] Distance between names ', MAINFILE_PROTOTYPE_NAME, ' and ', os.path.splitext(filename)[0], ' is ', dist_name], d=is_debug)
+    help.status_note(['[mainfile] Distance between extensions ', MAINFILE_PROTOTYPE_EXT, ' and ', padded_ext, ' is ', dist_ext], d=is_debug)
+    help.status_note(['[mainfile] Combined distance: ', dist_name + dist_ext])
 
     return dist_name + dist_ext
 
-def start(**kwargs): 
+def start(**kwargs):
     global is_debug
     is_debug = kwargs.get('dbg', None)
     global input_dir
@@ -238,12 +238,12 @@ def start(**kwargs):
     stay_offline = kwargs.get('xo', None)
     global metafiles_all
     metafiles_all = kwargs.get('m', None)
-    
+
     global metadata_license_default
     metadata_license_default = kwargs.get('lic', None)
     if metadata_license_default is None:
         metadata_license_default = DEFAULT_METADATA_LICENSE
-    status_note(['Using ', metadata_license_default, ' as default license for metadata'], d=is_debug)
+    help.status_note(['Using ', metadata_license_default, ' as default license for metadata'], d=is_debug)
 
     output_xml = kwargs.get('xml', None)
     output_dir = kwargs.get('o', None)
@@ -259,13 +259,13 @@ def start(**kwargs):
     elif output_dir:
         output_mode = output_dir
         if not os.path.isdir(output_dir):
-            status_note(['directory <', output_dir, '> will be created during extraction...'])
+            help.status_note(['directory <', output_dir, '> will be created during extraction...'])
     else:
         # not possible if output arg group is on mutual exclusive
         output_mode = '@none'
     if input_dir:
         if not os.path.isdir(input_dir):
-            status_note(['! error, input dir <', input_dir, '> does not exist'], e=True, d=is_debug)
+            help.status_note(['! error, input dir <', input_dir, '> does not exist'], e=True, d=is_debug)
             sys.exit(1)
     global PARSERS_CLASS_LIST
     PARSERS_CLASS_LIST = []
@@ -327,7 +327,7 @@ def start(**kwargs):
             with open(os.path.join(os.path.dirname(sys.modules['__main__'].__file__), 'schema', 'json', 'dummy.json'), 'w', encoding='utf-8') as f:
                 f.write(json.dumps(MASTER_MD_DICT, sort_keys=True, indent=4, separators=(',', ': ')))
         except Exception as exc:
-                status_note(['! could not write md dummy file: ', exc.args[0]], d=is_debug)
+                help.status_note(['! could not write md dummy file: ', exc.args[0]], d=is_debug)
     # process all files in input directory recursively
     file_list_input_candidates = []  # all files encountered, possible input of an R script
     log_buffer = False
@@ -348,12 +348,12 @@ def start(**kwargs):
             else:
                 if not nr % display_interval:
                     log_buffer = False
-                    status_note([nr, ' files processed'], b=log_buffer)
+                    help.status_note([nr, ' files processed'], b=log_buffer)
                 else:
                     log_buffer = True
             # skip large files, config max file size in mb here
             if os.stat(full_file_path).st_size / 1024 ** 2 > CONFIG['extract_max_file_size_mb']:
-                status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
+                help.status_note(['skipping ', os.path.normpath(os.path.join(root, file)), ' (exceeds max file size)'], b=log_buffer, d=is_debug)
                 nr_skips += 1
                 continue
             # deal with different input formats:
@@ -374,78 +374,79 @@ def start(**kwargs):
             if has_been_processed:
                 if has_failed:
                     nr_errs += 1
-                    status_note(['failed to extract: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+                    help.status_note(['failed to extract: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
                 else:
                     nr += 1
-                    status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
+                    help.status_note(['extracted from: ', os.path.normpath(os.path.join(root, file))], b=log_buffer, d=is_debug)
             else:
                     nr_skips += 1
-    
-    status_note(['total files processed: ', nr], d=False)
-    status_note(['total extraction errors: ', nr_errs], d=False)
-    status_note(['total skipped files: ', nr_skips], d=False)
+
+    help.status_note(['total files processed: ', nr], d=False)
+    help.status_note(['total extraction errors: ', nr_errs], d=False)
+    help.status_note(['total skipped files: ', nr_skips], d=False)
 
     # pool MD and find best most complete set:
     best = best_candidate(CANDIDATES_MD_DICT)
     # we have a candidate best suited for <metadata_raw.json> main output
     # now merge data dicts, take only keys that are present in "MASTER_MD_DICT":
     if best is None:
-        status_note('Warning: could not find extractable content', d=False)
+        help.status_note('Warning: could not find extractable content', d=False)
         output_extraction(MASTER_MD_DICT, output_format, output_mode, os.path.join(output_dir, CONFIG['output_md_filename']))
         sys.exit(0)
     else:
-        status_note(['Found extractable content: ', best], d=is_debug)
+        help.status_note(['Found extractable content: ', best], d=is_debug)
         # copy best over to MASTER_MD_DICT
         for key in best:
             #if key == 'author':
             #    continue
             if key in MASTER_MD_DICT:
                 MASTER_MD_DICT[key] = best[key]
-        
+
         # Make final adjustments on the master dict before output:
-        
+
         # \ Add spatial from candidates:
         if 'spatial' in MASTER_MD_DICT:
-            if 'files' in MASTER_MD_DICT['spatial']:
-                coorlist = []
-                for key in MASTER_MD_DICT['spatial']['files']:
-                    if 'bbox' in key:
-                        coorlist.append(key['bbox'])
-                MASTER_MD_DICT['spatial']['union'] = {'bbox': calculate_geo_bbox_union(coorlist)}
-        
+            if len(MASTER_MD_DICT['spatial']['files']) > 0:
+                geo = MASTER_MD_DICT['spatial']['files']
+                res = dict()
+                for sub in geo:
+                    res[sub.get("name")] = dict([("bbox", sub.get("bbox")), ("crs", sub.get("crs"))])
+                bbox = bbox_merge(res, input_dir)
+                MASTER_MD_DICT['spatial']['union'] = bbox.get("bbox")
+
         # \ Update identifier
         if MASTER_MD_DICT['identifier']['doi'] is not None:
             MASTER_MD_DICT['identifier']['doiurl'] = ''.join(('https://doi.org/', MASTER_MD_DICT['identifier']['doi']))
-        
+
         # \ Fix and default publication date if none
         if 'publicationDate' in MASTER_MD_DICT:
             if MASTER_MD_DICT['publicationDate'] is None:
                 MASTER_MD_DICT['publicationDate'] = datetime.datetime.today().strftime('%Y-%m-%d')
-        
+
         # \ Sort displayfile candidates and use best
         if 'displayfile_candidates' in MASTER_MD_DICT:
             # prefer files containing 'display' and the extension 'html'
-            MASTER_MD_DICT['displayfile_candidates'] = sorted(MASTER_MD_DICT['displayfile_candidates'], key = sort_displayfile) 
-            status_note(['sorted displayfile candidates: ', MASTER_MD_DICT['displayfile_candidates']], d=is_debug)
+            MASTER_MD_DICT['displayfile_candidates'] = sorted(MASTER_MD_DICT['displayfile_candidates'], key = sort_displayfile)
+            help.status_note(['sorted displayfile candidates: ', MASTER_MD_DICT['displayfile_candidates']], d=is_debug)
 
             # set the best candidate
             if 'displayfile' in MASTER_MD_DICT:
                 if not MASTER_MD_DICT['displayfile']:
                     if len(MASTER_MD_DICT['displayfile_candidates']) >= 1:
                         MASTER_MD_DICT['displayfile'] = MASTER_MD_DICT['displayfile_candidates'][0]
-                        status_note(['Using first candidate as displayfile: ', MASTER_MD_DICT['displayfile_candidates'][0]], d=is_debug)
-        
+                        help.status_note(['Using first candidate as displayfile: ', MASTER_MD_DICT['displayfile_candidates'][0]], d=is_debug)
+
         # \ Sort mainfile candidates and use best
         if 'mainfile_candidates' in MASTER_MD_DICT:
             # prefer files containing 'display' and the extension 'html'
-            MASTER_MD_DICT['mainfile_candidates'] = sorted(MASTER_MD_DICT['mainfile_candidates'], key = sort_mainfile) 
-            status_note(['sorted mainfile candidates: ', MASTER_MD_DICT['mainfile_candidates']], d=is_debug)
+            MASTER_MD_DICT['mainfile_candidates'] = sorted(MASTER_MD_DICT['mainfile_candidates'], key = sort_mainfile)
+            help.status_note(['sorted mainfile candidates: ', MASTER_MD_DICT['mainfile_candidates']], d=is_debug)
 
             # overwrite using the sorted candidates
             if len(MASTER_MD_DICT['mainfile_candidates']) >= 1:
                 MASTER_MD_DICT['mainfile'] = MASTER_MD_DICT['mainfile_candidates'][0]
-                status_note(['Using first candidate as mainfile: ', MASTER_MD_DICT['mainfile_candidates'][0]], d=is_debug)
-        
+                help.status_note(['Using first candidate as mainfile: ', MASTER_MD_DICT['mainfile_candidates'][0]], d=is_debug)
+
         # Process output
         if output_mode == '@s' or output_dir is None:
             # write to screen

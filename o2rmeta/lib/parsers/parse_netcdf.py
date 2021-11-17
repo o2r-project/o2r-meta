@@ -16,7 +16,7 @@
 """
 __all__ = ['ParseNetcdf']
 
-from helpers.helpers import *
+from ..helpers_funct import helpers
 
 import netCDF4
 
@@ -28,8 +28,6 @@ except ImportError as iexc:
     availability_issues = str(iexc)
 
 ID = 'o2r meta netcdf parser'
-
-
 
 class ParseNetcdf:
     @staticmethod

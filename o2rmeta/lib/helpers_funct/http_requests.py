@@ -21,7 +21,7 @@ import json
 import os
 import urllib.request
 import requests
-from helpers.helpers import *
+from .helpers import *
 
 ID = 'o2r meta http requester'
 timeout = 3
