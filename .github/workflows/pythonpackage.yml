@@ -27,7 +27,10 @@ jobs:
     - name: Install system dependencies (macOS) - GDAL
       if: runner.os == 'macOS'
       run: |
-        brew install pkg-config gdal proj geos
+         brew tap-new $USER/local-gdal
+         brew extract --version=3.3.0 gdal $USER/local-gdal
+         brew install gdal@3.3.0
+         brew install pkg-config proj geos
         gdal-config --version
     - name: Install system dependencies (Windows)
       if: runner.os == 'Windows'
