@@ -3,6 +3,34 @@ Development
 
 Notes for developers of ``o2r-meta``. The current development version is in the branch dev.
 
+Environment
+-----------
+
+All commands in this file assume you work in a virtual environment created with virtualenvwrapper_ as follows (please keep up to date!):
+
+.. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.io/en/latest/install.html
+
+::
+
+    # pip install virtualenvwrapper
+
+    # Add to .bashrc:
+    # export WORKON_HOME=$HOME/.virtualenvs
+    # source ~/.local/bin/virtualenvwrapper.sh
+
+    # Where are my virtual envs stored?
+    # echo $WORKON_HOME
+
+    # Create environment using Python 3
+    #mkvirtualenv -p $(which python3) o2r-meta
+
+    # Activate env
+    workon o2r-meta
+
+    # Deactivate env
+    deactivate
+
+
 Adding new parsers to the extractor tool
 -----------------------------------------
 
@@ -89,46 +117,142 @@ Here is a commented template for your parser file:
 Steps to integrate your own parser
 ----------------------------------
 
-#. save a copy of your parser file parse_abc.py at o2r-meta\parsers
-#. open ``o2r-meta\extract\metaextract.py`` and find the function ``register_parsers``
-#. add the following to that function using your own filename and class name:
+#. Save a copy of your parser file parse_abc.py at o2rmeta\lib\parsers
+#. Open ``o2rmeta\lib\metaextract.py`` and find the function ``register_parsers``
+#. Add the following to that function using your own filename and class name:
 
 ::
 
    # From your file import your class
-   from parsers.parse_abc.py import ParseAbc
+   from .parsers.parse_abc.py import ParseAbc
    # To global list of parsers add an instance of your class
    PARSERS_CLASS_LIST.append(ParseAbc())
 
+Implement test for your new parser and add them into the ``tests`` folder.
 
 Either install the lib and run ``pytest``, or run ``python -m pytest``.
-You can also run individual files:
 
 #. test if the extractor recognizes your new parser by calling
 
 ::
 
-    python o2rmeta.py -debug extract -f
+    o2r-meta -debug extract -f
 
-That's it, well done! Now make a pull request and add your parser to o2r-meta, if you want to.
-
-
-Testing
------------------------
-
-Tests are implemented using `pytest <https://docs.pytest.org/en/6.2.x/>`_ following its `conventions for test discovery <https://docs.pytest.org/en/latest/explanation/goodpractices.html#test-discovery>`_. The configuration file is ``pytest.ini.``
 
 Documentation
 -------------
 
 The documentation is based on Sphinx_.
-The source files can be found in the directory ``docs/``
+The source files can be found in the directory ``docs/`` and the rendered online documentation is at https://o2r.info/geoextent/.
 
 Build documentation locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 ::
 
     cd docs/
     pip install -r requirements-docs.txt
     make html
+
+
+Build documentation website
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The deployed documentation website is built on github actions, see file ``.github/workflows/documentation.yml`` for details.
+In short, an extra stage ``build docs`` is executed only on the ``master`` branch and not for pull requests.
+
+.. _Sphinx: https://www.sphinx-doc.org
+
+Release
+-------
+
+Prerequisites
+^^^^^^^^^^^^^
+
+Required tools:
+
+- ``setuptools``
+- ``wheel``
+- ``twine``
+
+::
+
+    pip install --upgrade setuptools wheel twine
+
+Run tests
+^^^^^^^^^
+
+Make sure that all tests work locally by running
+
+::
+
+    cd tests
+		pytest
+
+
+Bump version for release
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Follow the `Semantic Versioning specification`_ to clearly mark changes as a new major version, minor changes, or patches.
+The version number is centrally managed in the file ``o2rmeta/lib/__init__.py ``.
+
+.. _Semantic Versioning specification: https://semver.org/
+
+Update changelog
+^^^^^^^^^^^^^^^^
+
+Update the changelog in file ``docs/source/changelog.rst``, use the `sphinx-issues`_ syntax for referring to pull requests and contributors for changes where appropriate.
+
+.. _sphinx-issues: https://github.com/sloria/sphinx-issues
+
+Update citation and authors information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Make sure the following files have the current information (version, commit, contributors, dates, ...):
+
+- ``CITATION.cff``, see https://citation-file-format.github.io/
+- ``codemeta.json``, see https://codemeta.github.io/codemeta-generator/
+- ``README.md`` and ``docs/source/index.rst``, the "How to cite" sections.
+
+Build distribution archive
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+See the PyPI documentation on generating a distribution archive, https://packaging.python.org/tutorials/packaging-projects/, for details.
+
+::
+
+    # remove previous releases and builds
+    rm dist/*
+    rm -rf build *.egg-info
+
+    python3 setup.py sdist bdist_wheel
+
+Upload to test repository
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+First upload to the test repository and check everything is in order.
+
+::
+
+	# upload with twine, make sure only one wheel is in dist/
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+Check if the information on https://test.pypi.org/project/o2rmeta/ is correct.
+Then switch to a new Python environment to get an "empty" setup.
+
+Upload to PyPI
+^^^^^^^^^^^^^^
+
+::
+
+    twine upload dist/*
+
+
+Check if information on https://pypi.org/project/geoextent/ is all correct.
+Install the library from PyPI into a new environment, e.g., by reusing the container session from above, and check that everything works.
+
+
+Add tag
+^^^^^^^
+
+Add a version tag to the commit of the release and push it to the main repository.
+Go to GitHub and create a new release by using the "Draft a new release" button and using the just pushed tag.
