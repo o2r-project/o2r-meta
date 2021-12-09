@@ -28,8 +28,8 @@ jobs:
       if: runner.os == 'macOS'
       run: |
          brew tap-new $USER/local-gdal
-         brew extract --version=3.3.0 gdal $USER/local-gdal
-         brew install gdal@3.3.0
+         brew extract --version=3.3.2.10 gdal $USER/local-gdal
+         brew install gdal@3.3.2.10
          brew install pkg-config proj geos
          gdal-config --version
     - name: Install system dependencies (Windows)
