@@ -18,6 +18,12 @@ authors:
     given-names: Jan
     affiliation: Opening Reproducible Research, University of Münster, Münster, Germany
     website: https://github.com/jansule
+  - family-names: Garzon
+    given-names: Sebastian
+    orcid: https://orcid.org/0000-0002-8335-9312
+    affiliation: Opening Reproducible Research, University of Münster, Münster, Germany
+    website: https://github.com/sbastiangarzon
+
 title: "o2r-meta"
 version: 0.1.0
 date-released: 2020-07-02

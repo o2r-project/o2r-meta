@@ -1,0 +1,80 @@
+name: Build document
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - master
+      - package_docs
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+        
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+        
+    - name: Install system dependencies (Ubuntu)
+      run: |
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
+    - name: Install pygdal Python package (Ubuntu)
+      if: runner.os == 'Linux'
+      # see https://stackoverflow.com/a/17311033
+      run: |
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+        pip install pygdal=="`gdal-config --version`.*"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Install o2r-meta
+      run: |
+        pip install -e .
+        
+    - name: Install dependencies
+      run:  |
+        sudo apt update
+        sudo apt install -y graphviz
+        pip install -U tox
+        
+    - name: Install docs requirements
+      run:  |
+        pip install -r docs/requirements-docs.txt
+
+    - name: Build the documentation
+      working-directory: ./docs
+      run:  |
+        make html
+    - name: Replace current build version an date
+      working-directory: ./docs/build/html
+      run:  |
+        # Replace current build version and date
+        CURRENT_VERSION=$(python -c 'from o2rmeta.lib.__init__ import __version__; print(__version__)')
+        CURRENT_HASH=$(git log --pretty=format:'%h' -n 1)
+        CURRENT_DATE=$(git show -s --format=%ci $CURRENT_HASH)
+        echo $CURRENT_VERSION "@" $CURRENT_HASH $CURRENT_DATE
+        sed -i "s/PLACEHOLDER_VERSION/$CURRENT_VERSION/g" index.html
+        sed -i "s/PLACEHOLDER_HASH/$CURRENT_HASH/g" index.html
+        sed -i "s/PLACEHOLDER_TIMESTAMP/$CURRENT_DATE/g" index.html
+
+    - name: Deploy to Github pages
+      uses: JamesIves/github-pages-deploy-action@4.1.3
+      with:
+        branch: gh-pages # The branch the action should deploy to.
+        folder: docs/build/html # The folder the action should deploy.
+        commit-message: Rebuild pages at ${{github.sha}} with branch ${{ env.GITHUB_REF_SLUG }}
+        git-config-name: Build bot <o2r.projekt@uni-muenster.de>
+        git-config-email: o2r.projekt@uni-muenster.de
