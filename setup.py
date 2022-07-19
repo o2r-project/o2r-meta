@@ -31,7 +31,9 @@ setuptools.setup(
     'requests',
     'netCDF4',
     'StringDist',
-    'filelock'
+    'filelock',
+    'pygdal',
+    'geoextent'
     ],
     entry_points={
         "console_scripts": [
