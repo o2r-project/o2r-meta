@@ -13,6 +13,75 @@ This is python library with a set of tools for extract-map-validate workflows as
 
 For their role within o2r, please refer to [o2r-architecture](https://github.com/o2r-project/architecture).
 
+## Getting started
+
+The full functionality of o2r-meta, including building the documentation and running the tests, requires Python >= 3.7.
+
+
+### Installation from source code
+
+```bash
+git clone https://github.com/o2r-project/o2r-meta.git
+cd o2r-meta
+pip install -r requirements.txt
+pip install -e .
+```
+
+**Common pitfall**: pygdal version has to match the system GDAL version. Verify the system GDAL version like this:
+
+```bash
+gdal-config --version
+```
+
+and, if necessary, force pygdal version to be installed as following:
+```bash
+pip install pygdal==x.x.x.x
+```
+
+
+### Installation with Docker
+
+Another way of installation is provided by the Dockerfile. Build it like this:
+
+```bash
+git clone https://github.com/o2r-project/o2r-meta.git
+cd o2r-meta
+docker build -t meta .
+```
+
+And start a tool of o2r-meta like this:
+
+```bash
+docker run --rm -v $(pwd)/extract/tests/:/testdata:ro meta -debug extract -i /testdata -s
+```
+
+### Build the documentation
+
+To familiarise with the use of o2r-meta and get access to the How-to guide, we recommend the installation of the documentation before using the tool.
+
+```bash
+cd docs/
+pip install -r requirements-docs.txt
+make html
+```
+
+This will create directory build/html under docs, which contains the documentation. The entry point is file index.html.
+
+### Run the tests
+
+The o2r-meta tests use pytest. To install the necessary packages:
+
+```bash
+pip install -U pytest
+pip install -U pytest-console-scripts
+```
+
+To run the tests:
+```bash
+cd tests
+pytest
+```
+
 ## How to cite
 
 To cite this software please use
@@ -21,4 +90,4 @@ To cite this software please use
 
 ## License
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016-2020 - o2r project.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016-2020 - o2r project
