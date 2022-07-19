@@ -35,7 +35,7 @@ gdal-config --version
 
 and, if necessary, force pygdal version to be installed as following:
 ```bash
-pip install pygdal==2.4.2.10
+pip install pygdal==x.x.x.x
 ```
 
 
@@ -67,6 +67,20 @@ make html
 
 This will create directory build/html under docs, which contains the documentation. The entry point is file index.html.
 
+### Run the tests
+
+The o2r-meta tests use pytest. To install the necessary packages:
+
+```bash
+pip install -U pytest
+pip install -U pytest-console-scripts
+```
+
+To run the tests:
+```bash
+cd tests
+pytest
+```
 
 ## How to cite
 
@@ -76,4 +90,4 @@ To cite this software please use
 
 ## License
 
-o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016-2020 - o2r project.
+o2r-meta is licensed under Apache License, Version 2.0, see file LICENSE. Copyright (C) 2016-2020 - o2r project
